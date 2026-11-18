@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Trainingsgids: 4-Daagse Upper / Lower Split</title>
+    <style>
+        :root {
+            --primary: #006b5e;
+            --primary-light: #e0f2ef;
+            --primary-dark: #004d43;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #1f2933;
+            --text-muted: #616e7c;
+            --border: #d9e2ec;
+            --bench-bg: #fef3c7;
+            --bench-text: #92400e;
+            --tip-bg: #f0fdf4;
+            --tip-border: #16a34a;
+            --tip-text: #14532d;
+            --yt: #dc2626;
+            --yt-hover: #b91c1c;
+            /* figure */
+            --stage: #f8fafc;
+            --floor: #94a3b8;
+            --skin: #e9b48f;
+            --skin-far: #c48d69;
+            --shirt: #0f766e;
+            --shirt-far: #0b5a54;
+            --shorts: #334155;
+            --shorts-far: #252f3d;
+            --shoe: #1e293b;
+            --hair: #3f2a1d;
+            --line: rgba(15, 23, 42, 0.28);
+            --pad: #27313f;
+            --frame: #94a3b8;
+            --db: #4b5563;
+            --db-hi: #9ca3af;
+            --hl: #ef4444;
+            color-scheme: light;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --primary: #2bb3a0;
+                --primary-light: #123b36;
+                --primary-dark: #7fd8cb;
+                --bg: #0f1419;
+                --card-bg: #182028;
+                --text: #e5e9ee;
+                --text-muted: #9aa5b1;
+                --border: #2a3541;
+                --bench-bg: #3b2f12;
+                --bench-text: #fcd58a;
+                --tip-bg: #10291b;
+                --tip-border: #22c55e;
+                --tip-text: #bbf7d0;
+                --stage: #111a22;
+                --floor: #475569;
+                --pad: #5b6676;
+                --frame: #64748b;
+                --line: rgba(0, 0, 0, 0.45);
+                color-scheme: dark;
+            }
+        }
+        :root[data-theme="dark"] {
+            --primary: #2bb3a0;
+            --primary-light: #123b36;
+            --primary-dark: #7fd8cb;
+            --bg: #0f1419;
+            --card-bg: #182028;
+            --text: #e5e9ee;
+            --text-muted: #9aa5b1;
+            --border: #2a3541;
+            --bench-bg: #3b2f12;
+            --bench-text: #fcd58a;
+            --tip-bg: #10291b;
+            --tip-border: #22c55e;
+            --tip-text: #bbf7d0;
+            --stage: #111a22;
+            --floor: #475569;
+            --pad: #5b6676;
+            --frame: #64748b;
+            --line: rgba(0, 0, 0, 0.45);
+            color-scheme: dark;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+        header {
+            background: linear-gradient(135deg, #004d43, #006b5e);
+            color: white;
+            padding: 32px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        header .legend {
+            margin-top: 10px;
+            font-size: 0.82rem;
+            opacity: 0.85;
+        }
+        .legend-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            vertical-align: -1px;
+            margin-right: 4px;
+        }
+        /* CSS-only tabs: radio inputs stay focusable for keyboard users */
+        .tab-radio {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            pointer-events: none;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+        .tab-label {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            user-select: none;
+        }
+        .tab-label:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        #tab1:checked ~ .tabs label[for="tab1"],
+        #tab2:checked ~ .tabs label[for="tab2"],
+        #tab3:checked ~ .tabs label[for="tab3"],
+        #tab4:checked ~ .tabs label[for="tab4"] {
+            background: var(--primary);
+            color: var(--card-bg);
+            border-color: var(--primary);
+        }
+        #tab1:focus-visible ~ .tabs label[for="tab1"],
+        #tab2:focus-visible ~ .tabs label[for="tab2"],
+        #tab3:focus-visible ~ .tabs label[for="tab3"],
+        #tab4:focus-visible ~ .tabs label[for="tab4"] {
+            outline: 3px solid var(--accent, #f59e0b);
+            outline-offset: 2px;
+        }
+        @media (max-width: 520px) {
+            .tabs {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+            .tab-label {
+                text-align: center;
+                padding: 8px 6px;
+                font-size: 0.8rem;
+            }
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+        .day-section {
+            display: none;
+        }
+        #tab1:checked ~ .container #dag1,
+        #tab2:checked ~ .container #dag2,
+        #tab3:checked ~ .container #dag3,
+        #tab4:checked ~ .container #dag4 {
+            display: block;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .day-header {
+            background: var(--card-bg);
+            border-left: 5px solid var(--primary);
+            padding: 18px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .day-header h2 {
+            color: var(--primary-dark);
+            font-size: 1.35rem;
+            margin-bottom: 4px;
+        }
+        .day-header span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .exercise-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 720px) {
+            .exercise-card {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+        }
+
+        /* Animation box: tap to pause */
+        .anim-box {
+            position: relative;
+            background: var(--stage);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .anim-box .pause {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+        .anim-box .pause:focus-visible ~ svg {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+            border-radius: 6px;
+        }
+        .anim-box svg {
+            width: 100%;
+            max-width: 340px;
+            height: auto;
+            display: block;
+        }
+        .anim-label {
+            font-size: 0.8rem;
+            color: var(--text);
+            margin-top: 6px;
+            font-weight: 600;
+        }
+        .anim-tempo {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .anim-state {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 1px 8px;
+        }
+        .anim-state::after { content: "⏸ tik = pauze"; }
+        .pause:checked ~ .anim-state::after { content: "▶ gepauzeerd"; }
+        .pause:checked ~ svg .s,
+        .pause:checked ~ svg .hl,
+        .pause:checked ~ svg .ph {
+            animation-play-state: paused;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .anim-box svg .s, .anim-box svg .hl, .anim-box svg .ph { animation-play-state: paused; }
+            .anim-state::after { content: "▶ tik = afspelen"; }
+            .pause:checked ~ svg .s, .pause:checked ~ svg .hl, .pause:checked ~ svg .ph { animation-play-state: running; }
+            .pause:checked ~ .anim-state::after { content: "⏸ tik = pauze"; }
+            #tab1:checked ~ .container .day-section { animation: none; }
+        }
+
+        /* Figure parts */
+        .fig .s, .fig .ph, .fig .hl {
+            transform-box: view-box;
+            transform-origin: 0 0;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            animation-fill-mode: both;
+        }
+        .fig .skin { fill: var(--skin); }
+        .fig .shirt { fill: var(--shirt); }
+        .fig .shorts { fill: var(--shorts); }
+        .fig .far .skin { fill: var(--skin-far); }
+        .fig .far .shirt { fill: var(--shirt-far); }
+        .fig .far .shorts { fill: var(--shorts-far); }
+        .fig .shoe { fill: var(--shoe); }
+        .fig .hair { fill: var(--hair); }
+        .fig .skin, .fig .shirt, .fig .shorts, .fig .shoe { stroke: var(--line); stroke-width: 0.6; }
+        .fig .feat { fill: #b97a57; }
+        .fig .pad { fill: var(--pad); }
+        .fig .frame { stroke: var(--frame); stroke-width: 3; stroke-linecap: round; fill: none; }
+        .fig .floor { stroke: var(--floor); stroke-width: 2; }
+        .fig .wall { fill: var(--border); }
+        .fig .db { fill: var(--db); stroke: #1f2937; stroke-width: 0.6; }
+        .fig .db-hi { fill: var(--db-hi); }
+        .fig .db-bar { fill: #6b7280; }
+        .fig .hl ellipse { fill: var(--hl); }
+        .fig .ph { font: 600 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--primary-dark); }
+
+        .ex-content h3 {
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        .badge.bench {
+            background: var(--bench-bg);
+            color: var(--bench-text);
+        }
+        .steps {
+            margin-left: 18px;
+            margin-bottom: 12px;
+            font-size: 0.93rem;
+        }
+        .steps li {
+            margin-bottom: 4px;
+        }
+        .tip-box {
+            background: var(--tip-bg);
+            border-left: 3px solid var(--tip-border);
+            padding: 8px 12px;
+            font-size: 0.86rem;
+            color: var(--tip-text);
+            border-radius: 4px;
+            margin-bottom: 14px;
+        }
+        .yt-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--yt);
+            color: white;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .yt-btn:hover {
+            background: var(--yt-hover);
+        }
+
+/*{{keyframes}}*/
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Trainingsgids & Oefeningen</h1>
+    <p>4-Daagse Upper / Lower Split met PH Fitness Dumbbells & Decathlon Bench 500 — Inclusief beweging-animaties en video-uitleg.</p>
+    <p class="legend"><span class="legend-dot"></span>Rood = de spier die je traint · tik op een animatie om te pauzeren</p>
+</header>
+
+<!-- CSS-only tabs and animations: no JavaScript, so it also works in the iOS Files preview -->
+<input type="radio" class="tab-radio" id="tab1" name="tab-group" checked>
+<input type="radio" class="tab-radio" id="tab2" name="tab-group">
+<input type="radio" class="tab-radio" id="tab3" name="tab-group">
+<input type="radio" class="tab-radio" id="tab4" name="tab-group">
+
+<nav class="tabs">
+    <label for="tab1" class="tab-label">Dag 1: Upper A (Di)</label>
+    <label for="tab2" class="tab-label">Dag 2: Lower A (Do)</label>
+    <label for="tab3" class="tab-label">Dag 3: Upper B (Vr)</label>
+    <label for="tab4" class="tab-label">Dag 4: Lower B (Zo)</label>
+</nav>
+
+<div class="container">
+
+    <!-- DAG 1 -->
+    <section id="dag1" class="day-section">
+        <div class="day-header">
+            <h2>Dag 1: Upper Body A (Dinsdag — 16:00 uur)</h2>
+            <span>Focus: Borst & Rug (Basis kracht & bovenlichaam volume)</span>
+        </div>
+
+        <!-- 1. Incline DB Press -->
+        <div class="exercise-card">
+            {{anim:incline-press}}
+            <div class="ex-content">
+                <h3>1. Incline Dumbbell Press</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 8–10 reps</span>
+                    <span class="badge bench">Bench: Rug 30° / Zit 15°</span>
+                </div>
+                <ol class="steps">
+                    <li>Zet de rugleuning op 30° (tweede klik omhoog) en het zitvlak licht schuin (15°) zodat je niet wegglijdt.</li>
+                    <li>Druk je schouderbladen stevig in de bank en houd je borst licht omhoog.</li>
+                    <li>Laat de dumbbells gecontroleerd zakken tot naast je bovenborst (ellebogen in een hoek van ~45° t.o.v. je lichaam, niet helemaal wijd naar buiten).</li>
+                    <li>Duw de dumbbells krachtig omhoog tot ze elkaar boven je borst bijna raken.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Laat de dumbbells onderin 1 seconde rusten zonder te veren; dat haalt maximale spanning uit je bovenborst.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+press+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 2. One-Arm DB Row -->
+        <div class="exercise-card">
+            {{anim:one-arm-row}}
+            <div class="ex-content">
+                <h3>2. One-Arm Dumbbell Row</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 8–10 reps (per kant)</span>
+                    <span class="badge bench">Bench: Vlak (0°)</span>
+                </div>
+                <ol class="steps">
+                    <li>Plaats je linkerknie en linkerhand op de vlakke bank; je rechtervoet staat stevig op de vloer.</li>
+                    <li>Houd je rug helemaal recht en horizontaal (niet bol trekken).</li>
+                    <li>Trek de dumbbell met je rechterhand omhoog richting je heup (niet recht omhoog naar je schouder).</li>
+                    <li>Knijp bovenin je rugspier samen en laat het gewicht in 2 seconden weer rustig zakken.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Stel je voor dat je hand een haak is en je de beweging puur vanuit je elleboog inzet.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=one+arm+dumbbell+row+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 3. Flat DB Press -->
+        <div class="exercise-card">
+            {{anim:flat-press}}
+            <div class="ex-content">
+                <h3>3. Flat Dumbbell Press</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 10–12 reps</span>
+                    <span class="badge bench">Bench: Vlak (0°)</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga plat op de bank liggen met je voeten stevig op de grond en een lichte natuurlijke holling in je onderrug.</li>
+                    <li>Start met de dumbbells recht boven je borst op armlengte.</li>
+                    <li>Laat ze gecontroleerd zakken tot je bovenarmen net onder bankniveau komen.</li>
+                    <li>Duw ze weer recht omhoog zonder je schouders van de bank te tillen.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Veilig uitstappen met zware dumbbells: breng eerst je knieën omhoog tegen de dumbbells en rol in één beweging rechtop naar zit.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=flat+dumbbell+bench+press+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 4. Chest-Supported Row -->
+        <div class="exercise-card">
+            {{anim:cs-row}}
+            <div class="ex-content">
+                <h3>4. Chest-Supported Dumbbell Row</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 10–12 reps</span>
+                    <span class="badge bench">Bench: Rug 30–45°</span>
+                </div>
+                <ol class="steps">
+                    <li>Zet de rugleuning op 30° tot 45° en ga met je borst en buik tegen de leuning liggen.</li>
+                    <li>Laat je armen met de dumbbells recht naar beneden hangen.</li>
+                    <li>Trek beide dumbbells tegelijk omhoog door je schouderbladen krachtig naar elkaar toe te knijpen.</li>
+                    <li>Houd bovenin 1 seconde vast en laat rustig zakken.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Omdat je borst gesteund wordt, kun je niet smokkelen met je onderrug — ideaal voor pure bovenrug-opbouw.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=chest+supported+dumbbell+row+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 5. Lateral Raises -->
+        <div class="exercise-card">
+            {{anim:lateral-raise}}
+            <div class="ex-content">
+                <h3>5. Dumbbell Lateral Raises</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 12–15 reps</span>
+                    <span class="badge bench">Staand (of zit 80°)</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga rechtop staan met de dumbbells naast je heupen en een heel lichte knik in je ellebogen.</li>
+                    <li>Breng beide armen zijwaarts omhoog tot ze parallel aan de vloer zijn (schouderhoogte).</li>
+                    <li>Houd je pinken tijdens het heffen op gelijke hoogte of net iets hoger dan je duimen (alsof je een kan water uitschenkt).</li>
+                    <li>Laat de gewichten langzaam en gecontroleerd weer zakken.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Gebruik hier een relatief licht gewicht; zodra je vanuit je benen gaat zwaaien is het te zwaar.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+lateral+raise+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 6. Incline Bicep Curls -->
+        <div class="exercise-card">
+            {{anim:incline-curl}}
+            <div class="ex-content">
+                <h3>6. Incline Dumbbell Bicep Curls</h3>
+                <div class="badges">
+                    <span class="badge">2–3 sets × 10–12 reps</span>
+                    <span class="badge bench">Bench: Rug 45–60°</span>
+                </div>
+                <ol class="steps">
+                    <li>Zet de bank op 45° tot 60° en ga met je rug en achterhoofd volledig tegen de leuning zitten.</li>
+                    <li>Laat je armen recht naar beneden hangen zodat je ellebogen iets achter je bovenlichaam uitkomen (dit geeft maximale rek op je biceps).</li>
+                    <li>Curl de dumbbells omhoog zonder dat je ellebogen naar voren schuiven.</li>
+                    <li>Laat ze gecontroleerd zakken tot je armen weer helemaal gestrekt zijn.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Door de schuine bank kun je niet meebewegen met je schouders — dit isoleert je biceps veel beter dan staand curlen.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+curl+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- DAG 2 -->
+    <section id="dag2" class="day-section">
+        <div class="day-header">
+            <h2>Dag 2: Lower Body A (Donderdag — 16:00 uur)</h2>
+            <span>Focus: Quadriceps (voorkant bovenbenen) & Core</span>
+        </div>
+
+        <!-- 1. Bulgarian Split Squats -->
+        <div class="exercise-card">
+            {{anim:bulgarian}}
+            <div class="ex-content">
+                <h3>1. Bulgarian Split Squats</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 8–10 reps (per been)</span>
+                    <span class="badge bench">Bench: Vlak (achterste voet)</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga ongeveer twee grote passen vóór de vlakke bank staan en leg de wreef van je achterste voet op de bank.</li>
+                    <li>Houd in elke hand een dumbbell langs je zij en houd je bovenlichaam rechtop (of heel licht naar voren gekanteld).</li>
+                    <li>Zak gecontroleerd door je voorste knie tot je achterste knie net boven de vloer zweeft.</li>
+                    <li>Duw jezelf vanuit de hiel van je voorste voet weer krachtig omhoog.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> De meest effectieve beenspier-oefening voor thuis; focus op je voorste been en gebruik je achterste been puur voor balans.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=bulgarian+split+squat+dumbbell+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 2. Goblet Squats -->
+        <div class="exercise-card">
+            {{anim:goblet}}
+            <div class="ex-content">
+                <h3>2. Dumbbell Goblet Squats</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 10–12 reps</span>
+                    <span class="badge bench">Vrijstaand (1 zware dumbbell)</span>
+                </div>
+                <ol class="steps">
+                    <li>Pak één zwaardere dumbbell verticaal met beide handen vast onder de bovenste schijf, strak tegen je borst.</li>
+                    <li>Zet je voeten iets breder dan schouderbreedte met je tenen licht naar buiten gedraaid.</li>
+                    <li>Zak diep tussen je knieën door naar beneden terwijl je je borst trots en rechtop houdt.</li>
+                    <li>Duw vanuit je hele voet weer omhoog naar de startpositie.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Door het gewicht voor je borst te houden fungeert het als tegengewicht, waardoor je veel rechter en dieper kunt squatten.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+goblet+squat+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 3. Dumbbell RDL -->
+        <div class="exercise-card">
+            {{anim:rdl}}
+            <div class="ex-content">
+                <h3>3. Dumbbell Romanian Deadlift (RDL)</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 10–12 reps</span>
+                    <span class="badge bench">Vrijstaand</span>
+                </div>
+                <ol class="steps">
+                    <li>Sta rechtop met een dumbbell in elke hand voor je bovenbenen en houd een lichte knik in je knieën.</li>
+                    <li>Duw je heupen recht naar achteren (alsof je een autodeur dichtduwt met je billen) terwijl je rug kaarsrecht blijft.</li>
+                    <li>Laat de dumbbells langs je schenen zakken tot net onder je knieën (je voelt nu duidelijke rek in je hamstrings).</li>
+                    <li>Span je billen aan en duw je heupen weer naar voren tot je rechtop staat.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Zak niet dieper dan je hamstrings toelaten; zodra je onderrug bol wordt, ben je te ver gegaan.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 4. Standing Calf Raises -->
+        <div class="exercise-card">
+            {{anim:calf}}
+            <div class="ex-content">
+                <h3>4. Standing Dumbbell Calf Raises</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 12–15 reps</span>
+                    <span class="badge bench">Vrijstaand (evt. op verhoging)</span>
+                </div>
+                <ol class="steps">
+                    <li>Houd in beide handen een dumbbell langs je zij (of ga op een traptrede/boek staan met je hielen over de rand).</li>
+                    <li>Duw jezelf zo hoog mogelijk op de ballen van je voeten.</li>
+                    <li>Houd bovenin 1 tot 2 seconden vast met maximale spanning op je kuiten.</li>
+                    <li>Laat je hielen langzaam zakken tot de vloer.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Niet veren! De achillespees neemt het werk over als je te snel op en neer stuitert.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=standing+dumbbell+calf+raises+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 5. Decline Sit-ups -->
+        <div class="exercise-card">
+            {{anim:situp}}
+            <div class="ex-content">
+                <h3>5. Decline Sit-ups</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 12–15 reps</span>
+                    <span class="badge bench">Bench: Decline -15° (met beensteun)</span>
+                </div>
+                <ol class="steps">
+                    <li>Zet je bank in de lichte decline-stand (-15°) en klem je voeten onder de schuimrollen.</li>
+                    <li>Houd je handen achter je oren of houd een lichte dumbbell tegen je borst.</li>
+                    <li>Rol je bovenlichaam gecontroleerd omhoog door je buikspieren aan te spannen (blaas uit als je omhoog komt).</li>
+                    <li>Laat je in 2 tot 3 seconden weer rustig zakken zonder op de bank te ploffen.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Houd je kin licht op je borst en voorkom dat je met een holle rug vanuit je heupbuigers gaat trekken.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=decline+bench+sit+ups+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- DAG 3 -->
+    <section id="dag3" class="day-section">
+        <div class="day-header">
+            <h2>Dag 3: Upper Body B (Vrijdag — 16:00 of 19:15 uur)</h2>
+            <span>Focus: Schouders, Bovenrug & Armen</span>
+        </div>
+
+        <!-- 1. Seated Shoulder Press -->
+        <div class="exercise-card">
+            {{anim:shoulder-press}}
+            <div class="ex-content">
+                <h3>1. Seated Dumbbell Shoulder Press</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 8–10 reps</span>
+                    <span class="badge bench">Bench: Rug 80° / Zit 15°</span>
+                </div>
+                <ol class="steps">
+                    <li>Zet de rugleuning bijna rechtop (80°, één klik vóór helemaal verticaal) en het zitje op 15°.</li>
+                    <li>Breng de dumbbells naar schouderhoogte met je handpalmen naar voren en je ellebogen iets naar voren gedraaid (niet helemaal opzij).</li>
+                    <li>Druk de dumbbells recht omhoog tot boven je hoofd zonder je onderrug hol van de leuning te trekken.</li>
+                    <li>Laat ze rustig zakken tot oorhoogte.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Die hoek van 80° in plaats van 90° is veel vriendelijker voor je schoudergewricht en nek.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 2. Dumbbell Pullover -->
+        <div class="exercise-card">
+            {{anim:pullover}}
+            <div class="ex-content">
+                <h3>2. Dumbbell Pullover</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 10–12 reps</span>
+                    <span class="badge bench">Bench: Vlak (bovenrug dwars)</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga met alleen je bovenrug dwars op de vlakke bank liggen, voeten stevig op de vloer en heupen licht omlaag gezakt.</li>
+                    <li>Houd één dumbbell met beide handen vast onder de bovenste schijf, recht boven je borst.</li>
+                    <li>Laat de dumbbell met bijna gestrekte armen in een grote boog achter je hoofd zakken tot je een diepe rek voelt in je brede rugspieren (lats) en ribbenkast.</li>
+                    <li>Trek het gewicht vanuit je rugspieren weer terug tot boven je borst.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Geweldige vervanger voor een lat pulldown machine thuis; train zowel je lats als je borst en serratus.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+pullover+across+bench+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 3. Incline Dumbbell Flyes -->
+        <div class="exercise-card">
+            {{anim:incline-fly}}
+            <div class="ex-content">
+                <h3>3. Incline Dumbbell Flyes</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 12–15 reps</span>
+                    <span class="badge bench">Bench: Rug 30° / Zit 15°</span>
+                </div>
+                <ol class="steps">
+                    <li>Zet de bank op 30° en start met de dumbbells recht boven je borst, handpalmen naar elkaar toe.</li>
+                    <li>Houd een vaste, lichte buiging in je ellebogen (alsof je een grote boomstam omhelst).</li>
+                    <li>Open je armen wijd naar buiten tot je een comfortabele rek over je hele borst voelt.</li>
+                    <li>Breng de dumbbells in dezelfde ronde boog weer terug naar elkaar toe en knijp je borstspieren samen.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Laat je ellebogen niet verder zakken dan schouderhoogte om je schoudergewricht te beschermen.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+flyes+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 4. Rear Delt Flyes -->
+        <div class="exercise-card">
+            {{anim:rear-delt}}
+            <div class="ex-content">
+                <h3>4. Chest-Supported Rear Delt Flyes</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 12–15 reps</span>
+                    <span class="badge bench">Bench: Rug 30° (buik op bank)</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga met je borst tegen de schuine bank (30°) liggen met lichte dumbbells recht naar beneden hangend.</li>
+                    <li>Hef beide armen met bijna gestrekte ellebogen zijwaarts omhoog richting het plafond.</li>
+                    <li>Richt je op de achterkant van je schouders (trek je schouderbladen niet te ver naar elkaar toe, houd de beweging wijd).</li>
+                    <li>Laat de dumbbells langzaam weer zakken.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Deze oefening houdt je schouders gezond en geeft je bovenlichaam een mooi rond 3D-profiel.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=chest+supported+rear+delt+fly+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 5. Overhead Tricep Extension -->
+        <div class="exercise-card">
+            {{anim:tricep-ext}}
+            <div class="ex-content">
+                <h3>5. Seated Overhead Tricep Extension</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 10–12 reps</span>
+                    <span class="badge bench">Bench: Rug 80° (zittend)</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga rechtop tegen de hoge rugleuning (80°) zitten en pak één dumbbell met beide handen vast onder de bovenste schijf.</li>
+                    <li>Breng de dumbbell recht boven je hoofd met je ellebogen dicht naast je oren.</li>
+                    <li>Laat de dumbbell achter je hoofd zakken door alleen je ellebogen te buigen (je bovenarmen blijven stil staan).</li>
+                    <li>Strek je armen weer krachtig omhoog en span je triceps bovenin aan.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> De triceps vormen het grootste deel van je bovenarm; door boven je hoofd te strekken train je de lange kop van de tricep maximaal.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=seated+overhead+dumbbell+tricep+extension+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 6. Hammer Curls -->
+        <div class="exercise-card">
+            {{anim:hammer}}
+            <div class="ex-content">
+                <h3>6. Standing Dumbbell Hammer Curls</h3>
+                <div class="badges">
+                    <span class="badge">2–3 sets × 10–12 reps</span>
+                    <span class="badge bench">Staand</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga rechtop staan met de dumbbells langs je zij en je handpalmen naar je bovenbenen gericht (neutrale hamergreep).</li>
+                    <li>Houd je ellebogen strak tegen je zij en curl de dumbbells omhoog zonder je polsen te draaien.</li>
+                    <li>Knijp bovenin kort aan en laat in 2 seconden weer zakken.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Pakt naast de biceps ook de brachialis en onderarmen aan, wat je armen zichtbaar dikker maakt.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+hammer+curls+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- DAG 4 -->
+    <section id="dag4" class="day-section">
+        <div class="day-header">
+            <h2>Dag 4: Lower Body B (Zondag — 16:00 uur)</h2>
+            <span>Focus: Hamstrings (achterkant bovenbenen), Billen & Core</span>
+        </div>
+
+        <!-- 1. Dumbbell RDL Heavy -->
+        <div class="exercise-card">
+            {{anim:rdl-heavy}}
+            <div class="ex-content">
+                <h3>1. Dumbbell Romanian Deadlift (Zwaarder)</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 8–10 reps</span>
+                    <span class="badge bench">Vrijstaand (Hoofdoefening)</span>
+                </div>
+                <ol class="steps">
+                    <li>Omdat dit vandaag je eerste oefening is, pak je hier een iets zwaarder gewicht dan op donderdag.</li>
+                    <li>Span je buikspieren (core) stevig aan voordat je het gewicht van de grond tilt.</li>
+                    <li>Duw je heupen langzaam naar achteren met een kaarsrechte rug tot halverwege je schenen.</li>
+                    <li>Duw je heupen krachtig naar voren om weer rechtop te komen.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Houd de dumbbells zo dicht mogelijk langs je benen; hoe verder ze naar voren hangen, hoe zwaarder het wordt voor je onderrug.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=heavy+dumbbell+romanian+deadlift+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 2. Reverse Lunges -->
+        <div class="exercise-card">
+            {{anim:reverse-lunge}}
+            <div class="ex-content">
+                <h3>2. Dumbbell Reverse Lunges</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 10 reps (per been)</span>
+                    <span class="badge bench">Vrijstaand</span>
+                </div>
+                <ol class="steps">
+                    <li>Sta rechtop met in elke hand een dumbbell langs je zij.</li>
+                    <li>Zet met één been een grote stap naar achteren en zak door beide knieën tot je achterste knie net boven de vloer komt.</li>
+                    <li>Houd je voorste scheenbeen zoveel mogelijk verticaal (dit legt de nadruk op je billen en hamstrings en ontziet je knieën).</li>
+                    <li>Duw jezelf vanuit je voorste hiel terug naar de startpositie.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Achteruit stappen (reverse lunge) geeft veel meer controle en minder druk op de knie dan vooruit stappen.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+reverse+lunge+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 3. Dumbbell Hip Thrusts -->
+        <div class="exercise-card">
+            {{anim:hip-thrust}}
+            <div class="ex-content">
+                <h3>3. Dumbbell Hip Thrusts</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 12–15 reps</span>
+                    <span class="badge bench">Bench: Vlak (schouders tegen rand)</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga op de grond zitten met je schouderbladen tegen de zijkant van de vlakke bank en leg een zware dumbbell op je heupen (leg evt. een opgevouwen handdoek ertussen voor comfort).</li>
+                    <li>Zet je voeten plat op de grond zodat je schenen bovenaan verticaal staan (hoek van 90° in je knieën).</li>
+                    <li>Duw vanuit je hielen je heupen omhoog tot je bovenlichaam en bovenbenen één horizontale lijn vormen.</li>
+                    <li>Knijp je billen bovenin 1 seconde keihard samen en zak weer gecontroleerd.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Kijk tijdens de hele beweging recht vooruit (kin op de borst) zodat je niet in je onderrug gaat overstrekken.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+hip+thrust+bench+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 4. Single-Leg Calf Raises -->
+        <div class="exercise-card">
+            {{anim:single-calf}}
+            <div class="ex-content">
+                <h3>4. Single-Leg Dumbbell Calf Raises</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 12–15 reps (per been)</span>
+                    <span class="badge bench">Vrijstaand (evt. met vrije hand steunen)</span>
+                </div>
+                <ol class="steps">
+                    <li>Houd in één hand een dumbbell en houd je met je andere hand licht vast aan de bank of muur voor balans.</li>
+                    <li>Til één voet van de grond en duw jezelf op je standbeen zo hoog mogelijk op je tenen.</li>
+                    <li>Houd bovenin 1 seconde vast en zak langzaam terug.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Pak de dumbbell aan dezelfde kant als het been dat je traint voor de beste belasting.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=single+leg+dumbbell+calf+raise+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+
+        <!-- 5. Weighted Russian Twists -->
+        <div class="exercise-card">
+            {{anim:russian-twist}}
+            <div class="ex-content">
+                <h3>5. Weighted Russian Twists</h3>
+                <div class="badges">
+                    <span class="badge">3 sets × 15–20 reps (totaal)</span>
+                    <span class="badge bench">Vloer (of matje)</span>
+                </div>
+                <ol class="steps">
+                    <li>Ga op de vloer (of op je matje) zitten met opgetrokken knieën en leun met je bovenlichaam ongeveer 45° achterover met een rechte rug.</li>
+                    <li>Houd één lichte dumbbell met beide handen voor je borst.</li>
+                    <li>Draai je hele bovenlichaam (niet alleen je armen) gecontroleerd naar links en tik met het gewicht bijna de vloer aan, en draai daarna naar rechts.</li>
+                    <li>Maak het zwaarder door je hielen enkele centimeters van de grond te tillen.</li>
+                </ol>
+                <div class="tip-box"><strong>Tip:</strong> Beweeg rustig en gecontroleerd; snelle rukken naar links en rechts werken averechts voor je onderrug.</div>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=weighted+russian+twist+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>
