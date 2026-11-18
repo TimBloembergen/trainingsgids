@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from rig import build  # noqa: E402
 from exercises import EXERCISES, BY_ID  # noqa: E402
+from training import rest_badge, log_block  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -35,7 +36,11 @@ def main():
         css_all.append(css)
         return anim_box(ex, svg)
 
+    names = {m.group(1): re.sub(r"^\d+\.\s*", "", m.group(2))
+             for m in re.finditer(r"\{\{anim:([a-z0-9-]+)\}\}.*?<h3>(.*?)</h3>", template, re.S)}
     html = re.sub(r"\{\{anim:([a-z0-9-]+)\}\}", fill, template)
+    html = re.sub(r"\{\{rest:([a-z0-9-]+)\}\}", lambda m: rest_badge(m.group(1)), html)
+    html = re.sub(r"\{\{log:([a-z0-9-]+)\}\}", lambda m: log_block(m.group(1), names[m.group(1)]), html)
     html = html.replace("/*{{keyframes}}*/", "\n".join(css_all))
     (ROOT / "index.html").write_text(html)
     print(f"index.html: {len(html) / 1024:.0f} KB, {len(css_all)} animations")

@@ -400,6 +400,118 @@
             background: var(--yt-hover);
         }
 
+        /* Logbook per exercise */
+        .badge.rest {
+            background: var(--stage);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .log {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+            background: var(--stage);
+        }
+        .log-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px 10px;
+            margin-bottom: 4px;
+        }
+        .log-target {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            flex: 1;
+        }
+        .log-prev, .log-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 2px 0 6px;
+        }
+        .log-prev:empty, .log-hint:empty { display: none; }
+        .log-hint { color: var(--primary-dark); font-weight: 600; margin: 6px 0 0; }
+        .set-row {
+            display: grid;
+            grid-template-columns: minmax(64px, auto) 1fr 1fr auto;
+            gap: 6px;
+            align-items: center;
+            padding: 4px 0;
+        }
+        .set-name { font-size: 0.85rem; font-weight: 600; }
+        .set-name small { font-weight: 400; color: var(--text-muted); }
+        .bw { font-size: 0.78rem; color: var(--text-muted); }
+        .log input {
+            width: 100%;
+            min-width: 0;
+            font: inherit;
+            font-size: 16px; /* prevents zoom on iOS */
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+        .log input:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+        .log button, .log-actions button, .timer button {
+            font: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 7px 10px;
+            border: 1px solid var(--primary);
+            background: var(--card-bg);
+            color: var(--primary-dark);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .log button:focus-visible, .log-actions button:focus-visible, .timer button:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+        .set-row.done .set-done { background: var(--primary); color: var(--card-bg); }
+        .set-row.done input { border-color: var(--primary); }
+        .log.complete { border-color: var(--primary); }
+        .log.complete .log-head strong::after { content: " ✓ klaar"; color: var(--primary); }
+        .progression {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.88rem;
+        }
+        .progression strong { color: var(--primary-dark); }
+        .log-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .noscript-note { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Rest timer */
+        .timer {
+            position: fixed;
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%);
+            width: min(520px, calc(100% - 24px));
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            padding: 10px 12px 12px;
+            z-index: 200;
+        }
+        .timer[hidden] { display: none; }
+        .timer-top { display: flex; align-items: center; gap: 8px; }
+        .timer-text { flex: 1; min-width: 0; }
+        .timer-label { display: block; font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .timer-time { font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+        .timer-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+        .timer-fill { height: 100%; width: 100%; background: var(--primary); border-radius: 3px; }
+        .timer.over { border-color: #16a34a; }
+        .timer.over .timer-time { color: #16a34a; font-size: 1.15rem; }
+        .timer.over .timer-fill { background: #16a34a; }
+        body.timing { padding-bottom: 120px; }
+
 /*{{keyframes}}*/
     </style>
 </head>
@@ -408,10 +520,10 @@
 <header>
     <h1>Trainingsgids & Oefeningen</h1>
     <p>4-Daagse Upper / Lower Split met PH Fitness Dumbbells & Decathlon Bench 500 — Inclusief beweging-animaties en video-uitleg.</p>
-    <p class="legend"><span class="legend-dot"></span>Rood = de spier die je traint · tik op een animatie om te pauzeren</p>
+    <p class="legend"><span class="legend-dot"></span>Rood = de spier die je traint · tik op een animatie om te pauzeren · vul je sets in en tik ✓ Klaar om de rusttimer te starten</p>
 </header>
 
-<!-- CSS-only tabs and animations: no JavaScript, so it also works in the iOS Files preview -->
+<!-- Tabs and animations are CSS only; JavaScript adds the logbook and rest timer. -->
 <input type="radio" class="tab-radio" id="tab1" name="tab-group" checked>
 <input type="radio" class="tab-radio" id="tab2" name="tab-group">
 <input type="radio" class="tab-radio" id="tab3" name="tab-group">
@@ -425,6 +537,12 @@
 </nav>
 
 <div class="container">
+
+    <div class="progression">
+        <strong>Double progression:</strong> begin met het minimum aantal reps en een gewicht dat je beheerst.
+        Haal je bij alle sets het maximum (bijv. 3 × 10), ga dan de volgende keer zwaarder.
+        Houd 1–2 herhalingen in reserve (RIR 1–2) met strikte vorm.
+    </div>
 
     <!-- DAG 1 -->
     <section id="dag1" class="day-section">
@@ -441,6 +559,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 8–10 reps</span>
                     <span class="badge bench">Bench: Rug 30° / Zit 15°</span>
+                    {{rest:incline-press}}
                 </div>
                 <ol class="steps">
                     <li>Zet de rugleuning op 30° (tweede klik omhoog) en het zitvlak licht schuin (15°) zodat je niet wegglijdt.</li>
@@ -449,6 +568,7 @@
                     <li>Duw de dumbbells krachtig omhoog tot ze elkaar boven je borst bijna raken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Laat de dumbbells onderin 1 seconde rusten zonder te veren; dat haalt maximale spanning uit je bovenborst.</div>
+                {{log:incline-press}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+press+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -461,6 +581,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 8–10 reps (per kant)</span>
                     <span class="badge bench">Bench: Vlak (0°)</span>
+                    {{rest:one-arm-row}}
                 </div>
                 <ol class="steps">
                     <li>Plaats je linkerknie en linkerhand op de vlakke bank; je rechtervoet staat stevig op de vloer.</li>
@@ -469,6 +590,7 @@
                     <li>Knijp bovenin je rugspier samen en laat het gewicht in 2 seconden weer rustig zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Stel je voor dat je hand een haak is en je de beweging puur vanuit je elleboog inzet.</div>
+                {{log:one-arm-row}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=one+arm+dumbbell+row+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -481,6 +603,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 10–12 reps</span>
                     <span class="badge bench">Bench: Vlak (0°)</span>
+                    {{rest:flat-press}}
                 </div>
                 <ol class="steps">
                     <li>Ga plat op de bank liggen met je voeten stevig op de grond en een lichte natuurlijke holling in je onderrug.</li>
@@ -489,6 +612,7 @@
                     <li>Duw ze weer recht omhoog zonder je schouders van de bank te tillen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Veilig uitstappen met zware dumbbells: breng eerst je knieën omhoog tegen de dumbbells en rol in één beweging rechtop naar zit.</div>
+                {{log:flat-press}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=flat+dumbbell+bench+press+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -501,6 +625,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 10–12 reps</span>
                     <span class="badge bench">Bench: Rug 30–45°</span>
+                    {{rest:cs-row}}
                 </div>
                 <ol class="steps">
                     <li>Zet de rugleuning op 30° tot 45° en ga met je borst en buik tegen de leuning liggen.</li>
@@ -509,6 +634,7 @@
                     <li>Houd bovenin 1 seconde vast en laat rustig zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Omdat je borst gesteund wordt, kun je niet smokkelen met je onderrug — ideaal voor pure bovenrug-opbouw.</div>
+                {{log:cs-row}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=chest+supported+dumbbell+row+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -521,6 +647,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 12–15 reps</span>
                     <span class="badge bench">Staand (of zit 80°)</span>
+                    {{rest:lateral-raise}}
                 </div>
                 <ol class="steps">
                     <li>Ga rechtop staan met de dumbbells naast je heupen en een heel lichte knik in je ellebogen.</li>
@@ -529,6 +656,7 @@
                     <li>Laat de gewichten langzaam en gecontroleerd weer zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Gebruik hier een relatief licht gewicht; zodra je vanuit je benen gaat zwaaien is het te zwaar.</div>
+                {{log:lateral-raise}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+lateral+raise+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -541,6 +669,7 @@
                 <div class="badges">
                     <span class="badge">2–3 sets × 10–12 reps</span>
                     <span class="badge bench">Bench: Rug 45–60°</span>
+                    {{rest:incline-curl}}
                 </div>
                 <ol class="steps">
                     <li>Zet de bank op 45° tot 60° en ga met je rug en achterhoofd volledig tegen de leuning zitten.</li>
@@ -549,6 +678,7 @@
                     <li>Laat ze gecontroleerd zakken tot je armen weer helemaal gestrekt zijn.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Door de schuine bank kun je niet meebewegen met je schouders — dit isoleert je biceps veel beter dan staand curlen.</div>
+                {{log:incline-curl}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+curl+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -569,6 +699,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 8–10 reps (per been)</span>
                     <span class="badge bench">Bench: Vlak (achterste voet)</span>
+                    {{rest:bulgarian}}
                 </div>
                 <ol class="steps">
                     <li>Ga ongeveer twee grote passen vóór de vlakke bank staan en leg de wreef van je achterste voet op de bank.</li>
@@ -577,6 +708,7 @@
                     <li>Duw jezelf vanuit de hiel van je voorste voet weer krachtig omhoog.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> De meest effectieve beenspier-oefening voor thuis; focus op je voorste been en gebruik je achterste been puur voor balans.</div>
+                {{log:bulgarian}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=bulgarian+split+squat+dumbbell+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -589,6 +721,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 10–12 reps</span>
                     <span class="badge bench">Vrijstaand (1 zware dumbbell)</span>
+                    {{rest:goblet}}
                 </div>
                 <ol class="steps">
                     <li>Pak één zwaardere dumbbell verticaal met beide handen vast onder de bovenste schijf, strak tegen je borst.</li>
@@ -597,6 +730,7 @@
                     <li>Duw vanuit je hele voet weer omhoog naar de startpositie.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Door het gewicht voor je borst te houden fungeert het als tegengewicht, waardoor je veel rechter en dieper kunt squatten.</div>
+                {{log:goblet}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+goblet+squat+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -609,6 +743,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 10–12 reps</span>
                     <span class="badge bench">Vrijstaand</span>
+                    {{rest:rdl}}
                 </div>
                 <ol class="steps">
                     <li>Sta rechtop met een dumbbell in elke hand voor je bovenbenen en houd een lichte knik in je knieën.</li>
@@ -617,6 +752,7 @@
                     <li>Span je billen aan en duw je heupen weer naar voren tot je rechtop staat.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Zak niet dieper dan je hamstrings toelaten; zodra je onderrug bol wordt, ben je te ver gegaan.</div>
+                {{log:rdl}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -629,6 +765,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 12–15 reps</span>
                     <span class="badge bench">Vrijstaand (evt. op verhoging)</span>
+                    {{rest:calf}}
                 </div>
                 <ol class="steps">
                     <li>Houd in beide handen een dumbbell langs je zij (of ga op een traptrede/boek staan met je hielen over de rand).</li>
@@ -637,6 +774,7 @@
                     <li>Laat je hielen langzaam zakken tot de vloer.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Niet veren! De achillespees neemt het werk over als je te snel op en neer stuitert.</div>
+                {{log:calf}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=standing+dumbbell+calf+raises+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -649,6 +787,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 12–15 reps</span>
                     <span class="badge bench">Bench: Decline -15° (met beensteun)</span>
+                    {{rest:situp}}
                 </div>
                 <ol class="steps">
                     <li>Zet je bank in de lichte decline-stand (-15°) en klem je voeten onder de schuimrollen.</li>
@@ -657,6 +796,7 @@
                     <li>Laat je in 2 tot 3 seconden weer rustig zakken zonder op de bank te ploffen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Houd je kin licht op je borst en voorkom dat je met een holle rug vanuit je heupbuigers gaat trekken.</div>
+                {{log:situp}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=decline+bench+sit+ups+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -677,6 +817,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 8–10 reps</span>
                     <span class="badge bench">Bench: Rug 80° / Zit 15°</span>
+                    {{rest:shoulder-press}}
                 </div>
                 <ol class="steps">
                     <li>Zet de rugleuning bijna rechtop (80°, één klik vóór helemaal verticaal) en het zitje op 15°.</li>
@@ -685,6 +826,7 @@
                     <li>Laat ze rustig zakken tot oorhoogte.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Die hoek van 80° in plaats van 90° is veel vriendelijker voor je schoudergewricht en nek.</div>
+                {{log:shoulder-press}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -697,6 +839,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 10–12 reps</span>
                     <span class="badge bench">Bench: Vlak (bovenrug dwars)</span>
+                    {{rest:pullover}}
                 </div>
                 <ol class="steps">
                     <li>Ga met alleen je bovenrug dwars op de vlakke bank liggen, voeten stevig op de vloer en heupen licht omlaag gezakt.</li>
@@ -705,6 +848,7 @@
                     <li>Trek het gewicht vanuit je rugspieren weer terug tot boven je borst.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Geweldige vervanger voor een lat pulldown machine thuis; train zowel je lats als je borst en serratus.</div>
+                {{log:pullover}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+pullover+across+bench+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -717,6 +861,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 12–15 reps</span>
                     <span class="badge bench">Bench: Rug 30° / Zit 15°</span>
+                    {{rest:incline-fly}}
                 </div>
                 <ol class="steps">
                     <li>Zet de bank op 30° en start met de dumbbells recht boven je borst, handpalmen naar elkaar toe.</li>
@@ -725,6 +870,7 @@
                     <li>Breng de dumbbells in dezelfde ronde boog weer terug naar elkaar toe en knijp je borstspieren samen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Laat je ellebogen niet verder zakken dan schouderhoogte om je schoudergewricht te beschermen.</div>
+                {{log:incline-fly}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+flyes+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -737,6 +883,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 12–15 reps</span>
                     <span class="badge bench">Bench: Rug 30° (buik op bank)</span>
+                    {{rest:rear-delt}}
                 </div>
                 <ol class="steps">
                     <li>Ga met je borst tegen de schuine bank (30°) liggen met lichte dumbbells recht naar beneden hangend.</li>
@@ -745,6 +892,7 @@
                     <li>Laat de dumbbells langzaam weer zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Deze oefening houdt je schouders gezond en geeft je bovenlichaam een mooi rond 3D-profiel.</div>
+                {{log:rear-delt}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=chest+supported+rear+delt+fly+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -757,6 +905,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 10–12 reps</span>
                     <span class="badge bench">Bench: Rug 80° (zittend)</span>
+                    {{rest:tricep-ext}}
                 </div>
                 <ol class="steps">
                     <li>Ga rechtop tegen de hoge rugleuning (80°) zitten en pak één dumbbell met beide handen vast onder de bovenste schijf.</li>
@@ -765,6 +914,7 @@
                     <li>Strek je armen weer krachtig omhoog en span je triceps bovenin aan.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> De triceps vormen het grootste deel van je bovenarm; door boven je hoofd te strekken train je de lange kop van de tricep maximaal.</div>
+                {{log:tricep-ext}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=seated+overhead+dumbbell+tricep+extension+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -777,6 +927,7 @@
                 <div class="badges">
                     <span class="badge">2–3 sets × 10–12 reps</span>
                     <span class="badge bench">Staand</span>
+                    {{rest:hammer}}
                 </div>
                 <ol class="steps">
                     <li>Ga rechtop staan met de dumbbells langs je zij en je handpalmen naar je bovenbenen gericht (neutrale hamergreep).</li>
@@ -784,6 +935,7 @@
                     <li>Knijp bovenin kort aan en laat in 2 seconden weer zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Pakt naast de biceps ook de brachialis en onderarmen aan, wat je armen zichtbaar dikker maakt.</div>
+                {{log:hammer}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+hammer+curls+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -804,6 +956,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 8–10 reps</span>
                     <span class="badge bench">Vrijstaand (Hoofdoefening)</span>
+                    {{rest:rdl-heavy}}
                 </div>
                 <ol class="steps">
                     <li>Omdat dit vandaag je eerste oefening is, pak je hier een iets zwaarder gewicht dan op donderdag.</li>
@@ -812,6 +965,7 @@
                     <li>Duw je heupen krachtig naar voren om weer rechtop te komen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Houd de dumbbells zo dicht mogelijk langs je benen; hoe verder ze naar voren hangen, hoe zwaarder het wordt voor je onderrug.</div>
+                {{log:rdl-heavy}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=heavy+dumbbell+romanian+deadlift+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -824,6 +978,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 10 reps (per been)</span>
                     <span class="badge bench">Vrijstaand</span>
+                    {{rest:reverse-lunge}}
                 </div>
                 <ol class="steps">
                     <li>Sta rechtop met in elke hand een dumbbell langs je zij.</li>
@@ -832,6 +987,7 @@
                     <li>Duw jezelf vanuit je voorste hiel terug naar de startpositie.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Achteruit stappen (reverse lunge) geeft veel meer controle en minder druk op de knie dan vooruit stappen.</div>
+                {{log:reverse-lunge}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+reverse+lunge+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -844,6 +1000,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 12–15 reps</span>
                     <span class="badge bench">Bench: Vlak (schouders tegen rand)</span>
+                    {{rest:hip-thrust}}
                 </div>
                 <ol class="steps">
                     <li>Ga op de grond zitten met je schouderbladen tegen de zijkant van de vlakke bank en leg een zware dumbbell op je heupen (leg evt. een opgevouwen handdoek ertussen voor comfort).</li>
@@ -852,6 +1009,7 @@
                     <li>Knijp je billen bovenin 1 seconde keihard samen en zak weer gecontroleerd.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Kijk tijdens de hele beweging recht vooruit (kin op de borst) zodat je niet in je onderrug gaat overstrekken.</div>
+                {{log:hip-thrust}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+hip+thrust+bench+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -864,6 +1022,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 12–15 reps (per been)</span>
                     <span class="badge bench">Vrijstaand (evt. met vrije hand steunen)</span>
+                    {{rest:single-calf}}
                 </div>
                 <ol class="steps">
                     <li>Houd in één hand een dumbbell en houd je met je andere hand licht vast aan de bank of muur voor balans.</li>
@@ -871,6 +1030,7 @@
                     <li>Houd bovenin 1 seconde vast en zak langzaam terug.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Pak de dumbbell aan dezelfde kant als het been dat je traint voor de beste belasting.</div>
+                {{log:single-calf}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=single+leg+dumbbell+calf+raise+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -883,6 +1043,7 @@
                 <div class="badges">
                     <span class="badge">3 sets × 15–20 reps (totaal)</span>
                     <span class="badge bench">Vloer (of matje)</span>
+                    {{rest:russian-twist}}
                 </div>
                 <ol class="steps">
                     <li>Ga op de vloer (of op je matje) zitten met opgetrokken knieën en leun met je bovenlichaam ongeveer 45° achterover met een rechte rug.</li>
@@ -891,12 +1052,314 @@
                     <li>Maak het zwaarder door je hielen enkele centimeters van de grond te tillen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Beweeg rustig en gecontroleerd; snelle rukken naar links en rechts werken averechts voor je onderrug.</div>
+                {{log:russian-twist}}
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=weighted+russian+twist+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
     </section>
 
 </div>
+
+<div class="container">
+    <div class="day-header">
+        <h2>Logboek</h2>
+        <span>Je sets worden alleen in deze browser op dit apparaat bewaard. Exporteer ze af en toe naar je sheet.</span>
+        <div class="log-actions">
+            <button type="button" id="log-export">⬇ Exporteer CSV</button>
+            <button type="button" id="log-clear">Wis logboek</button>
+        </div>
+        <noscript><p class="noscript-note">Het logboek en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
+    </div>
+</div>
+
+<div class="timer" id="timer" hidden role="timer" aria-live="off">
+    <div class="timer-top">
+        <div class="timer-text">
+            <span class="timer-label" id="timer-label">Rust</span>
+            <span class="timer-time" id="timer-time">0:00</span>
+        </div>
+        <button type="button" id="timer-minus" aria-label="15 seconden korter">−15</button>
+        <button type="button" id="timer-plus" aria-label="15 seconden langer">+15</button>
+        <button type="button" id="timer-stop">Stop</button>
+    </div>
+    <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+    var KEY = "tg:log:v1";
+    var data = load();
+
+    function load() {
+        try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+    }
+    function save() {
+        try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { /* storage unavailable */ }
+    }
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    function today() {
+        var d = new Date();
+        return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    }
+    function shortDate(iso) {
+        var p = iso.split("-");
+        var d = new Date(+p[0], +p[1] - 1, +p[2]);
+        return d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" });
+    }
+
+    // Open the tab for today's training day (Tue, Thu, Fri, Sun)
+    var dayTab = { 2: "tab1", 4: "tab2", 5: "tab3", 0: "tab4" }[new Date().getDay()];
+    if (dayTab) { document.getElementById(dayTab).checked = true; }
+
+    // ---------- logbook ----------
+    function list(id) { return data[id] || (data[id] = []); }
+    function todayEntry(id, create) {
+        var l = data[id] || [], last = l[l.length - 1];
+        if (last && last.date === today()) { return last; }
+        if (!create) { return null; }
+        l = list(id);
+        var e = { date: today(), sets: [] };
+        l.push(e);
+        return e;
+    }
+    function hasDone(e) { return e.sets.some(function (s) { return s && s.done; }); }
+    function prevEntry(id) {
+        var l = data[id] || [];
+        for (var i = l.length - 1; i >= 0; i--) {
+            if (l[i].date !== today() && hasDone(l[i])) { return l[i]; }
+        }
+        return null;
+    }
+    function describe(e) {
+        var done = e.sets.filter(function (s) { return s && s.done; });
+        var kgs = done.map(function (s) { return s.kg || ""; });
+        var same = kgs.every(function (k) { return k === kgs[0]; });
+        if (same) {
+            return (kgs[0] ? kgs[0] + " kg × " : "") + done.map(function (s) { return s.reps || "?"; }).join(", ");
+        }
+        return done.map(function (s) { return (s.kg ? s.kg + "×" : "") + (s.reps || "?"); }).join(", ");
+    }
+
+    var logs = document.querySelectorAll(".log");
+    Array.prototype.forEach.call(logs, function (box) {
+        var id = box.dataset.ex;
+        var name = box.dataset.name;
+        var max = +box.dataset.max;
+        var sets = +box.dataset.sets;
+        var required = sets - (+box.dataset.optional);
+        var rows = box.querySelectorAll(".set-row");
+        var prev = prevEntry(id);
+        var cur = todayEntry(id, false);
+
+        if (prev) {
+            box.querySelector(".log-prev").textContent = "Vorige keer (" + shortDate(prev.date) + "): " + describe(prev);
+        }
+
+        function hint() {
+            var h = box.querySelector(".log-hint");
+            var e = todayEntry(id, false);
+            var doneCount = e ? e.sets.filter(function (s) { return s && s.done; }).length : 0;
+            box.classList.toggle("complete", doneCount >= required);
+            if (doneCount >= required) {
+                h.textContent = "Oefening klaar. Goed bezig!";
+                return;
+            }
+            if (prev) {
+                var pd = prev.sets.slice(0, required);
+                var allMax = pd.length >= required && pd.every(function (s) { return s && s.done && +s.reps >= max; });
+                h.textContent = allMax
+                    ? "Vorige keer haalde je bij alle sets " + max + " reps: tijd om zwaarder te gaan."
+                    : "Doel: meer reps dan vorige keer met hetzelfde gewicht.";
+            } else {
+                h.textContent = "";
+            }
+        }
+
+        Array.prototype.forEach.call(rows, function (row, i) {
+            var kg = row.querySelector(".kg");
+            var reps = row.querySelector(".reps");
+            var btn = row.querySelector(".set-done");
+            var ps = prev && (prev.sets[i] || prev.sets[prev.sets.length - 1]);
+            if (kg && ps && ps.kg) { kg.placeholder = ps.kg + " kg"; }
+            var s = cur && cur.sets[i];
+            if (s) {
+                if (kg) { kg.value = s.kg || ""; }
+                reps.value = s.reps || "";
+                row.classList.toggle("done", !!s.done);
+                btn.setAttribute("aria-pressed", s.done ? "true" : "false");
+            }
+
+            function store(done) {
+                var e = todayEntry(id, true);
+                var old = e.sets[i] || {};
+                e.sets[i] = {
+                    kg: kg ? kg.value.trim().replace(",", ".") : "",
+                    reps: reps.value.trim(),
+                    done: done === undefined ? !!old.done : done
+                };
+                for (var j = 0; j < e.sets.length; j++) { if (!e.sets[j]) { e.sets[j] = null; } }
+                save();
+            }
+            if (kg) { kg.addEventListener("change", function () { store(); }); }
+            reps.addEventListener("change", function () { store(); });
+            btn.addEventListener("click", function () {
+                var done = !row.classList.contains("done");
+                if (done) {
+                    // fill empty fields from the placeholders so a quick tap still logs the set
+                    if (kg && !kg.value && ps && ps.kg) { kg.value = ps.kg; }
+                    if (!reps.value && ps && ps.reps) { reps.value = ps.reps; }
+                }
+                row.classList.toggle("done", done);
+                btn.setAttribute("aria-pressed", done ? "true" : "false");
+                store(done);
+                hint();
+                if (done) {
+                    startTimer(+box.dataset.rest, name + " · na set " + (i + 1) + (i + 1 >= sets ? " (laatste)" : ""));
+                }
+            });
+        });
+        box.querySelector(".rest-btn").addEventListener("click", function () {
+            startTimer(+box.dataset.rest, name);
+        });
+        hint();
+    });
+
+    // ---------- export / clear ----------
+    document.getElementById("log-export").addEventListener("click", function () {
+        var rows = [["Datum", "Dag", "Oefening", "Set", "Gewicht (kg)", "Reps"]];
+        Array.prototype.forEach.call(logs, function (box) {
+            var day = box.closest(".day-section").querySelector("h2").textContent.split(":")[0];
+            (data[box.dataset.ex] || []).forEach(function (e) {
+                e.sets.forEach(function (s, i) {
+                    if (s && s.done) {
+                        rows.push([e.date, day, box.dataset.name, i + 1, (s.kg || "").replace(".", ","), s.reps]);
+                    }
+                });
+            });
+        });
+        rows = [rows[0]].concat(rows.slice(1).sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; }));
+        var csv = rows.map(function (r) {
+            return r.map(function (c) { c = String(c); return /[;"\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(";");
+        }).join("\r\n");
+        var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "trainingslogboek-" + today() + ".csv";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    });
+    document.getElementById("log-clear").addEventListener("click", function () {
+        if (confirm("Weet je zeker dat je het hele logboek op dit apparaat wilt wissen? Dit kan niet ongedaan worden gemaakt.")) {
+            data = {};
+            save();
+            location.reload();
+        }
+    });
+
+    // ---------- rest timer ----------
+    var timer = document.getElementById("timer");
+    var tLabel = document.getElementById("timer-label");
+    var tTime = document.getElementById("timer-time");
+    var tFill = document.getElementById("timer-fill");
+    var end = 0, total = 0, tick = null, hideLater = null, wake = null, audio = null;
+    var baseTitle = document.title;
+
+    function fmt(ms) {
+        var s = Math.max(0, Math.ceil(ms / 1000));
+        return Math.floor(s / 60) + ":" + pad(s % 60);
+    }
+    function startTimer(sec, label) {
+        clearTimeout(hideLater);
+        total = sec * 1000;
+        end = Date.now() + total;
+        tLabel.textContent = "Rust · " + label;
+        timer.classList.remove("over");
+        timer.hidden = false;
+        document.body.classList.add("timing");
+        unlockAudio();
+        keepAwake();
+        clearInterval(tick);
+        tick = setInterval(update, 250);
+        update();
+    }
+    function update() {
+        var left = end - Date.now();
+        if (left <= 0) { finish(); return; }
+        tTime.textContent = fmt(left);
+        tFill.style.width = Math.min(100, 100 * left / total) + "%";
+        document.title = "⏱ " + fmt(left) + " rust";
+    }
+    function finish() {
+        clearInterval(tick);
+        tTime.textContent = "Rust voorbij — volgende set!";
+        tFill.style.width = "100%";
+        timer.classList.add("over");
+        document.title = baseTitle;
+        beep();
+        if (navigator.vibrate) { navigator.vibrate([250, 120, 250]); }
+        release();
+        hideLater = setTimeout(stop, 8000);
+    }
+    function stop() {
+        clearInterval(tick);
+        clearTimeout(hideLater);
+        timer.hidden = true;
+        document.body.classList.remove("timing");
+        document.title = baseTitle;
+        release();
+    }
+    function adjust(ms) {
+        if (timer.classList.contains("over")) {
+            if (ms > 0) { startTimer(ms / 1000, tLabel.textContent.replace(/^Rust · /, "")); }
+            return;
+        }
+        end = Math.max(Date.now(), end + ms);
+        total = Math.max(total + ms, end - Date.now());
+        update();
+    }
+    document.getElementById("timer-minus").addEventListener("click", function () { adjust(-15000); });
+    document.getElementById("timer-plus").addEventListener("click", function () { adjust(15000); });
+    document.getElementById("timer-stop").addEventListener("click", stop);
+
+    function unlockAudio() {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) { return; }
+        if (!audio) { audio = new AC(); }
+        if (audio.state === "suspended") { audio.resume(); }
+    }
+    function beep() {
+        if (!audio) { return; }
+        [0, 0.25, 0.5].forEach(function (t, i) {
+            var o = audio.createOscillator(), g = audio.createGain();
+            o.frequency.value = i === 2 ? 1320 : 880;
+            g.gain.setValueAtTime(0.0001, audio.currentTime + t);
+            g.gain.exponentialRampToValueAtTime(0.4, audio.currentTime + t + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + t + 0.18);
+            o.connect(g).connect(audio.destination);
+            o.start(audio.currentTime + t);
+            o.stop(audio.currentTime + t + 0.2);
+        });
+    }
+    function keepAwake() {
+        if (wake || !("wakeLock" in navigator)) { return; }
+        navigator.wakeLock.request("screen").then(function (l) {
+            wake = l;
+            l.addEventListener("release", function () { wake = null; });
+        }).catch(function () { /* not allowed, fine */ });
+    }
+    function release() {
+        if (wake) { wake.release(); wake = null; }
+    }
+    document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible" && !timer.hidden && !timer.classList.contains("over")) {
+            keepAwake();
+            update();
+        }
+    });
+})();
+</script>
 
 </body>
 </html>
