@@ -1569,7 +1569,7 @@
         <div class="card-plain">
             <form id="weight-form" class="weight-form">
                 <label>Datum <input type="date" id="weight-date" required></label>
-                <label>Gewicht (kg) <input type="text" id="weight-kg" inputmode="decimal" placeholder="bijv. 82,4" required></label>
+                <label>Gewicht (kg) <input type="text" id="weight-kg" inputmode="decimal" placeholder="bijv. 75,5" required></label>
                 <button type="submit">Opslaan</button>
             </form>
             <p class="log-hint" id="weight-msg" aria-live="polite"></p>
@@ -2013,7 +2013,7 @@
         var raw = document.getElementById("weight-kg").value.trim().replace(",", ".");
         var kg = Number(raw);
         var msg = document.getElementById("weight-msg");
-        if (!raw || !isFinite(kg) || kg < 30 || kg > 300) { msg.textContent = "Vul een geldig gewicht in, bijvoorbeeld 82,4."; return; }
+        if (!raw || !isFinite(kg) || kg < 30 || kg > 300) { msg.textContent = "Vul een geldig gewicht in, bijvoorbeeld 75,5."; return; }
         body.weights[wDate.value] = Math.round(kg * 10) / 10;
         saveBody();
         document.getElementById("weight-kg").value = "";
