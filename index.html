@@ -184,15 +184,22 @@
             outline: 3px solid var(--accent, #f59e0b);
             outline-offset: 2px;
         }
-        @media (max-width: 520px) {
+        @media (max-width: 720px) {
             .tabs {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                overflow-x: auto;
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+                padding: 10px 12px;
+                gap: 6px;
             }
+            .tabs::-webkit-scrollbar { display: none; }
             .tab-label {
-                text-align: center;
-                padding: 8px 6px;
+                flex: 0 0 auto;
+                padding: 7px 12px;
                 font-size: 0.8rem;
+                white-space: nowrap;
             }
         }
 
@@ -517,16 +524,21 @@
         }
         .sheet-block h3 { font-size: 1rem; color: var(--primary-dark); margin-bottom: 8px; }
         .sheet-block .sub { font-size: 0.88rem; font-weight: 600; margin: 10px 0 4px; }
-        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .sheet-block table { border-collapse: collapse; font-size: 0.82rem; width: 100%; }
-        .sheet-block td { min-width: 6em; }
-        .sheet-block th, .sheet-block td {
-            text-align: left;
-            vertical-align: top;
-            padding: 5px 8px;
-            border-bottom: 1px solid var(--border);
-        }
-        .sheet-block th { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; white-space: nowrap; }
+        .sheet-block .lead { font-size: 0.86rem; color: var(--text-muted); margin-bottom: 10px; }
+        .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 10px; }
+        .tile { background: var(--stage); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; display: grid; gap: 1px; }
+        .tile-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.02em; }
+        .tile-value { font-size: 1rem; font-weight: 700; color: var(--text); }
+        .tile-caption { font-size: 0.72rem; color: var(--text-muted); }
+        .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-bottom: 6px; }
+        .row-card { background: var(--stage); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+        .row-card.total { border-color: var(--primary); background: var(--primary-light); }
+        .row-card h4 { font-size: 0.92rem; margin-bottom: 4px; color: var(--text); }
+        .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+        .chip { font-size: 0.75rem; font-weight: 600; background: var(--primary-light); color: var(--primary-dark); border-radius: 999px; padding: 1px 8px; }
+        .kv { display: grid; grid-template-columns: minmax(84px, 38%) 1fr; gap: 3px 10px; font-size: 0.84rem; }
+        .kv dt { color: var(--text-muted); }
+        .kv dd { margin: 0; overflow-wrap: anywhere; }
         .empty-note { font-size: 0.88rem; color: var(--text-muted); }
         .card-plain {
             background: var(--card-bg);
@@ -1576,6 +1588,7 @@
             <h3 class="mini-title">Laatste wegingen</h3>
             <ul class="weight-list" id="weight-list"><li class="empty-note">Nog geen wegingen in de app.</li></ul>
         </div>
+        <div class="sheet-blocks" id="metingen-blocks"></div>
         <div class="card-plain">
             <h3 class="mini-title">Notitie voor deze week <small id="note-week"></small></h3>
             <textarea id="week-note" rows="3" placeholder="Hoe ging deze week? Komt in 'Opmerkingen &amp; Voortgang'."></textarea>
@@ -1585,7 +1598,6 @@
             <h3 class="mini-title">Stappen deze week</h3>
             <p class="empty-note" id="steps-week">Komen binnen via de Opdrachten-app (Apple Health).</p>
         </div>
-        <div class="sheet-blocks" id="metingen-blocks"></div>
     </section>
 
 </div>
@@ -1663,6 +1675,18 @@
     // Open the tab for today's training day (Tue, Thu, Fri, Sun)
     var dayTab = { 2: "tab1", 4: "tab2", 5: "tab3", 0: "tab4" }[new Date().getDay()];
     if (dayTab) { document.getElementById(dayTab).checked = true; }
+    function showActiveTab() {
+        var on = document.querySelector(".tab-radio:checked");
+        var label = on && document.querySelector('.tabs label[for="' + on.id + '"]');
+        var bar = document.querySelector(".tabs");
+        if (label && bar.scrollWidth > bar.clientWidth) {
+            bar.scrollLeft = label.offsetLeft - (bar.clientWidth - label.offsetWidth) / 2;
+        }
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(".tab-radio"), function (r) {
+        r.addEventListener("change", function () { showActiveTab(); window.scrollTo(0, Math.min(window.scrollY, document.querySelector(".tabs").offsetTop)); });
+    });
+    showActiveTab();
 
     // ---------- logbook ----------
     function list(id) { return data[id] || (data[id] = []); }
@@ -1940,32 +1964,108 @@
         if (text !== undefined) { e.textContent = text; }
         return e;
     }
+    // Turns the sheet's blocks into phone-friendly tiles and cards.
+    var DAY_COL = /^(Ma|Di|Wo|Do|Vr|Za|Zo) \(kg\)$/;
+    function isCaps(v) { return /[A-Z]/.test(v) && v === v.toUpperCase(); }
+    function nice(v) {
+        // long raw decimals -> 2 decimals with a comma; ALL CAPS headings -> sentence case
+        if (/^-?\d+\.\d{3,}$/.test(v)) { return (Math.round(+v * 100) / 100).toString().replace(".", ","); }
+        if (!isCaps(v)) { return v; }
+        var t = v.toLowerCase();
+        return t.charAt(0).toUpperCase() + t.slice(1);
+    }
+    function filledIdx(r) {
+        var out = [];
+        r.forEach(function (v, i) { if (v !== "") { out.push(i); } });
+        return out;
+    }
+    function sameIdx(a, b) { return a.length === b.length && a.every(function (v, i) { return v === b[i]; }); }
+    function renderTiles(box, labels, values, captions) {
+        var grid = el("div", "tiles");
+        filledIdx(labels).forEach(function (i) {
+            var t = el("div", "tile");
+            t.appendChild(el("span", "tile-label", nice(labels[i])));
+            t.appendChild(el("span", "tile-value", nice(values[i] || "—")));
+            if (captions && captions[i]) { t.appendChild(el("span", "tile-caption", captions[i])); }
+            grid.appendChild(t);
+        });
+        box.appendChild(grid);
+    }
+    function renderCards(box, header, rows) {
+        var list = el("div", "cards");
+        rows.forEach(function (r) {
+            var title = r[0] || "";
+            var fields = [];
+            var days = [];
+            var chips = [];
+            for (var i = 1; i < r.length; i++) {
+                var v = r[i];
+                if (v === "" || v === title || v === "—") { continue; }
+                if (DAY_COL.test(header[i] || "")) { days.push(header[i].slice(0, 2) + " " + v); continue; }
+                if (/\(kcal\)/i.test(header[i] || "")) { chips.push(nice(v) + " kcal"); continue; }
+                if (/^eiwit.*\(g\)/i.test(header[i] || "")) { chips.push(nice(v) + " g eiwit"); continue; }
+                fields.push([header[i] || "", v]);
+            }
+            if (days.length) { fields.splice(Math.min(1, fields.length), 0, ["Wegingen", days.join(" · ")]); }
+            if (!fields.length && !chips.length) { return; } // empty week rows etc.
+            var c = el("div", "row-card" + (isCaps(title) || /^(sub)?totaal|^gemiddelde/i.test(title) ? " total" : ""));
+            if (title) { c.appendChild(el("h4", "", nice(title))); }
+            if (chips.length) {
+                var cw = el("div", "chips");
+                chips.forEach(function (t) { cw.appendChild(el("span", "chip", t)); });
+                c.appendChild(cw);
+            }
+            var dl = el("dl", "kv");
+            fields.forEach(function (f) {
+                dl.appendChild(el("dt", "", nice(f[0])));
+                dl.appendChild(el("dd", "", nice(f[1])));
+            });
+            c.appendChild(dl);
+            c.dataset.week = (/^Week (\d+)$/.exec(title) || [])[1] || "";
+            list.appendChild(c);
+        });
+        // weekly logs: newest week first
+        var weeks = Array.prototype.filter.call(list.children, function (c) { return c.dataset.week; });
+        if (weeks.length > 1) {
+            weeks.sort(function (a, b) { return a.dataset.week - b.dataset.week; })
+                .forEach(function (c) { list.insertBefore(c, list.firstChild); });
+        }
+        if (list.children.length) { box.appendChild(list); }
+    }
     function renderBlocks(target, blocks) {
         target.textContent = "";
         (blocks || []).forEach(function (b) {
             var box = el("div", "sheet-block");
-            if (b.title) { box.appendChild(el("h3", "", b.title)); }
-            var table = null;
+            if (b.title) { box.appendChild(el("h3", "", nice(b.title))); }
             var rows = b.rows.filter(function (r) { return r.some(function (v) { return v !== ""; }); });
-            rows.forEach(function (r, i) {
-                var filled = r.filter(function (v) { return v !== ""; });
-                if (filled.length === 1 && r[0] !== "" && r.length > 1) {
-                    box.appendChild(el("p", "sub", r[0]));
-                    table = null;
-                    return;
+            var i = 0;
+            while (i < rows.length) {
+                var r = rows[i];
+                var idx = filledIdx(r);
+                if (idx.length === 1) { // a line of text or a sub-heading
+                    box.appendChild(el("p", isCaps(r[idx[0]]) || /^scenario/i.test(r[idx[0]]) ? "sub" : "lead", nice(r[idx[0]])));
+                    i++;
+                    continue;
                 }
-                if (!table) {
-                    var wrap = el("div", "table-wrap");
-                    table = el("table");
-                    wrap.appendChild(table);
-                    box.appendChild(wrap);
-                    var head = table.insertRow();
-                    r.forEach(function (v) { head.appendChild(el("th", "", v)); });
-                    return;
+                var next = rows[i + 1];
+                if (isCaps(r[idx[0]]) && idx.every(function (k) { return isCaps(r[k]); })) {
+                    if (next && sameIdx(idx, filledIdx(next)) && !isCaps(next[idx[0]])) {
+                        // label row + value row (+ caption row): key figures
+                        var cap = rows[i + 2];
+                        var useCap = cap && !isCaps(cap[filledIdx(cap)[0]] || "") && sameIdx(idx, filledIdx(cap)) && (!rows[i + 3] || isCaps(rows[i + 3][0] || ""));
+                        renderTiles(box, r, next, useCap ? cap : null);
+                        i += useCap ? 3 : 2;
+                        continue;
+                    }
+                    if (next && filledIdx(next).length > idx.length) { i++; continue; } // group header above a table header
                 }
-                var tr = table.insertRow();
-                r.forEach(function (v) { tr.insertCell().textContent = v; });
-            });
+                // table: this row is the header, data rows follow until a text line
+                var data = [];
+                var j = i + 1;
+                while (j < rows.length && filledIdx(rows[j]).length > 1) { data.push(rows[j]); j++; }
+                renderCards(box, r, data);
+                i = j;
+            }
             target.appendChild(box);
         });
     }
