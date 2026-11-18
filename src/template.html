@@ -5,85 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <meta name="tg-build" content="{{version}}">
+    <meta name="theme-color" content="#18181b">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <script>
+        try {
+            var t = localStorage.getItem("tg:theme");
+            if (t === "light" || t === "dark") { document.documentElement.setAttribute("data-theme", t); }
+        } catch (e) { /* storage unavailable */ }
+    </script>
     <title>Trainingsgids: 4-Daagse Upper / Lower Split</title>
     <style>
         :root {
-            --primary: #006b5e;
-            --primary-light: #e0f2ef;
-            --primary-dark: #004d43;
-            --bg: #f4f7f6;
+            --primary: #c2410c;
+            --primary-light: #ffedd5;
+            --primary-dark: #9a3412;
+            --accent: #f97316;
+            --on-primary: #ffffff;
+            --bg: #f4f4f5;
             --card-bg: #ffffff;
-            --text: #1f2933;
-            --text-muted: #616e7c;
-            --border: #d9e2ec;
-            --bench-bg: #fef3c7;
-            --bench-text: #92400e;
-            --tip-bg: #f0fdf4;
-            --tip-border: #16a34a;
-            --tip-text: #14532d;
+            --text: #18181b;
+            --text-muted: #71717a;
+            --border: #e4e4e7;
+            --bench-bg: #f4f4f5;
+            --bench-text: #3f3f46;
+            --tip-bg: #fff7ed;
+            --tip-border: #ea580c;
+            --tip-text: #7c2d12;
             --yt: #dc2626;
             --yt-hover: #b91c1c;
+            --topbar: #18181b;
+            --on-topbar: #fafafa;
             /* figure */
-            --stage: #f8fafc;
-            --floor: #94a3b8;
+            --stage: #fafafa;
+            --floor: #a1a1aa;
             --skin: #e9b48f;
             --skin-far: #c48d69;
-            --shirt: #0f766e;
-            --shirt-far: #0b5a54;
-            --shorts: #334155;
-            --shorts-far: #252f3d;
-            --shoe: #1e293b;
+            --shirt: #3f3f46;
+            --shirt-far: #2d2d33;
+            --shorts: #18181b;
+            --shorts-far: #111113;
+            --shoe: #ea580c;
             --hair: #3f2a1d;
             --line: rgba(15, 23, 42, 0.28);
-            --pad: #27313f;
-            --frame: #94a3b8;
-            --db: #4b5563;
-            --db-hi: #9ca3af;
-            --hl: #ef4444;
+            --pad: #27272a;
+            --frame: #a1a1aa;
+            --db: #52525b;
+            --db-hi: #a1a1aa;
+            --hl: #dc2626;
             color-scheme: light;
         }
         @media (prefers-color-scheme: dark) {
             :root:not([data-theme="light"]) {
-                --primary: #2bb3a0;
-                --primary-light: #123b36;
-                --primary-dark: #7fd8cb;
-                --bg: #0f1419;
-                --card-bg: #182028;
-                --text: #e5e9ee;
-                --text-muted: #9aa5b1;
-                --border: #2a3541;
-                --bench-bg: #3b2f12;
-                --bench-text: #fcd58a;
-                --tip-bg: #10291b;
-                --tip-border: #22c55e;
-                --tip-text: #bbf7d0;
-                --stage: #111a22;
-                --floor: #475569;
-                --pad: #5b6676;
-                --frame: #64748b;
-                --line: rgba(0, 0, 0, 0.45);
+                --primary: #fb923c;
+                --primary-light: #431407;
+                --primary-dark: #fdba74;
+                --accent: #fb923c;
+                --on-primary: #18181b;
+                --bg: #0c0c0e;
+                --card-bg: #18181b;
+                --text: #f4f4f5;
+                --text-muted: #a1a1aa;
+                --border: #2e2e33;
+                --bench-bg: #27272a;
+                --bench-text: #e4e4e7;
+                --tip-bg: #1f1610;
+                --tip-border: #fb923c;
+                --tip-text: #fed7aa;
+                --topbar: #000000;
+                --on-topbar: #fafafa;
+                --stage: #121214;
+                --floor: #52525b;
+                --shirt: #71717a;
+                --shirt-far: #5b5b63;
+                --shorts: #3f3f46;
+                --shorts-far: #33333a;
+                --pad: #52525b;
+                --frame: #71717a;
+                --line: rgba(0, 0, 0, 0.5);
+                --hl: #ef4444;
                 color-scheme: dark;
             }
         }
         :root[data-theme="dark"] {
-            --primary: #2bb3a0;
-            --primary-light: #123b36;
-            --primary-dark: #7fd8cb;
-            --bg: #0f1419;
-            --card-bg: #182028;
-            --text: #e5e9ee;
-            --text-muted: #9aa5b1;
-            --border: #2a3541;
-            --bench-bg: #3b2f12;
-            --bench-text: #fcd58a;
-            --tip-bg: #10291b;
-            --tip-border: #22c55e;
-            --tip-text: #bbf7d0;
-            --stage: #111a22;
-            --floor: #475569;
-            --pad: #5b6676;
-            --frame: #64748b;
-            --line: rgba(0, 0, 0, 0.45);
+            --primary: #fb923c;
+            --primary-light: #431407;
+            --primary-dark: #fdba74;
+            --accent: #fb923c;
+            --on-primary: #18181b;
+            --bg: #0c0c0e;
+            --card-bg: #18181b;
+            --text: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --border: #2e2e33;
+            --bench-bg: #27272a;
+            --bench-text: #e4e4e7;
+            --tip-bg: #1f1610;
+            --tip-border: #fb923c;
+            --tip-text: #fed7aa;
+            --topbar: #000000;
+            --on-topbar: #fafafa;
+            --stage: #121214;
+            --floor: #52525b;
+            --shirt: #71717a;
+            --shirt-far: #5b5b63;
+            --shorts: #3f3f46;
+            --shorts-far: #33333a;
+            --pad: #52525b;
+            --frame: #71717a;
+            --line: rgba(0, 0, 0, 0.5);
+            --hl: #ef4444;
             color-scheme: dark;
         }
         * {
@@ -99,16 +129,19 @@
             padding-bottom: 60px;
         }
         header {
-            background: linear-gradient(135deg, #004d43, #006b5e);
+            background: linear-gradient(135deg, #18181b, #2b2b30);
+            border-bottom: 3px solid var(--accent);
             color: white;
-            padding: 32px 20px;
+            padding: 20px 20px 22px;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
+            font-size: 1.45rem;
+            line-height: 1.25;
+            margin-bottom: 6px;
         }
+        #tab5:checked ~ header, #tab6:checked ~ header { display: none; }
         header p {
             font-size: 0.95rem;
             opacity: 0.9;
@@ -129,7 +162,7 @@
             vertical-align: -1px;
             margin-right: 4px;
         }
-        /* CSS-only tabs: radio inputs stay focusable for keyboard users */
+        /* Page state inputs: hidden but focusable for keyboard users */
         .tab-radio {
             position: absolute;
             opacity: 0;
@@ -137,71 +170,144 @@
             height: 1px;
             pointer-events: none;
         }
-        .tabs {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 12px 16px;
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
+
+        /* Top bar with hamburger */
+        .topbar {
             position: sticky;
             top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            z-index: 150;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 54px;
+            padding: env(safe-area-inset-top) 12px 0;
+            background: var(--topbar);
+            color: var(--on-topbar);
+            border-bottom: 3px solid var(--accent);
         }
-        .tab-label {
-            padding: 8px 16px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            border-radius: 999px;
-            font-weight: 600;
-            font-size: 0.88rem;
+        .menu-btn {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-content: center;
+            gap: 5px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
-            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        .tab-label:hover {
-            border-color: var(--primary);
-            color: var(--primary);
+        .menu-btn span {
+            display: block;
+            width: 22px;
+            height: 2.5px;
+            border-radius: 2px;
+            background: currentColor;
+            transition: transform 0.2s, opacity 0.2s;
         }
-        #tab1:checked ~ .tabs label[for="tab1"],
-        #tab2:checked ~ .tabs label[for="tab2"],
-        #tab3:checked ~ .tabs label[for="tab3"],
-        #tab4:checked ~ .tabs label[for="tab4"],
-        #tab5:checked ~ .tabs label[for="tab5"],
-        #tab6:checked ~ .tabs label[for="tab6"] {
+        #menu-toggle:checked ~ .topbar .menu-btn span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+        #menu-toggle:checked ~ .topbar .menu-btn span:nth-child(2) { opacity: 0; }
+        #menu-toggle:checked ~ .topbar .menu-btn span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+        #menu-toggle:focus-visible ~ .topbar .menu-btn { outline: 3px solid var(--accent); outline-offset: 2px; }
+        .topbar-title { font-weight: 700; font-size: 1.02rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .topbar-title .t { display: none; }
+        #tab1:checked ~ .topbar .t1, #tab2:checked ~ .topbar .t2, #tab3:checked ~ .topbar .t3,
+        #tab4:checked ~ .topbar .t4, #tab5:checked ~ .topbar .t5, #tab6:checked ~ .topbar .t6 { display: inline; }
+        .topbar-brand { margin-left: auto; font-size: 0.78rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+        /* Slide-in menu */
+        .scrim {
+            position: fixed;
+            inset: 0;
+            z-index: 240;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+        .drawer {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 250;
+            width: min(300px, 86vw);
+            padding: calc(14px + env(safe-area-inset-top)) 12px 24px;
+            background: var(--card-bg);
+            color: var(--text);
+            overflow-y: auto;
+            transform: translateX(-105%);
+            transition: transform 0.25s ease;
+            box-shadow: 8px 0 24px rgba(0, 0, 0, 0.25);
+            visibility: hidden;
+        }
+        #menu-toggle:checked ~ .scrim { opacity: 1; pointer-events: auto; }
+        #menu-toggle:checked ~ .drawer { transform: none; visibility: visible; }
+        .drawer-head { font-size: 1.15rem; font-weight: 800; padding: 4px 12px 8px; }
+        .drawer-head::after { content: ""; display: block; width: 32px; height: 3px; background: var(--accent); border-radius: 2px; margin-top: 6px; }
+        .drawer-section {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 14px 12px 4px;
+        }
+        .drawer-item {
+            display: block;
+            padding: 9px 12px;
+            border-radius: 10px;
+            border-left: 3px solid transparent;
+            color: inherit;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .drawer-item:hover { background: var(--bg); }
+        .di-title { display: block; font-weight: 600; font-size: 0.95rem; }
+        .di-sub { display: block; font-size: 0.78rem; color: var(--text-muted); }
+        .today-chip {
+            font-size: 0.68rem;
+            font-weight: 700;
             background: var(--primary);
-            color: var(--card-bg);
-            border-color: var(--primary);
+            color: var(--on-primary);
+            border-radius: 999px;
+            padding: 0 7px;
+            margin-left: 6px;
+            vertical-align: 1px;
         }
-        #tab1:focus-visible ~ .tabs label[for="tab1"],
-        #tab2:focus-visible ~ .tabs label[for="tab2"],
-        #tab3:focus-visible ~ .tabs label[for="tab3"],
-        #tab4:focus-visible ~ .tabs label[for="tab4"],
-        #tab5:focus-visible ~ .tabs label[for="tab5"],
-        #tab6:focus-visible ~ .tabs label[for="tab6"] {
-            outline: 3px solid var(--accent, #f59e0b);
-            outline-offset: 2px;
+        #tab1:checked ~ .drawer label[for="tab1"], #tab2:checked ~ .drawer label[for="tab2"],
+        #tab3:checked ~ .drawer label[for="tab3"], #tab4:checked ~ .drawer label[for="tab4"],
+        #tab5:checked ~ .drawer label[for="tab5"], #tab6:checked ~ .drawer label[for="tab6"] {
+            background: var(--primary-light);
+            border-left-color: var(--primary);
         }
-        @media (max-width: 720px) {
-            .tabs {
-                flex-wrap: nowrap;
-                justify-content: flex-start;
-                overflow-x: auto;
-                scrollbar-width: none;
-                -webkit-overflow-scrolling: touch;
-                padding: 10px 12px;
-                gap: 6px;
-            }
-            .tabs::-webkit-scrollbar { display: none; }
-            .tab-label {
-                flex: 0 0 auto;
-                padding: 7px 12px;
-                font-size: 0.8rem;
-                white-space: nowrap;
-            }
+        #tab1:checked ~ .drawer label[for="tab1"] .di-title, #tab2:checked ~ .drawer label[for="tab2"] .di-title,
+        #tab3:checked ~ .drawer label[for="tab3"] .di-title, #tab4:checked ~ .drawer label[for="tab4"] .di-title,
+        #tab5:checked ~ .drawer label[for="tab5"] .di-title, #tab6:checked ~ .drawer label[for="tab6"] .di-title {
+            color: var(--primary-dark);
+        }
+        .theme-switch {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin: 4px 12px;
+            padding: 4px;
+            background: var(--bg);
+            border-radius: 10px;
+        }
+        .theme-switch button {
+            font: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 7px 4px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+        }
+        .theme-switch button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
+        .drawer-item:focus-visible, .theme-switch button:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+        @media (prefers-reduced-motion: reduce) {
+            .drawer, .scrim, .menu-btn span { transition: none; }
         }
 
         .container {
@@ -236,7 +342,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .day-header h2 {
-            color: var(--primary-dark);
+            color: var(--text);
             font-size: 1.35rem;
             margin-bottom: 4px;
         }
@@ -486,7 +592,7 @@
             outline: 3px solid var(--primary);
             outline-offset: 2px;
         }
-        .set-row.done .set-done { background: var(--primary); color: var(--card-bg); }
+        .set-row.done .set-done { background: var(--primary); color: var(--on-primary); }
         .set-row.done input { border-color: var(--primary); }
         .log.complete { border-color: var(--primary); }
         .log.complete .log-head strong::after { content: " ✓ klaar"; color: var(--primary); }
@@ -523,7 +629,7 @@
             border-radius: 12px;
             padding: 14px 16px;
         }
-        .sheet-block h3 { font-size: 1rem; color: var(--primary-dark); margin-bottom: 8px; }
+        .sheet-block h3 { font-size: 1rem; color: var(--text); margin-bottom: 8px; }
         .sheet-block .sub { font-size: 0.88rem; font-weight: 600; margin: 10px 0 4px; }
         .sheet-block .lead { font-size: 0.86rem; color: var(--text-muted); margin-bottom: 10px; }
         .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 10px; }
@@ -568,7 +674,7 @@
         }
         .weight-form button, .weight-list button {
             font: inherit; font-size: 0.85rem; font-weight: 600; border-radius: 6px; padding: 7px 12px;
-            border: 1px solid var(--primary); background: var(--primary); color: var(--card-bg); cursor: pointer;
+            border: 1px solid var(--primary); background: var(--primary); color: var(--on-primary); cursor: pointer;
         }
         .weight-list { list-style: none; display: grid; gap: 4px; }
         .weight-list li { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; padding: 4px 0; border-bottom: 1px solid var(--border); }
@@ -586,7 +692,7 @@
             align-items: center;
             gap: 10px;
             background: var(--primary);
-            color: #fff;
+            color: var(--on-primary);
             border-radius: 12px;
             padding: 10px 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
@@ -597,7 +703,7 @@
         .update-bar span { flex: 1; }
         .update-bar button {
             font: inherit; border: 0; border-radius: 8px; padding: 7px 12px;
-            background: #fff; color: #004d43; cursor: pointer;
+            background: var(--on-primary); color: var(--primary); cursor: pointer;
         }
 
         /* Rest timer */
@@ -631,28 +737,53 @@
 </head>
 <body>
 
+<!-- Page state: tabs and menu are CSS radios/checkbox; JavaScript adds the logbook, rest timer and sheet sync. -->
+<input type="radio" class="tab-radio" id="tab1" name="tab-group" checked aria-label="Dag 1">
+<input type="radio" class="tab-radio" id="tab2" name="tab-group" aria-label="Dag 2">
+<input type="radio" class="tab-radio" id="tab3" name="tab-group" aria-label="Dag 3">
+<input type="radio" class="tab-radio" id="tab4" name="tab-group" aria-label="Dag 4">
+<input type="radio" class="tab-radio" id="tab5" name="tab-group" aria-label="Voeding">
+<input type="radio" class="tab-radio" id="tab6" name="tab-group" aria-label="Metingen">
+<input type="checkbox" class="tab-radio" id="menu-toggle" aria-label="Menu" aria-controls="menu">
+
+<div class="topbar">
+    <label for="menu-toggle" class="menu-btn" aria-hidden="true"><span></span><span></span><span></span></label>
+    <div class="topbar-title">
+        <span class="t t1">Dag 1 · Upper A</span>
+        <span class="t t2">Dag 2 · Lower A</span>
+        <span class="t t3">Dag 3 · Upper B</span>
+        <span class="t t4">Dag 4 · Lower B</span>
+        <span class="t t5">Voeding</span>
+        <span class="t t6">Metingen</span>
+    </div>
+    <span class="topbar-brand">Trainingsgids</span>
+</div>
+
+<label for="menu-toggle" class="scrim" aria-hidden="true"></label>
+<nav class="drawer" id="menu" aria-label="Menu">
+    <p class="drawer-head">Trainingsgids</p>
+    <p class="drawer-section">Training</p>
+    <label for="tab1" class="drawer-item"><span class="di-title">Dag 1 · Upper A</span><span class="di-sub">Dinsdag · borst & rug</span></label>
+    <label for="tab2" class="drawer-item"><span class="di-title">Dag 2 · Lower A</span><span class="di-sub">Donderdag · quads & core</span></label>
+    <label for="tab3" class="drawer-item"><span class="di-title">Dag 3 · Upper B</span><span class="di-sub">Vrijdag · schouders & armen</span></label>
+    <label for="tab4" class="drawer-item"><span class="di-title">Dag 4 · Lower B</span><span class="di-sub">Zondag · hamstrings & billen</span></label>
+    <p class="drawer-section">Voeding & lichaam</p>
+    <label for="tab5" class="drawer-item"><span class="di-title">Voeding</span><span class="di-sub">Plan, maaltijden en timing</span></label>
+    <label for="tab6" class="drawer-item"><span class="di-title">Metingen</span><span class="di-sub">Gewicht, notitie en stappen</span></label>
+    <a href="#logboek" class="drawer-item" id="menu-log"><span class="di-title">Logboek & sync</span><span class="di-sub">Export en Google Sheet</span></a>
+    <p class="drawer-section">Weergave</p>
+    <div class="theme-switch" role="group" aria-label="Weergave">
+        <button type="button" data-theme-set="auto">Auto</button>
+        <button type="button" data-theme-set="light">Licht</button>
+        <button type="button" data-theme-set="dark">Donker</button>
+    </div>
+</nav>
+
 <header>
     <h1>Trainingsgids & Oefeningen</h1>
     <p>4-Daagse Upper / Lower Split met PH Fitness Dumbbells & Decathlon Bench 500 — Inclusief beweging-animaties en video-uitleg.</p>
     <p class="legend"><span class="legend-dot"></span>Rood = de spier die je traint · tik op een animatie om te pauzeren · vul je sets in en tik ✓ Klaar om de rusttimer te starten</p>
 </header>
-
-<!-- Tabs and animations are CSS only; JavaScript adds the logbook, rest timer and sheet sync. -->
-<input type="radio" class="tab-radio" id="tab1" name="tab-group" checked>
-<input type="radio" class="tab-radio" id="tab2" name="tab-group">
-<input type="radio" class="tab-radio" id="tab3" name="tab-group">
-<input type="radio" class="tab-radio" id="tab4" name="tab-group">
-<input type="radio" class="tab-radio" id="tab5" name="tab-group">
-<input type="radio" class="tab-radio" id="tab6" name="tab-group">
-
-<nav class="tabs">
-    <label for="tab1" class="tab-label">Dag 1: Upper A (Di)</label>
-    <label for="tab2" class="tab-label">Dag 2: Lower A (Do)</label>
-    <label for="tab3" class="tab-label">Dag 3: Upper B (Vr)</label>
-    <label for="tab4" class="tab-label">Dag 4: Lower B (Zo)</label>
-    <label for="tab5" class="tab-label">🍽 Voeding</label>
-    <label for="tab6" class="tab-label">⚖️ Metingen</label>
-</nav>
 
 <div class="container">
 
@@ -1215,7 +1346,7 @@
 
 </div>
 
-<div class="container">
+<div class="container" id="logboek">
     <div class="day-header">
         <h2>Logboek</h2>
         <span>Je sets worden alleen in deze browser op dit apparaat bewaard. Exporteer ze af en toe naar je sheet.</span>
@@ -1325,18 +1456,66 @@
     // Open the tab for today's training day (Tue, Thu, Fri, Sun)
     var dayTab = { 2: "tab1", 4: "tab2", 5: "tab3", 0: "tab4" }[new Date().getDay()];
     if (dayTab) { document.getElementById(dayTab).checked = true; }
-    function showActiveTab() {
-        var on = document.querySelector(".tab-radio:checked");
-        var label = on && document.querySelector('.tabs label[for="' + on.id + '"]');
-        var bar = document.querySelector(".tabs");
-        if (label && bar.scrollWidth > bar.clientWidth) {
-            bar.scrollLeft = label.offsetLeft - (bar.clientWidth - label.offsetWidth) / 2;
-        }
+    // ---------- hamburger menu ----------
+    var menuToggle = document.getElementById("menu-toggle");
+    function closeMenu() {
+        if (menuToggle.checked) { menuToggle.checked = false; syncMenu(); }
     }
-    Array.prototype.forEach.call(document.querySelectorAll(".tab-radio"), function (r) {
-        r.addEventListener("change", function () { showActiveTab(); window.scrollTo(0, Math.min(window.scrollY, document.querySelector(".tabs").offsetTop)); });
+    function syncMenu() {
+        document.body.style.overflow = menuToggle.checked ? "hidden" : "";
+        document.getElementById("menu").setAttribute("aria-hidden", menuToggle.checked ? "false" : "true");
+    }
+    menuToggle.addEventListener("change", syncMenu);
+    syncMenu();
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="tab-group"]'), function (r) {
+        r.addEventListener("change", function () {
+            closeMenu();
+            window.scrollTo(0, 0);
+        });
     });
-    showActiveTab();
+    // clicking the current page in the menu only closes it
+    Array.prototype.forEach.call(document.querySelectorAll(".drawer label.drawer-item"), function (l) {
+        l.addEventListener("click", function () { setTimeout(closeMenu, 0); });
+    });
+    document.getElementById("menu-log").addEventListener("click", function (ev) {
+        ev.preventDefault();
+        closeMenu();
+        document.getElementById("logboek").scrollIntoView({ behavior: "smooth" });
+    });
+    document.addEventListener("keydown", function (ev) {
+        if (ev.key === "Escape") { closeMenu(); }
+    });
+    if (dayTab) {
+        var todayLabel = document.querySelector('.drawer label[for="' + dayTab + '"] .di-title');
+        if (todayLabel) { todayLabel.appendChild(el("span", "today-chip", "vandaag")); }
+    }
+
+    // ---------- light / dark / auto ----------
+    var THEME_KEY = "tg:theme";
+    function applyTheme(mode) {
+        if (mode === "light" || mode === "dark") {
+            document.documentElement.setAttribute("data-theme", mode);
+        } else {
+            document.documentElement.removeAttribute("data-theme");
+            mode = "auto";
+        }
+        Array.prototype.forEach.call(document.querySelectorAll("[data-theme-set]"), function (b) {
+            b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === mode ? "true" : "false");
+        });
+        var dark = mode === "dark" || (mode === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) { meta.setAttribute("content", dark ? "#000000" : "#18181b"); }
+    }
+    var savedTheme = "auto";
+    try { savedTheme = localStorage.getItem(THEME_KEY) || "auto"; } catch (e) { /* ignore */ }
+    applyTheme(savedTheme);
+    Array.prototype.forEach.call(document.querySelectorAll("[data-theme-set]"), function (b) {
+        b.addEventListener("click", function () {
+            var mode = b.getAttribute("data-theme-set");
+            try { localStorage.setItem(THEME_KEY, mode); } catch (e) { /* ignore */ }
+            applyTheme(mode);
+        });
+    });
 
     // ---------- logbook ----------
     function list(id) { return data[id] || (data[id] = []); }
