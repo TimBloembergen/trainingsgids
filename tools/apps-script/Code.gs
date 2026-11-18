@@ -39,6 +39,49 @@ function setup() {
   return token;
 }
 
+/**
+ * Run once from the editor to start fresh: clears the example data in
+ * Week 1 and Week 2 (training: weight/reps; weights tab: daily weights,
+ * waist, steps and notes; formulas stay) and makes the current week Week 1.
+ * Afterwards tap "Sync naar sheet" in the guide to write your data again.
+ */
+function startOpnieuwInWeek1() {
+  var ss = SpreadsheetApp.getActive();
+  var props = PropertiesService.getScriptProperties();
+  var weeks = [1, 2];
+
+  var tSheet = sheet_(ss, TRAINING_SHEET);
+  var tLay = trainingLayout_(tSheet.getDataRange().getDisplayValues());
+  weeks.forEach(function (w) {
+    var cols = tLay.weeks[w];
+    if (!cols) { return; }
+    Object.keys(tLay.rows).forEach(function (id) {
+      tSheet.getRange(tLay.rows[id], cols.kg, 1, 2).clearContent();
+    });
+  });
+
+  var wSheet = sheet_(ss, WEIGHT_SHEET);
+  var wValues = wSheet.getDataRange().getDisplayValues();
+  var wLay = weightLayout_(wValues);
+  var head = wValues.filter(function (r) { return r.indexOf(DAY_HEADERS[0]) >= 0; })[0];
+  var waist = head ? head.map(function (v) { return String(v).trim(); }).indexOf('Taille (cm)') + 1 : 0;
+  weeks.forEach(function (w) {
+    var row = wLay.rows[w];
+    if (!row) { return; }
+    wLay.days.concat([waist, wLay.steps, wLay.notes]).forEach(function (c) {
+      if (c) { wSheet.getRange(row, c).clearContent(); }
+    });
+    if (wLay.range) { wSheet.getRange(row, wLay.range).setValue('Week ' + w); }
+  });
+
+  var now = new Date();
+  var today = Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  var anchor = { monday: iso_(monday_(today)), week: 1 };
+  props.setProperty('ANCHOR', JSON.stringify(anchor));
+  Logger.log('Klaar. Week van ' + anchor.monday + ' is nu Week 1. Tik in de gids op "Sync naar sheet".');
+  return anchor;
+}
+
 function doGet() {
   return json_({ ok: true, app: 'trainingsgids' });
 }
