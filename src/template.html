@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
+    <meta name="tg-build" content="{{version}}">
     <title>Trainingsgids: 4-Daagse Upper / Lower Split</title>
     <style>
         :root {
@@ -552,6 +553,15 @@
         .weight-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
         .weight-form label { display: grid; gap: 2px; font-size: 0.85rem; font-weight: 600; }
         @media (max-width: 420px) { .weight-form { grid-template-columns: 1fr 1fr; } .weight-form button { grid-column: 1 / -1; } }
+        .weight-form input[type="date"] {
+            -webkit-appearance: none;
+            appearance: none;
+            display: block;
+            min-height: 38px;
+            text-align: left;
+        }
+        .weight-form input::-webkit-date-and-time-value { text-align: left; }
+        .weight-form label { min-width: 0; }
         .weight-form input, #week-note {
             font: inherit; font-size: 16px; padding: 6px 8px; border: 1px solid var(--border);
             border-radius: 6px; background: var(--card-bg); color: var(--text); width: 100%; min-width: 0;
@@ -563,6 +573,32 @@
         .weight-list { list-style: none; display: grid; gap: 4px; }
         .weight-list li { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; padding: 4px 0; border-bottom: 1px solid var(--border); }
         .weight-list button { background: var(--card-bg); color: var(--primary-dark); padding: 3px 9px; }
+
+        /* Update banner (home-screen app keeps an old copy otherwise) */
+        .update-bar {
+            position: fixed;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(520px, calc(100% - 24px));
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 12px;
+            padding: 10px 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+        .update-bar[hidden] { display: none; }
+        .update-bar span { flex: 1; }
+        .update-bar button {
+            font: inherit; border: 0; border-radius: 8px; padding: 7px 12px;
+            background: #fff; color: #004d43; cursor: pointer;
+        }
 
         /* Rest timer */
         .timer {
@@ -1209,8 +1245,14 @@
                 <p class="noscript-note">De link en code worden alleen in deze browser bewaard.</p>
             </form>
         </div>
+        <p class="noscript-note">Versie {{version}} · <a href="#" id="check-update">Controleer op updates</a></p>
         <noscript><p class="noscript-note">Het logboek en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
     </div>
+</div>
+
+<div class="update-bar" id="update-bar" hidden>
+    <span>Er is een nieuwe versie van de gids.</span>
+    <button type="button" id="update-now">Bijwerken</button>
 </div>
 
 <div class="timer" id="timer" hidden role="timer" aria-live="off">
@@ -1248,6 +1290,37 @@
         var d = new Date(+p[0], +p[1] - 1, +p[2]);
         return d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" });
     }
+
+    // ---------- new version check ----------
+    // The home-screen app has no reload button, so compare our build with the published one.
+    var BUILD = (document.querySelector('meta[name="tg-build"]') || {}).content;
+    var newBuild = null;
+    function checkUpdate(manual) {
+        if (!window.fetch || location.protocol === "file:") { return; }
+        fetch(location.pathname + "?check=" + Date.now(), { cache: "no-store" })
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                var m = /name="tg-build" content="([^"]+)"/.exec(html);
+                if (m && m[1] !== BUILD) {
+                    newBuild = m[1];
+                    document.getElementById("update-bar").hidden = false;
+                } else if (manual) {
+                    alert("Je hebt de nieuwste versie (" + BUILD + ").");
+                }
+            })
+            .catch(function () { if (manual) { alert("Kon niet controleren op updates. Ben je online?"); } });
+    }
+    document.getElementById("update-now").addEventListener("click", function () {
+        location.replace(location.pathname + "?v=" + (newBuild || Date.now()));
+    });
+    document.getElementById("check-update").addEventListener("click", function (ev) {
+        ev.preventDefault();
+        checkUpdate(true);
+    });
+    checkUpdate(false);
+    document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") { checkUpdate(false); }
+    });
 
     // Open the tab for today's training day (Tue, Thu, Fri, Sun)
     var dayTab = { 2: "tab1", 4: "tab2", 5: "tab3", 0: "tab4" }[new Date().getDay()];

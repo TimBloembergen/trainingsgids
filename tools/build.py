@@ -4,6 +4,7 @@
     python3 tools/build.py          # writes index.html
     python3 tools/build.py --debug  # also writes debug.html with still frames per exercise
 """
+import hashlib
 import pathlib
 import re
 import sys
@@ -42,6 +43,8 @@ def main():
     html = re.sub(r"\{\{rest:([a-z0-9-]+)\}\}", lambda m: rest_badge(m.group(1)), html)
     html = re.sub(r"\{\{log:([a-z0-9-]+)\}\}", lambda m: log_block(m.group(1), names[m.group(1)]), html)
     html = html.replace("/*{{keyframes}}*/", "\n".join(css_all))
+    version = hashlib.sha1(html.encode()).hexdigest()[:8]
+    html = html.replace("{{version}}", version)
     (ROOT / "index.html").write_text(html)
     print(f"index.html: {len(html) / 1024:.0f} KB, {len(css_all)} animations")
 
