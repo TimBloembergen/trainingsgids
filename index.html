@@ -168,7 +168,9 @@
         #tab1:checked ~ .tabs label[for="tab1"],
         #tab2:checked ~ .tabs label[for="tab2"],
         #tab3:checked ~ .tabs label[for="tab3"],
-        #tab4:checked ~ .tabs label[for="tab4"] {
+        #tab4:checked ~ .tabs label[for="tab4"],
+        #tab5:checked ~ .tabs label[for="tab5"],
+        #tab6:checked ~ .tabs label[for="tab6"] {
             background: var(--primary);
             color: var(--card-bg);
             border-color: var(--primary);
@@ -176,7 +178,9 @@
         #tab1:focus-visible ~ .tabs label[for="tab1"],
         #tab2:focus-visible ~ .tabs label[for="tab2"],
         #tab3:focus-visible ~ .tabs label[for="tab3"],
-        #tab4:focus-visible ~ .tabs label[for="tab4"] {
+        #tab4:focus-visible ~ .tabs label[for="tab4"],
+        #tab5:focus-visible ~ .tabs label[for="tab5"],
+        #tab6:focus-visible ~ .tabs label[for="tab6"] {
             outline: 3px solid var(--accent, #f59e0b);
             outline-offset: 2px;
         }
@@ -203,10 +207,14 @@
         #tab1:checked ~ .container #dag1,
         #tab2:checked ~ .container #dag2,
         #tab3:checked ~ .container #dag3,
-        #tab4:checked ~ .container #dag4 {
+        #tab4:checked ~ .container #dag4,
+        #tab5:checked ~ .container #voeding,
+        #tab6:checked ~ .container #metingen {
             display: block;
             animation: fadeIn 0.25s ease-in-out;
         }
+        #tab5:checked ~ .container .progression,
+        #tab6:checked ~ .container .progression { display: none; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
@@ -498,6 +506,51 @@
             font: inherit; font-size: 16px; padding: 6px 8px; border: 1px solid var(--border);
             border-radius: 6px; background: var(--card-bg); color: var(--text); width: 100%;
         }
+
+        /* Voeding & metingen */
+        .sheet-blocks { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-bottom: 20px; }
+        .sheet-block {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+        .sheet-block h3 { font-size: 1rem; color: var(--primary-dark); margin-bottom: 8px; }
+        .sheet-block .sub { font-size: 0.88rem; font-weight: 600; margin: 10px 0 4px; }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .sheet-block table { border-collapse: collapse; font-size: 0.82rem; width: 100%; }
+        .sheet-block td { min-width: 6em; }
+        .sheet-block th, .sheet-block td {
+            text-align: left;
+            vertical-align: top;
+            padding: 5px 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sheet-block th { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; white-space: nowrap; }
+        .empty-note { font-size: 0.88rem; color: var(--text-muted); }
+        .card-plain {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+        .mini-title { font-size: 0.95rem; margin: 6px 0; }
+        .mini-title small { font-weight: 400; color: var(--text-muted); }
+        .weight-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
+        .weight-form label { display: grid; gap: 2px; font-size: 0.85rem; font-weight: 600; }
+        @media (max-width: 420px) { .weight-form { grid-template-columns: 1fr 1fr; } .weight-form button { grid-column: 1 / -1; } }
+        .weight-form input, #week-note {
+            font: inherit; font-size: 16px; padding: 6px 8px; border: 1px solid var(--border);
+            border-radius: 6px; background: var(--card-bg); color: var(--text); width: 100%; min-width: 0;
+        }
+        .weight-form button, .weight-list button {
+            font: inherit; font-size: 0.85rem; font-weight: 600; border-radius: 6px; padding: 7px 12px;
+            border: 1px solid var(--primary); background: var(--primary); color: var(--card-bg); cursor: pointer;
+        }
+        .weight-list { list-style: none; display: grid; gap: 4px; }
+        .weight-list li { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; padding: 4px 0; border-bottom: 1px solid var(--border); }
+        .weight-list button { background: var(--card-bg); color: var(--primary-dark); padding: 3px 9px; }
 
         /* Rest timer */
         .timer {
@@ -827,17 +880,21 @@
     <p class="legend"><span class="legend-dot"></span>Rood = de spier die je traint · tik op een animatie om te pauzeren · vul je sets in en tik ✓ Klaar om de rusttimer te starten</p>
 </header>
 
-<!-- Tabs and animations are CSS only; JavaScript adds the logbook and rest timer. -->
+<!-- Tabs and animations are CSS only; JavaScript adds the logbook, rest timer and sheet sync. -->
 <input type="radio" class="tab-radio" id="tab1" name="tab-group" checked>
 <input type="radio" class="tab-radio" id="tab2" name="tab-group">
 <input type="radio" class="tab-radio" id="tab3" name="tab-group">
 <input type="radio" class="tab-radio" id="tab4" name="tab-group">
+<input type="radio" class="tab-radio" id="tab5" name="tab-group">
+<input type="radio" class="tab-radio" id="tab6" name="tab-group">
 
 <nav class="tabs">
     <label for="tab1" class="tab-label">Dag 1: Upper A (Di)</label>
     <label for="tab2" class="tab-label">Dag 2: Lower A (Do)</label>
     <label for="tab3" class="tab-label">Dag 3: Upper B (Vr)</label>
     <label for="tab4" class="tab-label">Dag 4: Lower B (Zo)</label>
+    <label for="tab5" class="tab-label">🍽 Voeding</label>
+    <label for="tab6" class="tab-label">⚖️ Metingen</label>
 </nav>
 
 <div class="container">
@@ -1494,6 +1551,43 @@
         </div>
     </section>
 
+    <!-- VOEDING (loaded privately from the Google Sheet) -->
+    <section id="voeding" class="day-section">
+        <div class="day-header">
+            <h2>Voeding & overzicht</h2>
+            <span>Uit je Google Sheet, tabblad "Overzicht &amp; Voeding". Wijzig je iets in de sheet, dan zie je het hier na de volgende sync.</span>
+        </div>
+        <div class="sheet-blocks" id="voeding-blocks"><p class="empty-note">Nog niet geladen. Stel onderaan bij <strong>Sync naar Google Sheet</strong> de koppeling in en tik op Sync.</p></div>
+    </section>
+
+    <!-- METINGEN -->
+    <section id="metingen" class="day-section">
+        <div class="day-header">
+            <h2>Gewicht & metingen</h2>
+            <span>Weeg je 's ochtends nuchter. Je gewicht komt in de juiste dag en week van je sheet.</span>
+        </div>
+        <div class="card-plain">
+            <form id="weight-form" class="weight-form">
+                <label>Datum <input type="date" id="weight-date" required></label>
+                <label>Gewicht (kg) <input type="text" id="weight-kg" inputmode="decimal" placeholder="bijv. 82,4" required></label>
+                <button type="submit">Opslaan</button>
+            </form>
+            <p class="log-hint" id="weight-msg" aria-live="polite"></p>
+            <h3 class="mini-title">Laatste wegingen</h3>
+            <ul class="weight-list" id="weight-list"><li class="empty-note">Nog geen wegingen in de app.</li></ul>
+        </div>
+        <div class="card-plain">
+            <h3 class="mini-title">Notitie voor deze week <small id="note-week"></small></h3>
+            <textarea id="week-note" rows="3" placeholder="Hoe ging deze week? Komt in 'Opmerkingen &amp; Voortgang'."></textarea>
+            <div class="log-actions"><button type="button" id="note-save">Notitie opslaan</button></div>
+        </div>
+        <div class="card-plain">
+            <h3 class="mini-title">Stappen deze week</h3>
+            <p class="empty-note" id="steps-week">Komen binnen via de Opdrachten-app (Apple Health).</p>
+        </div>
+        <div class="sheet-blocks" id="metingen-blocks"></div>
+    </section>
+
 </div>
 
 <div class="container">
@@ -1766,12 +1860,17 @@
         fetch(sync.url, {
             method: "POST",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ token: sync.token, entries: payload() })
+            body: JSON.stringify({ token: sync.token, entries: payload(), weights: body.weights, notes: body.notes })
         }).then(function (r) { return r.json(); }).then(function (res) {
             if (!res.ok) { throw new Error(res.error || "Onbekende fout"); }
             sync.last = Date.now();
             sync.pending = false;
             saveSync();
+            if (res.overview) {
+                overview = { voeding: res.overview.voeding, metingen: res.overview.metingen, steps: res.steps || {}, anchor: res.anchor, at: Date.now() };
+                try { localStorage.setItem(OVERVIEW_KEY, JSON.stringify(overview)); } catch (e) { /* ignore */ }
+                renderOverview();
+            }
             var msg = res.changed ? res.changed + " cel" + (res.changed === 1 ? "" : "len") + " bijgewerkt (week " + res.weeks.join(", ") + ")" : "sheet was al bij";
             if (res.skipped && res.skipped.length) { msg += ". Niet in de sheet: " + res.skipped.join(", "); }
             status("✓ Gesynct: " + msg + ".", "ok");
@@ -1811,6 +1910,130 @@
     });
     window.addEventListener("online", function () { if (sync.pending) { syncNow(true); } });
     idleStatus();
+
+    // ---------- body weight, weekly note, overview from the sheet ----------
+    var BODY_KEY = "tg:body:v1";
+    var OVERVIEW_KEY = "tg:overview:v1";
+    var body = (function () { try { return JSON.parse(localStorage.getItem(BODY_KEY)) || {}; } catch (e) { return {}; } })();
+    body.weights = body.weights || {};
+    body.notes = body.notes || {};
+    var overview = (function () { try { return JSON.parse(localStorage.getItem(OVERVIEW_KEY)); } catch (e) { return null; } })();
+
+    function saveBody() {
+        try { localStorage.setItem(BODY_KEY, JSON.stringify(body)); } catch (e) { /* ignore */ }
+    }
+    function mondayOf(iso) {
+        var p = iso.split("-");
+        var d = new Date(+p[0], +p[1] - 1, +p[2]);
+        d.setDate(d.getDate() - (d.getDay() + 6) % 7);
+        return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    }
+    function weekNumber(iso) {
+        if (!overview || !overview.anchor) { return null; }
+        var a = overview.anchor.monday.split("-"), m = mondayOf(iso).split("-");
+        var diff = Math.round((new Date(+m[0], +m[1] - 1, +m[2]) - new Date(+a[0], +a[1] - 1, +a[2])) / (7 * 864e5));
+        return overview.anchor.week + diff;
+    }
+    function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) { e.className = cls; }
+        if (text !== undefined) { e.textContent = text; }
+        return e;
+    }
+    function renderBlocks(target, blocks) {
+        target.textContent = "";
+        (blocks || []).forEach(function (b) {
+            var box = el("div", "sheet-block");
+            if (b.title) { box.appendChild(el("h3", "", b.title)); }
+            var table = null;
+            var rows = b.rows.filter(function (r) { return r.some(function (v) { return v !== ""; }); });
+            rows.forEach(function (r, i) {
+                var filled = r.filter(function (v) { return v !== ""; });
+                if (filled.length === 1 && r[0] !== "" && r.length > 1) {
+                    box.appendChild(el("p", "sub", r[0]));
+                    table = null;
+                    return;
+                }
+                if (!table) {
+                    var wrap = el("div", "table-wrap");
+                    table = el("table");
+                    wrap.appendChild(table);
+                    box.appendChild(wrap);
+                    var head = table.insertRow();
+                    r.forEach(function (v) { head.appendChild(el("th", "", v)); });
+                    return;
+                }
+                var tr = table.insertRow();
+                r.forEach(function (v) { tr.insertCell().textContent = v; });
+            });
+            target.appendChild(box);
+        });
+    }
+    function renderOverview() {
+        if (!overview) { return; }
+        renderBlocks(document.getElementById("voeding-blocks"), overview.voeding);
+        renderBlocks(document.getElementById("metingen-blocks"), overview.metingen);
+        var mon = mondayOf(today());
+        var days = Object.keys(overview.steps || {}).filter(function (d) { return mondayOf(d) === mon; }).sort();
+        var stepsEl = document.getElementById("steps-week");
+        if (days.length) {
+            var total = days.reduce(function (s, d) { return s + overview.steps[d]; }, 0);
+            stepsEl.textContent = days.map(function (d) { return shortDate(d) + ": " + overview.steps[d].toLocaleString("nl-NL"); }).join(" · ")
+                + " — gemiddeld " + Math.round(total / days.length).toLocaleString("nl-NL") + " per dag";
+        }
+        var wk = weekNumber(today());
+        document.getElementById("note-week").textContent = wk ? "(week " + wk + ")" : "";
+    }
+    function renderWeights() {
+        var list = document.getElementById("weight-list");
+        var dates = Object.keys(body.weights).filter(function (d) { return body.weights[d] !== null; }).sort().reverse().slice(0, 14);
+        list.textContent = "";
+        if (!dates.length) { list.appendChild(el("li", "empty-note", "Nog geen wegingen in de app.")); return; }
+        dates.forEach(function (d) {
+            var li = el("li");
+            li.appendChild(el("span", "", shortDate(d) + " — " + String(body.weights[d]).replace(".", ",") + " kg"));
+            var del = el("button", "", "✕");
+            del.type = "button";
+            del.setAttribute("aria-label", "Weging van " + shortDate(d) + " verwijderen");
+            del.addEventListener("click", function () {
+                body.weights[d] = null; // tombstone so the sync clears the cell
+                saveBody();
+                renderWeights();
+                autoSync();
+            });
+            li.appendChild(del);
+            list.appendChild(li);
+        });
+    }
+    var wDate = document.getElementById("weight-date");
+    wDate.value = today();
+    wDate.max = today();
+    document.getElementById("weight-form").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var raw = document.getElementById("weight-kg").value.trim().replace(",", ".");
+        var kg = Number(raw);
+        var msg = document.getElementById("weight-msg");
+        if (!raw || !isFinite(kg) || kg < 30 || kg > 300) { msg.textContent = "Vul een geldig gewicht in, bijvoorbeeld 82,4."; return; }
+        body.weights[wDate.value] = Math.round(kg * 10) / 10;
+        saveBody();
+        document.getElementById("weight-kg").value = "";
+        msg.textContent = "Opgeslagen: " + shortDate(wDate.value) + " " + String(body.weights[wDate.value]).replace(".", ",") + " kg.";
+        renderWeights();
+        autoSync();
+    });
+    var noteBox = document.getElementById("week-note");
+    noteBox.value = body.notes[mondayOf(today())] || "";
+    document.getElementById("note-save").addEventListener("click", function () {
+        body.notes[mondayOf(today())] = noteBox.value.trim();
+        saveBody();
+        document.getElementById("weight-msg").textContent = "";
+        autoSync();
+        if (!configured()) { status("Notitie opgeslagen; stel sync in om hem naar je sheet te sturen.", "err"); }
+    });
+    renderWeights();
+    renderOverview();
+    // refresh the sheet overview quietly when it is older than 10 minutes
+    if (configured() && (!overview || Date.now() - overview.at > 10 * 60 * 1000)) { syncNow(true); }
 
     // ---------- rest timer ----------
     var timer = document.getElementById("timer");

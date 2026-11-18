@@ -1,17 +1,23 @@
 /**
- * Trainingsgids -> Google Sheet sync.
+ * Trainingsgids <-> Google Sheet sync.
  *
  * Paste this file into the Google Sheet via Extensions > Apps Script.
  * 1. Run setup() once and copy the code it logs.
  * 2. Deploy > New deployment > Web app, execute as "Me", access "Anyone".
+ *    After changing this file: Deploy > Manage deployments > edit > New version.
  * 3. Enter the web app URL and the code in the guide (Logboek > Sync instellen).
  *
- * The guide posts its whole logbook. This script only writes the weight and
- * reps cells of the Week columns on the training tab; the code (a random
- * secret kept in the script properties) keeps others out.
+ * The guide posts its logbook, weights and weekly notes; this script writes
+ * them into the training and weight tabs and sends back the overview tabs so
+ * the guide can show them. An iOS Shortcut can post the daily step count.
+ * Every request needs the secret code from the script properties.
  */
 
-var SHEET_NAME = 'Trainingsschema & Logboek';
+var TRAINING_SHEET = 'Trainingsschema & Logboek';
+var WEIGHT_SHEET = 'Gewicht & Metingen';
+var OVERVIEW_SHEET = 'Overzicht & Voeding';
+var MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+var DAY_HEADERS = ['Ma (kg)', 'Di (kg)', 'Wo (kg)', 'Do (kg)', 'Vr (kg)', 'Za (kg)', 'Zo (kg)'];
 
 // Exercise ids per training day, in the order of the sheet's # column.
 var DAYS = [
@@ -43,16 +49,16 @@ function doPost(e) {
     lock.waitLock(20000);
     var body = JSON.parse(e.postData.contents);
     var props = PropertiesService.getScriptProperties();
-    if (!props.getProperty('TOKEN') || body.token !== props.getProperty('TOKEN')) {
+    if (!props.getProperty('TOKEN') || String(body.token).trim() !== props.getProperty('TOKEN')) {
       return json_({ ok: false, error: 'Ongeldige code' });
     }
-    var sheet = SpreadsheetApp.getActive().getSheetByName(SHEET_NAME);
-    if (!sheet) {
-      return json_({ ok: false, error: 'Tabblad "' + SHEET_NAME + '" niet gevonden' });
+    var ss = SpreadsheetApp.getActive();
+    if (body.action === 'steps') {
+      return json_(steps_(ss, props, body));
     }
-    return json_(sync_(sheet, body.entries || [], props, !!body.dryRun));
+    return json_(sync_(ss, props, body));
   } catch (err) {
-    return json_({ ok: false, error: String(err) });
+    return json_({ ok: false, error: String(err && err.message || err) });
   } finally {
     lock.releaseLock();
   }
@@ -62,8 +68,63 @@ function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-/** Finds the Week columns and the row of every exercise. Rows/cols are 1-based. */
-function layout_(values) {
+function sheet_(ss, name) {
+  var sh = ss.getSheetByName(name);
+  if (!sh) { throw new Error('Tabblad "' + name + '" niet gevonden'); }
+  return sh;
+}
+
+// ---------- dates and weeks ----------
+function parseDate_(iso) {
+  var p = String(iso).split('-');
+  return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+}
+
+function monday_(iso) {
+  var d = parseDate_(iso);
+  d.setUTCDate(d.getUTCDate() - (d.getUTCDay() + 6) % 7);
+  return d;
+}
+
+function iso_(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function isIso_(s) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(s));
+}
+
+/**
+ * Week anchor shared by all tabs: the first synced week goes to the first
+ * Week column of the training tab that is still empty.
+ */
+function anchor_(props, ss, firstDate) {
+  var saved = props.getProperty('ANCHOR');
+  if (saved) { return JSON.parse(saved); }
+  if (!firstDate) { return null; }
+  var values = sheet_(ss, TRAINING_SHEET).getDataRange().getDisplayValues();
+  var lay = trainingLayout_(values);
+  var weekNums = Object.keys(lay.weeks).map(Number).sort(function (a, b) { return a - b; });
+  var lastFilled = 0;
+  weekNums.forEach(function (w) {
+    Object.keys(lay.rows).forEach(function (id) {
+      var r = lay.rows[id] - 1;
+      if (values[r][lay.weeks[w].kg - 1] || values[r][lay.weeks[w].reps - 1]) { lastFilled = Math.max(lastFilled, w); }
+    });
+  });
+  var week = weekNums.filter(function (w) { return w > lastFilled; })[0];
+  if (!week) { throw new Error('Alle Week-kolommen zijn al gevuld'); }
+  var anchor = { monday: iso_(monday_(firstDate)), week: week };
+  props.setProperty('ANCHOR', JSON.stringify(anchor));
+  return anchor;
+}
+
+function weekOf_(anchor, iso) {
+  return anchor.week + Math.round((monday_(iso).getTime() - parseDate_(anchor.monday).getTime()) / (7 * 864e5));
+}
+
+// ---------- training tab ----------
+function trainingLayout_(values) {
   var weeks = {};
   var dayRows = [];
   for (var r = 0; r < values.length; r++) {
@@ -73,7 +134,7 @@ function layout_(values) {
     }
     if (/^DAG \d/.test(String(values[r][1]).trim())) { dayRows.push(r); }
   }
-  if (dayRows.length !== DAYS.length) { throw new Error('Kon de dagen in de sheet niet vinden'); }
+  if (dayRows.length !== DAYS.length) { throw new Error('Kon de dagen in het trainingsschema niet vinden'); }
   var rows = {};
   DAYS.forEach(function (ids, d) {
     ids.forEach(function (id, i) {
@@ -84,14 +145,6 @@ function layout_(values) {
     });
   });
   return { weeks: weeks, rows: rows };
-}
-
-function monday_(iso) {
-  var p = iso.split('-');
-  var d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
-  var dow = (d.getUTCDay() + 6) % 7;
-  d.setUTCDate(d.getUTCDate() - dow);
-  return d;
 }
 
 function describe_(sets) {
@@ -108,69 +161,192 @@ function describe_(sets) {
   return { weight: weight, reps: reps };
 }
 
-function sync_(sheet, entries, props, dryRun) {
+function syncTraining_(sheet, entries, anchor, out) {
   var values = sheet.getDataRange().getDisplayValues();
-  var lay = layout_(values);
-  var weekNums = Object.keys(lay.weeks).map(Number).sort(function (a, b) { return a - b; });
-
-  entries = entries.filter(function (e) {
-    return lay.rows[e.id] && /^\d{4}-\d{2}-\d{2}$/.test(e.date) && e.sets && e.sets.length;
-  });
-  if (!entries.length) { return { ok: true, changed: 0, message: 'Geen afgeronde sets om te syncen' }; }
-
-  // Week anchor: the first synced week goes to the first empty Week column.
-  var anchor = props.getProperty('ANCHOR');
-  if (anchor) {
-    anchor = JSON.parse(anchor);
-  } else {
-    var lastFilled = 0;
-    weekNums.forEach(function (w) {
-      Object.keys(lay.rows).forEach(function (id) {
-        var r = lay.rows[id] - 1;
-        if (values[r][lay.weeks[w].kg - 1] || values[r][lay.weeks[w].reps - 1]) { lastFilled = Math.max(lastFilled, w); }
-      });
-    });
-    var firstWeek = weekNums.filter(function (w) { return w > lastFilled; })[0];
-    if (!firstWeek) { return { ok: false, error: 'Alle Week-kolommen zijn al gevuld' }; }
-    var first = entries.map(function (e) { return e.date; }).sort()[0];
-    anchor = { monday: monday_(first).toISOString().slice(0, 10), week: firstWeek };
-  }
-  var anchorMs = monday_(anchor.monday).getTime();
-
-  // Latest session per exercise per week
+  var lay = trainingLayout_(values);
   var latest = {};
   entries.forEach(function (e) {
-    var w = anchor.week + Math.round((monday_(e.date).getTime() - anchorMs) / (7 * 864e5));
+    if (!lay.rows[e.id] || !isIso_(e.date) || !e.sets || !e.sets.length) { return; }
+    var w = weekOf_(anchor, e.date);
     var key = e.id + '|' + w;
     if (!latest[key] || latest[key].date < e.date) { latest[key] = { id: e.id, week: w, date: e.date, sets: e.sets }; }
   });
-
-  var changes = [];
-  var skipped = [];
   Object.keys(latest).forEach(function (key) {
     var s = latest[key];
     var cols = lay.weeks[s.week];
-    if (!cols) { skipped.push(s.id + ' (' + s.date + ', week ' + s.week + ')'); return; }
+    if (!cols) { out.skipped.push(s.id + ' (' + s.date + ', week ' + s.week + ')'); return; }
     var row = lay.rows[s.id];
     var d = describe_(s.sets);
     [[cols.kg, d.weight], [cols.reps, d.reps]].forEach(function (cell) {
       if (values[row - 1][cell[0] - 1] !== cell[1]) {
-        changes.push({ row: row, col: cell[0], value: cell[1], week: s.week, id: s.id });
+        sheet.getRange(row, cell[0]).setNumberFormat('@').setValue(cell[1]);
+        out.changed++;
+        addWeek_(out, s.week);
       }
     });
   });
+}
 
-  if (!dryRun) {
-    changes.forEach(function (c) {
-      sheet.getRange(c.row, c.col).setNumberFormat('@').setValue(c.value);
-    });
-    props.setProperty('ANCHOR', JSON.stringify(anchor));
+// ---------- weight tab ----------
+function weightLayout_(values) {
+  var head = -1;
+  for (var r = 0; r < values.length && head < 0; r++) {
+    if (values[r].indexOf(DAY_HEADERS[0]) >= 0) { head = r; }
   }
-  return {
-    ok: true,
-    changed: changes.length,
-    weeks: changes.map(function (c) { return c.week; }).filter(function (w, i, a) { return a.indexOf(w) === i; }),
-    skipped: skipped,
-    anchor: anchor
+  if (head < 0) { throw new Error('Kon de weegtabel niet vinden'); }
+  var h = values[head].map(function (v) { return String(v).trim(); });
+  var col = function (pred) {
+    for (var c = 0; c < h.length; c++) { if (pred(h[c])) { return c + 1; } }
+    return 0;
   };
+  var lay = {
+    days: DAY_HEADERS.map(function (d) { return col(function (v) { return v === d; }); }),
+    range: col(function (v) { return v === 'Datumbereik'; }),
+    steps: col(function (v) { return /stappen/i.test(v); }),
+    notes: col(function (v) { return /^opmerkingen/i.test(v); }),
+    rows: {}
+  };
+  for (var r2 = head + 1; r2 < values.length; r2++) {
+    var m = /^Week (\d+)$/.exec(String(values[r2][1]).trim());
+    if (m) { lay.rows[m[1]] = r2 + 1; }
+  }
+  return lay;
+}
+
+function rangeLabel_(mondayIso) {
+  var a = parseDate_(mondayIso);
+  var b = new Date(a.getTime() + 6 * 864e5);
+  return a.getUTCDate() + ' ' + MONTHS[a.getUTCMonth()] + ' – ' + b.getUTCDate() + ' ' + MONTHS[b.getUTCMonth()];
+}
+
+function labelWeek_(sheet, values, lay, row, week, anchor) {
+  if (!lay.range) { return; }
+  var cur = String(values[row - 1][lay.range - 1]).trim();
+  if (cur === '' || cur === 'Week ' + week) {
+    var mon = new Date(parseDate_(anchor.monday).getTime() + (week - anchor.week) * 7 * 864e5);
+    var label = rangeLabel_(iso_(mon));
+    sheet.getRange(row, lay.range).setValue(label);
+    values[row - 1][lay.range - 1] = label;
+  }
+}
+
+function syncWeights_(sheet, weights, notes, anchor, out) {
+  var values = sheet.getDataRange().getDisplayValues();
+  var lay = weightLayout_(values);
+  Object.keys(weights || {}).forEach(function (date) {
+    if (!isIso_(date)) { return; }
+    var w = weekOf_(anchor, date);
+    var row = lay.rows[w];
+    if (!row) { out.skipped.push('gewicht ' + date + ' (week ' + w + ')'); return; }
+    var dayCol = lay.days[(parseDate_(date).getUTCDay() + 6) % 7];
+    var kg = weights[date];
+    var cur = String(values[row - 1][dayCol - 1]).trim().replace(',', '.');
+    if (kg === null || kg === '') {
+      if (cur !== '') { sheet.getRange(row, dayCol).clearContent(); out.changed++; addWeek_(out, w); }
+      return;
+    }
+    var num = Number(String(kg).replace(',', '.'));
+    if (!isFinite(num)) { return; }
+    if (Number(cur) !== num || cur === '') {
+      sheet.getRange(row, dayCol).setValue(num);
+      out.changed++;
+      addWeek_(out, w);
+      labelWeek_(sheet, values, lay, row, w, anchor);
+    }
+  });
+  Object.keys(notes || {}).forEach(function (mon) {
+    if (!isIso_(mon) || !lay.notes) { return; }
+    var w = weekOf_(anchor, mon);
+    var row = lay.rows[w];
+    if (!row) { out.skipped.push('notitie week ' + w); return; }
+    var text = String(notes[mon] || '');
+    if (String(values[row - 1][lay.notes - 1]) !== text) {
+      sheet.getRange(row, lay.notes).setValue(text);
+      out.changed++;
+      addWeek_(out, w);
+    }
+  });
+}
+
+/** Daily step count from an iOS Shortcut: { action: 'steps', date, steps }. */
+function steps_(ss, props, body) {
+  var date = isIso_(body.date) ? body.date : iso_(new Date());
+  var steps = Math.round(Number(String(body.steps).replace(',', '.')));
+  if (!isFinite(steps) || steps < 0) { return { ok: false, error: 'Ongeldig aantal stappen' }; }
+  var all = JSON.parse(props.getProperty('STEPS') || '{}');
+  all[date] = steps;
+  props.setProperty('STEPS', JSON.stringify(all));
+  var anchor = anchor_(props, ss, date);
+  var sheet = sheet_(ss, WEIGHT_SHEET);
+  var values = sheet.getDataRange().getDisplayValues();
+  var lay = weightLayout_(values);
+  var w = weekOf_(anchor, date);
+  var row = lay.rows[w];
+  if (!row || !lay.steps) { return { ok: true, stored: true, week: w, message: 'Week ' + w + ' staat niet in de sheet' }; }
+  var mon = monday_(date).getTime();
+  var days = Object.keys(all).filter(function (d) {
+    var t = parseDate_(d).getTime();
+    return t >= mon && t < mon + 7 * 864e5;
+  });
+  var avg = Math.round(days.reduce(function (s, d) { return s + all[d]; }, 0) / days.length);
+  sheet.getRange(row, lay.steps).setValue(avg);
+  labelWeek_(sheet, values, lay, row, w, anchor);
+  return { ok: true, week: w, days: days.length, average: avg };
+}
+
+// ---------- overview for the guide ----------
+/** Splits a tab into blocks of non-empty rows, dropping empty columns. */
+function blocks_(sheet) {
+  var values = sheet.getDataRange().getDisplayValues();
+  var blocks = [];
+  var cur = [];
+  var flush = function () {
+    if (!cur.length) { return; }
+    var used = [];
+    cur.forEach(function (row) {
+      row.forEach(function (v, c) { if (String(v).trim() !== '' && used.indexOf(c) < 0) { used.push(c); } });
+    });
+    used.sort(function (a, b) { return a - b; });
+    var rows = cur.map(function (row) { return used.map(function (c) { return String(row[c]).trim(); }); });
+    var title = '';
+    var first = rows[0].filter(function (v) { return v !== ''; });
+    if (first.length === 1 && rows.length > 1) {
+      title = first[0];
+      rows.shift();
+    }
+    blocks.push({ title: title, rows: rows });
+    cur = [];
+  };
+  values.forEach(function (row) {
+    if (row.every(function (v) { return String(v).trim() === ''; })) { flush(); } else { cur.push(row); }
+  });
+  flush();
+  return blocks;
+}
+
+function addWeek_(out, w) {
+  if (out.weeks.indexOf(w) < 0) { out.weeks.push(w); }
+}
+
+function sync_(ss, props, body) {
+  var entries = body.entries || [];
+  var weights = body.weights || {};
+  var notes = body.notes || {};
+  var dates = entries.map(function (e) { return e.date; })
+    .concat(Object.keys(weights), Object.keys(notes)).filter(isIso_).sort();
+  var out = { ok: true, changed: 0, weeks: [], skipped: [] };
+  var anchor = anchor_(props, ss, dates[0]);
+  if (anchor) {
+    syncTraining_(sheet_(ss, TRAINING_SHEET), entries, anchor, out);
+    syncWeights_(sheet_(ss, WEIGHT_SHEET), weights, notes, anchor, out);
+    SpreadsheetApp.flush();
+  }
+  out.anchor = anchor;
+  out.weeks.sort(function (a, b) { return a - b; });
+  out.overview = {
+    voeding: ss.getSheetByName(OVERVIEW_SHEET) ? blocks_(ss.getSheetByName(OVERVIEW_SHEET)) : [],
+    metingen: blocks_(sheet_(ss, WEIGHT_SHEET))
+  };
+  out.steps = JSON.parse(props.getProperty('STEPS') || '{}');
+  return out;
 }
