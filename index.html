@@ -486,6 +486,19 @@
         .log-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .noscript-note { font-size: 0.8rem; color: var(--text-muted); }
 
+        .sync { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .sync h3 { font-size: 1rem; margin-bottom: 2px; }
+        .sync-status { font-size: 0.85rem; color: var(--text-muted); }
+        .sync-status.ok { color: var(--primary-dark); }
+        .sync-status.err { color: #dc2626; }
+        .sync-form { display: grid; gap: 8px; margin-top: 10px; max-width: 520px; }
+        .sync-form label { display: grid; gap: 2px; font-size: 0.85rem; font-weight: 600; }
+        .sync-form label.check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+        .sync-form input[type="url"], .sync-form input[type="text"] {
+            font: inherit; font-size: 16px; padding: 6px 8px; border: 1px solid var(--border);
+            border-radius: 6px; background: var(--card-bg); color: var(--text); width: 100%;
+        }
+
         /* Rest timer */
         .timer {
             position: fixed;
@@ -1491,6 +1504,28 @@
             <button type="button" id="log-export">⬇ Exporteer CSV</button>
             <button type="button" id="log-clear">Wis logboek</button>
         </div>
+        <div class="sync">
+            <h3>Sync naar Google Sheet</h3>
+            <p class="sync-status" id="sync-status" aria-live="polite">Nog niet ingesteld.</p>
+            <div class="log-actions">
+                <button type="button" id="sync-now">⟳ Sync naar sheet</button>
+                <button type="button" id="sync-toggle" aria-expanded="false" aria-controls="sync-form">Sync instellen</button>
+            </div>
+            <form id="sync-form" class="sync-form" hidden>
+                <label>Web-app-link
+                    <input id="sync-url" type="url" inputmode="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
+                </label>
+                <label>Code
+                    <input id="sync-token" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+                </label>
+                <label class="check"><input type="checkbox" id="sync-auto" checked> Automatisch syncen als een oefening klaar is</label>
+                <div class="log-actions">
+                    <button type="submit">Opslaan</button>
+                    <button type="button" id="sync-forget">Wissen</button>
+                </div>
+                <p class="noscript-note">De link en code worden alleen in deze browser bewaard.</p>
+            </form>
+        </div>
         <noscript><p class="noscript-note">Het logboek en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
     </div>
 </div>
@@ -1635,8 +1670,10 @@
                 }
                 row.classList.toggle("done", done);
                 btn.setAttribute("aria-pressed", done ? "true" : "false");
+                var wasComplete = box.classList.contains("complete");
                 store(done);
                 hint();
+                if (!wasComplete && box.classList.contains("complete")) { autoSync(); }
                 if (done) {
                     startTimer(+box.dataset.rest, name + " · na set " + (i + 1) + (i + 1 >= sets ? " (laatste)" : ""));
                 }
@@ -1680,6 +1717,100 @@
             location.reload();
         }
     });
+
+    // ---------- sync to Google Sheet (Apps Script web app) ----------
+    var SYNC_KEY = "tg:sync:v1";
+    var URL_RE = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/;
+    var sync = (function () { try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; } catch (e) { return {}; } })();
+    var syncStatus = document.getElementById("sync-status");
+    var syncForm = document.getElementById("sync-form");
+    var syncToggle = document.getElementById("sync-toggle");
+    var syncBusy = false;
+
+    function saveSync() {
+        try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (e) { /* ignore */ }
+    }
+    function status(text, kind) {
+        syncStatus.textContent = text;
+        syncStatus.className = "sync-status" + (kind ? " " + kind : "");
+    }
+    function configured() { return URL_RE.test(sync.url || "") && !!sync.token; }
+    function showForm(show) {
+        syncForm.hidden = !show;
+        syncToggle.setAttribute("aria-expanded", show ? "true" : "false");
+    }
+    function idleStatus() {
+        if (!configured()) { status("Nog niet ingesteld."); return; }
+        if (sync.pending) { status("Nog niet gesynct: probeer opnieuw zodra je online bent.", "err"); return; }
+        status(sync.last ? "Laatst gesynct: " + new Date(sync.last).toLocaleString("nl-NL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "Ingesteld, nog niet gesynct.", sync.last ? "ok" : "");
+    }
+    function payload() {
+        var entries = [];
+        Object.keys(data).forEach(function (id) {
+            (data[id] || []).forEach(function (e) {
+                var sets = e.sets.filter(function (s) { return s && s.done; })
+                    .map(function (s) { return { kg: s.kg || "", reps: s.reps || "" }; });
+                if (sets.length) { entries.push({ id: id, date: e.date, sets: sets }); }
+            });
+        });
+        return entries;
+    }
+    function syncNow(quiet) {
+        if (!configured()) {
+            if (!quiet) { showForm(true); status("Vul eerst de web-app-link en de code in.", "err"); }
+            return;
+        }
+        if (syncBusy) { return; }
+        syncBusy = true;
+        status("Bezig met syncen…");
+        fetch(sync.url, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ token: sync.token, entries: payload() })
+        }).then(function (r) { return r.json(); }).then(function (res) {
+            if (!res.ok) { throw new Error(res.error || "Onbekende fout"); }
+            sync.last = Date.now();
+            sync.pending = false;
+            saveSync();
+            var msg = res.changed ? res.changed + " cel" + (res.changed === 1 ? "" : "len") + " bijgewerkt (week " + res.weeks.join(", ") + ")" : "sheet was al bij";
+            if (res.skipped && res.skipped.length) { msg += ". Niet in de sheet: " + res.skipped.join(", "); }
+            status("✓ Gesynct: " + msg + ".", "ok");
+        }).catch(function (err) {
+            sync.pending = true;
+            saveSync();
+            status("Sync niet gelukt: " + (err && err.message ? err.message : err) + ". Je sets blijven bewaard.", "err");
+        }).then(function () { syncBusy = false; });
+    }
+    function autoSync() {
+        if (configured() && sync.auto !== false) { setTimeout(function () { syncNow(true); }, 800); }
+    }
+    document.getElementById("sync-url").value = sync.url || "";
+    document.getElementById("sync-token").value = sync.token || "";
+    document.getElementById("sync-auto").checked = sync.auto !== false;
+    syncToggle.addEventListener("click", function () { showForm(syncForm.hidden); });
+    document.getElementById("sync-now").addEventListener("click", function () { syncNow(false); });
+    syncForm.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var url = document.getElementById("sync-url").value.trim();
+        var token = document.getElementById("sync-token").value.trim();
+        if (!URL_RE.test(url)) { status("Dat is geen geldige Apps Script-link (die eindigt op /exec).", "err"); return; }
+        if (!token) { status("Vul de code in.", "err"); return; }
+        sync.url = url;
+        sync.token = token;
+        sync.auto = document.getElementById("sync-auto").checked;
+        saveSync();
+        showForm(false);
+        syncNow(false);
+    });
+    document.getElementById("sync-forget").addEventListener("click", function () {
+        sync = {};
+        saveSync();
+        document.getElementById("sync-url").value = "";
+        document.getElementById("sync-token").value = "";
+        idleStatus();
+    });
+    window.addEventListener("online", function () { if (sync.pending) { syncNow(true); } });
+    idleStatus();
 
     // ---------- rest timer ----------
     var timer = document.getElementById("timer");

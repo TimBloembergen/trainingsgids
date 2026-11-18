@@ -20,9 +20,13 @@ tools/shoot.sh <id> ...           # renders debug/<id>.png with headless Chrome
 
 The animations are plain SVG with CSS keyframes, without JavaScript, so the page also works offline and in the iOS Files preview. Tap an animation to pause it. With "reduce motion" turned on, animations start paused.
 
-## Logbook and spreadsheet
+## Logbook and Google Sheet
 
-The guide keeps a per-set logbook in the browser (localStorage) and can export it as CSV. That export is leading: `tools/update_sheet.py` writes it into the Week columns of the training spreadsheet.
+The guide keeps a per-set logbook in the browser (localStorage). The logbook is leading: it is written into the Week columns of the training tab in Google Sheets.
+
+**Sync (main route):** `tools/apps-script/Code.gs` runs as an Apps Script web app inside the Google Sheet. Run `setup()` once to create the code, deploy it as a web app (execute as me, access anyone) and enter the URL and code in the guide under Logboek > Sync instellen. The guide then syncs when an exercise is finished, or with the Sync button. The URL and code are stored only in the browser, never in this repo.
+
+**Offline fallback:** the CSV export can be written into a local `.xlsx` copy:
 
 ```bash
 python3 tools/update_sheet.py              # newest trainingslogboek-*.csv from private/ or ~/Downloads
