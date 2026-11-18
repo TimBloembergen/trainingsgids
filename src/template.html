@@ -1227,13 +1227,13 @@
 
     // ---------- export / clear ----------
     document.getElementById("log-export").addEventListener("click", function () {
-        var rows = [["Datum", "Dag", "Oefening", "Set", "Gewicht (kg)", "Reps"]];
+        var rows = [["Datum", "Dag", "Oefening", "Set", "Gewicht (kg)", "Reps", "ID"]];
         Array.prototype.forEach.call(logs, function (box) {
             var day = box.closest(".day-section").querySelector("h2").textContent.split(":")[0];
             (data[box.dataset.ex] || []).forEach(function (e) {
                 e.sets.forEach(function (s, i) {
                     if (s && s.done) {
-                        rows.push([e.date, day, box.dataset.name, i + 1, (s.kg || "").replace(".", ","), s.reps]);
+                        rows.push([e.date, day, box.dataset.name, i + 1, (s.kg || "").replace(".", ","), s.reps, box.dataset.ex]);
                     }
                 });
             });
