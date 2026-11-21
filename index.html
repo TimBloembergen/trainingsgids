@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
-    <meta name="tg-build" content="51148786">
+    <meta name="tg-build" content="11b3f9df">
     <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <script>
@@ -141,7 +141,7 @@
             line-height: 1.25;
             margin-bottom: 6px;
         }
-        #tab5:checked ~ header, #tab6:checked ~ header { display: none; }
+        #tab0:checked ~ header, #tab5:checked ~ header, #tab6:checked ~ header { display: none; }
         header p {
             font-size: 0.95rem;
             opacity: 0.9;
@@ -209,7 +209,7 @@
         #menu-toggle:focus-visible ~ .topbar .menu-btn { outline: 3px solid var(--accent); outline-offset: 2px; }
         .topbar-title { font-weight: 700; font-size: 1.02rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .topbar-title .t { display: none; }
-        #tab1:checked ~ .topbar .t1, #tab2:checked ~ .topbar .t2, #tab3:checked ~ .topbar .t3,
+        #tab0:checked ~ .topbar .t0, #tab1:checked ~ .topbar .t1, #tab2:checked ~ .topbar .t2, #tab3:checked ~ .topbar .t3,
         #tab4:checked ~ .topbar .t4, #tab5:checked ~ .topbar .t5, #tab6:checked ~ .topbar .t6 { display: inline; }
         .topbar-brand { margin-left: auto; font-size: 0.78rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
 
@@ -284,6 +284,27 @@
         #tab5:checked ~ .drawer label[for="tab5"] .di-title, #tab6:checked ~ .drawer label[for="tab6"] .di-title {
             color: var(--primary-dark);
         }
+        .soon-chip {
+            font-size: 0.68rem;
+            font-weight: 700;
+            border: 1px solid var(--primary);
+            color: var(--primary-dark);
+            border-radius: 999px;
+            padding: 0 6px;
+            margin-left: 6px;
+            vertical-align: 1px;
+        }
+        .rest-next { font-size: 1.05rem; margin-bottom: 12px; }
+        .rest-days { list-style: none; display: grid; gap: 8px; }
+        .rest-days label {
+            display: block;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .rest-days label:hover { background: var(--bg); }
+        .rest-days label.next { border-color: var(--primary); background: var(--primary-light); }
         .theme-switch {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -318,6 +339,7 @@
         .day-section {
             display: none;
         }
+        #tab0:checked ~ .container #rustdag,
         #tab1:checked ~ .container #dag1,
         #tab2:checked ~ .container #dag2,
         #tab3:checked ~ .container #dag3,
@@ -327,6 +349,7 @@
             display: block;
             animation: fadeIn 0.25s ease-in-out;
         }
+        #tab0:checked ~ .container .progression,
         #tab5:checked ~ .container .progression,
         #tab6:checked ~ .container .progression { display: none; }
         @keyframes fadeIn {
@@ -1029,6 +1052,7 @@
 <body>
 
 <!-- Page state: tabs and menu are CSS radios/checkbox; JavaScript adds the logbook, rest timer and sheet sync. -->
+<input type="radio" class="tab-radio" id="tab0" name="tab-group" aria-label="Rustdag">
 <input type="radio" class="tab-radio" id="tab1" name="tab-group" checked aria-label="Dag 1">
 <input type="radio" class="tab-radio" id="tab2" name="tab-group" aria-label="Dag 2">
 <input type="radio" class="tab-radio" id="tab3" name="tab-group" aria-label="Dag 3">
@@ -1040,6 +1064,7 @@
 <div class="topbar">
     <label for="menu-toggle" class="menu-btn" aria-hidden="true"><span></span><span></span><span></span></label>
     <div class="topbar-title">
+        <span class="t t0">Rustdag</span>
         <span class="t t1">Dag 1 · Upper A</span>
         <span class="t t2">Dag 2 · Lower A</span>
         <span class="t t3">Dag 3 · Upper B</span>
@@ -1083,6 +1108,24 @@
         Haal je bij alle sets het maximum (bijv. 3 × 10), ga dan de volgende keer zwaarder.
         Houd 1–2 herhalingen in reserve (RIR 1–2) met strikte vorm.
     </div>
+
+    <!-- RUSTDAG (opened by the script on days without a training) -->
+    <section id="rustdag" class="day-section">
+        <div class="day-header">
+            <h2>Vandaag rustdag</h2>
+            <span>Herstel hoort bij het schema: je spieren groeien tussen de trainingen door.</span>
+        </div>
+        <div class="card-plain">
+            <p class="rest-next" id="rest-next"></p>
+            <h3 class="mini-title">Toch vandaag trainen?</h3>
+            <ul class="rest-days">
+                <li><label for="tab1" data-day="tab1">Dag 1 · Upper A <small>(dinsdag)</small></label></li>
+                <li><label for="tab2" data-day="tab2">Dag 2 · Lower A <small>(donderdag)</small></label></li>
+                <li><label for="tab3" data-day="tab3">Dag 3 · Upper B <small>(vrijdag)</small></label></li>
+                <li><label for="tab4" data-day="tab4">Dag 4 · Lower B <small>(zondag)</small></label></li>
+            </ul>
+        </div>
+    </section>
 
     <!-- DAG 1 -->
     <section id="dag1" class="day-section">
@@ -1799,7 +1842,7 @@
                 <p class="noscript-note">De link en code worden alleen in deze browser bewaard.</p>
             </form>
         </div>
-        <p class="noscript-note">Versie 51148786 · <a href="#" id="check-update">Controleer op updates</a></p>
+        <p class="noscript-note">Versie 11b3f9df · <a href="#" id="check-update">Controleer op updates</a></p>
         <noscript><p class="noscript-note">Het logboek en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
     </div>
 </div>
@@ -1876,9 +1919,6 @@
         if (document.visibilityState === "visible") { checkUpdate(false); }
     });
 
-    // Open the tab for today's training day (Tue, Thu, Fri, Sun)
-    var dayTab = { 2: "tab1", 4: "tab2", 5: "tab3", 0: "tab4" }[new Date().getDay()];
-    if (dayTab) { document.getElementById(dayTab).checked = true; }
     // ---------- hamburger menu ----------
     var menuToggle = document.getElementById("menu-toggle");
     function closeMenu() {
@@ -1908,10 +1948,50 @@
     document.addEventListener("keydown", function (ev) {
         if (ev.key === "Escape") { closeMenu(); }
     });
-    if (dayTab) {
-        var todayLabel = document.querySelector('.drawer label[for="' + dayTab + '"] .di-title');
-        if (todayLabel) { todayLabel.appendChild(el("span", "today-chip", "vandaag")); }
+    // ---------- today's training day ----------
+    // Training days: Tue, Thu, Fri, Sun. On other days the rest-day page opens.
+    var SCHEDULE = { 2: "tab1", 4: "tab2", 5: "tab3", 0: "tab4" };
+    var WEEKDAYS = ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"];
+    var shownDay = null, autoTab = null;
+    function applyDay() {
+        var now = new Date(), wd = now.getDay();
+        shownDay = today();
+        var tab = SCHEDULE[wd] || "tab0";
+        // only switch when the page is still on the tab we chose earlier
+        var current = document.querySelector('input[name="tab-group"]:checked');
+        if (!autoTab || (current && current.id === autoTab)) {
+            document.getElementById(tab).checked = true;
+        }
+        autoTab = tab;
+        Array.prototype.forEach.call(document.querySelectorAll(".today-chip, .soon-chip"), function (c) { c.remove(); });
+        Array.prototype.forEach.call(document.querySelectorAll(".rest-days label.next"), function (l) { l.classList.remove("next"); });
+        if (SCHEDULE[wd]) {
+            var todayLabel = document.querySelector('.drawer label[for="' + tab + '"] .di-title');
+            if (todayLabel) { todayLabel.appendChild(el("span", "today-chip", "vandaag")); }
+            return;
+        }
+        for (var n = 1; n < 7; n++) {
+            var next = SCHEDULE[(wd + n) % 7];
+            if (!next) { continue; }
+            var when = n === 1 ? "morgen" : WEEKDAYS[(wd + n) % 7];
+            var nextLabel = document.querySelector('.drawer label[for="' + next + '"] .di-title');
+            if (nextLabel) { nextLabel.appendChild(el("span", "soon-chip", when)); }
+            var restItem = document.querySelector('.rest-days label[data-day="' + next + '"]');
+            if (restItem) { restItem.classList.add("next"); }
+            var title = document.querySelector('.drawer label[for="' + next + '"] .di-title').firstChild.textContent;
+            document.getElementById("rest-next").textContent = "Volgende training: " + when +
+                (n === 1 ? " (" + WEEKDAYS[(wd + n) % 7] + ")" : "") + " — " + title + ".";
+            break;
+        }
     }
+    applyDay();
+    // a home-screen app can stay open overnight: pick the new day when it comes back
+    document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible" && shownDay !== today()) {
+            applyDay();
+            window.scrollTo(0, 0);
+        }
+    });
 
     // ---------- light / dark / auto ----------
     var THEME_KEY = "tg:theme";
