@@ -12,6 +12,9 @@ Without a CSV it takes the newest trainingslogboek-*.csv from private/ or
 Week mapping: the Monday of the first exported training goes to the first
 Week column that is still empty in the sheet. That anchor is saved in
 sheet-weeks.json next to the sheet so later runs map the same dates to the same weeks.
+A training done up to LATE_DAYS after its planned day but in the next calendar
+week (Sunday's training on Monday) counts for the previous week when that week
+has no training of the exercise yet.
 A copy of the sheet is saved in backup/ next to the sheet before every write.
 """
 import argparse
@@ -39,6 +42,9 @@ DAYS = [
     ["shoulder-press", "pullover", "incline-fly", "rear-delt", "tricep-ext", "hammer"],
     ["rdl-heavy", "reverse-lunge", "hip-thrust", "single-calf", "russian-twist"],
 ]
+# Planned weekday per training day (0 = Monday): Tue, Thu, Fri, Sun.
+PLANNED = [1, 3, 4, 6]
+LATE_DAYS = 3
 
 
 def col_to_num(col):
@@ -58,6 +64,23 @@ def num_to_col(n):
 
 def monday(d):
     return d - dt.timedelta(days=d.weekday())
+
+
+def planned_day(ex):
+    return next((PLANNED[i] for i, ids in enumerate(DAYS) if ex in ids), None)
+
+
+def assign_weeks(ex, dates, anchor, anchor_week, weeks):
+    """Returns {week: date} for one exercise; mirrors assignWeeks_ in Code.gs."""
+    planned = planned_day(ex)
+    per_week = {}
+    for d in sorted(dates):
+        w = anchor_week + (monday(d) - anchor).days // 7
+        late = (d - (monday(d) + dt.timedelta(days=planned - 7))).days if planned is not None else LATE_DAYS + 1
+        if late <= LATE_DAYS and w - 1 >= anchor_week and w - 1 in weeks and w - 1 not in per_week:
+            w -= 1
+        per_week[w] = d  # latest session of that week wins
+    return per_week
 
 
 # ---------- reading ----------
@@ -248,10 +271,18 @@ def main():
 
     changes = []
     for ex, by_date in data.items():
-        per_week = {}
-        for d in sorted(by_date):
-            w = anchor_week + (monday(d) - anchor).days // 7
-            per_week[w] = (d, by_date[d])  # latest session of that week wins
+        per_week = {w: (d, by_date[d]) for w, d in assign_weeks(ex, by_date, anchor, anchor_week, weeks).items()}
+        # a training moved to the previous week may still sit in its calendar week from an earlier run
+        for w, (d, sets) in sorted(per_week.items()):
+            natural = anchor_week + (monday(d) - anchor).days // 7
+            if natural == w or natural in per_week or natural not in weeks:
+                continue
+            wc, rc = weeks[natural]
+            r = rows[ex]
+            weight, reps = describe(sets)
+            if vals.get(f"{wc}{r}", "") == weight and vals.get(f"{rc}{r}", "") == reps:
+                changes.append((f"{wc}{r}", weight, "", f"H{r}", ex, natural))
+                changes.append((f"{rc}{r}", reps, "", f"I{r}", ex, natural))
         for w, (d, sets) in sorted(per_week.items()):
             if w not in weeks:
                 print(f"  {ex}: training van {d} valt in Week {w}, die staat niet in de sheet; overgeslagen.")
@@ -267,7 +298,7 @@ def main():
         print("De sheet is al bijgewerkt; niets te doen.")
         return
     for ref, old, new, _, ex, w in changes:
-        print(f"  Week {w} {ex:15} {ref:5} {old or '(leeg)'} -> {new}")
+        print(f"  Week {w} {ex:15} {ref:5} {old or '(leeg)'} -> {new or '(leeg)'}")
     if args.dry_run:
         print(f"{len(changes)} wijzigingen (dry run, niets opgeslagen).")
         return
