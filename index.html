@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
-    <meta name="tg-build" content="b82ae2be">
+    <meta name="tg-build" content="92203209">
     <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <script>
@@ -141,7 +141,7 @@
             line-height: 1.25;
             margin-bottom: 6px;
         }
-        #tab0:checked ~ header, #tab5:checked ~ header, #tab6:checked ~ header { display: none; }
+        #tab0:checked ~ header, #tab5:checked ~ header, #tab6:checked ~ header, #tab7:checked ~ header { display: none; }
         header p {
             font-size: 0.95rem;
             opacity: 0.9;
@@ -210,7 +210,8 @@
         .topbar-title { font-weight: 700; font-size: 1.02rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .topbar-title .t { display: none; }
         #tab0:checked ~ .topbar .t0, #tab1:checked ~ .topbar .t1, #tab2:checked ~ .topbar .t2, #tab3:checked ~ .topbar .t3,
-        #tab4:checked ~ .topbar .t4, #tab5:checked ~ .topbar .t5, #tab6:checked ~ .topbar .t6 { display: inline; }
+        #tab4:checked ~ .topbar .t4, #tab5:checked ~ .topbar .t5, #tab6:checked ~ .topbar .t6,
+        #tab7:checked ~ .topbar .t7 { display: inline; }
         .topbar-brand { margin-left: auto; font-size: 0.78rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
 
         /* Slide-in menu */
@@ -275,13 +276,15 @@
         }
         #tab1:checked ~ .drawer label[for="tab1"], #tab2:checked ~ .drawer label[for="tab2"],
         #tab3:checked ~ .drawer label[for="tab3"], #tab4:checked ~ .drawer label[for="tab4"],
-        #tab5:checked ~ .drawer label[for="tab5"], #tab6:checked ~ .drawer label[for="tab6"] {
+        #tab5:checked ~ .drawer label[for="tab5"], #tab6:checked ~ .drawer label[for="tab6"],
+        #tab7:checked ~ .drawer label[for="tab7"] {
             background: var(--primary-light);
             border-left-color: var(--primary);
         }
         #tab1:checked ~ .drawer label[for="tab1"] .di-title, #tab2:checked ~ .drawer label[for="tab2"] .di-title,
         #tab3:checked ~ .drawer label[for="tab3"] .di-title, #tab4:checked ~ .drawer label[for="tab4"] .di-title,
-        #tab5:checked ~ .drawer label[for="tab5"] .di-title, #tab6:checked ~ .drawer label[for="tab6"] .di-title {
+        #tab5:checked ~ .drawer label[for="tab5"] .di-title, #tab6:checked ~ .drawer label[for="tab6"] .di-title,
+        #tab7:checked ~ .drawer label[for="tab7"] .di-title {
             color: var(--primary-dark);
         }
         .soon-chip {
@@ -309,7 +312,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 4px;
-            margin: 4px 12px;
+            max-width: 360px;
             padding: 4px;
             background: var(--bg);
             border-radius: 10px;
@@ -330,8 +333,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 8px 12px 4px;
-            font-size: 0.88rem;
+            margin-top: 12px;
+            font-size: 0.9rem;
             cursor: pointer;
         }
         .wake-switch input { width: 18px; height: 18px; accent-color: var(--primary); flex: none; }
@@ -356,13 +359,15 @@
         #tab3:checked ~ .container #dag3,
         #tab4:checked ~ .container #dag4,
         #tab5:checked ~ .container #voeding,
-        #tab6:checked ~ .container #metingen {
+        #tab6:checked ~ .container #metingen,
+        #tab7:checked ~ .container #instellingen {
             display: block;
             animation: fadeIn 0.25s ease-in-out;
         }
         #tab0:checked ~ .container .progression,
         #tab5:checked ~ .container .progression,
-        #tab6:checked ~ .container .progression { display: none; }
+        #tab6:checked ~ .container .progression,
+        #tab7:checked ~ .container .progression { display: none; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
@@ -642,12 +647,26 @@
         .log-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .noscript-note { font-size: 0.8rem; color: var(--text-muted); }
 
-        .sync { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
-        .sync h3 { font-size: 1rem; margin-bottom: 2px; }
+        .settings-text { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 4px; }
+        .log-actions button.danger { color: #dc2626; border-color: #dc2626; }
+        .sync-warn {
+            margin-left: auto;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+            background: #dc2626;
+            border-radius: 999px;
+            padding: 3px 9px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .sync-warn[hidden] { display: none; }
+        .sync-warn:not([hidden]) ~ .topbar-brand { display: none; }
         .sync-status { font-size: 0.85rem; color: var(--text-muted); }
         .sync-status.ok { color: var(--primary-dark); }
         .sync-status.err { color: #dc2626; }
         .sync-form { display: grid; gap: 8px; margin-top: 10px; max-width: 520px; }
+        .sync-form[hidden] { display: none; }
         .sync-form label { display: grid; gap: 2px; font-size: 0.85rem; font-weight: 600; }
         .sync-form label.check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
         .sync-form input[type="url"], .sync-form input[type="text"] {
@@ -1070,6 +1089,7 @@
 <input type="radio" class="tab-radio" id="tab4" name="tab-group" aria-label="Dag 4">
 <input type="radio" class="tab-radio" id="tab5" name="tab-group" aria-label="Voeding">
 <input type="radio" class="tab-radio" id="tab6" name="tab-group" aria-label="Metingen">
+<input type="radio" class="tab-radio" id="tab7" name="tab-group" aria-label="Instellingen">
 <input type="checkbox" class="tab-radio" id="menu-toggle" aria-label="Menu" aria-controls="menu">
 
 <div class="topbar">
@@ -1082,7 +1102,9 @@
         <span class="t t4">Dag 4 · Lower B</span>
         <span class="t t5">Voeding</span>
         <span class="t t6">Metingen</span>
+        <span class="t t7">Instellingen</span>
     </div>
+    <label for="tab7" class="sync-warn" id="sync-warn" hidden>⚠ Niet gesynct</label>
     <span class="topbar-brand">Trainingsgids</span>
 </div>
 
@@ -1097,17 +1119,8 @@
     <p class="drawer-section">Voeding & lichaam</p>
     <label for="tab5" class="drawer-item"><span class="di-title">Voeding</span><span class="di-sub">Plan, maaltijden en timing</span></label>
     <label for="tab6" class="drawer-item"><span class="di-title">Metingen</span><span class="di-sub">Gewicht, notitie en stappen</span></label>
-    <a href="#logboek" class="drawer-item" id="menu-log"><span class="di-title">Logboek & sync</span><span class="di-sub">Export en Google Sheet</span></a>
-    <p class="drawer-section">Weergave</p>
-    <div class="theme-switch" role="group" aria-label="Weergave">
-        <button type="button" data-theme-set="auto">Auto</button>
-        <button type="button" data-theme-set="light">Licht</button>
-        <button type="button" data-theme-set="dark">Donker</button>
-    </div>
-    <label class="wake-switch" id="wake-switch">
-        <input type="checkbox" id="wake-toggle" checked>
-        <span>Scherm aan tijdens training<small id="wake-note">Op de pagina's van Dag 1 t/m 4</small></span>
-    </label>
+    <p class="drawer-section">App</p>
+    <label for="tab7" class="drawer-item"><span class="di-title">Instellingen</span><span class="di-sub">Google Sheet, weergave en logboek</span></label>
 </nav>
 
 <header>
@@ -1794,7 +1807,7 @@
             <h2>Voeding & overzicht</h2>
             <span>Uit je Google Sheet, tabblad "Overzicht &amp; Voeding". Wijzig je iets in de sheet, dan zie je het hier na de volgende sync.</span>
         </div>
-        <div class="sheet-blocks" id="voeding-blocks"><p class="empty-note">Nog niet geladen. Stel onderaan bij <strong>Sync naar Google Sheet</strong> de koppeling in en tik op Sync.</p></div>
+        <div class="sheet-blocks" id="voeding-blocks"><p class="empty-note">Nog niet geladen. Stel bij <strong>Instellingen</strong> de koppeling met je Google Sheet in en tik op Sync.</p></div>
     </section>
 
     <!-- METINGEN -->
@@ -1825,18 +1838,14 @@
         </div>
     </section>
 
-</div>
-
-<div class="container" id="logboek">
-    <div class="day-header">
-        <h2>Logboek</h2>
-        <span>Je sets worden alleen in deze browser op dit apparaat bewaard. Exporteer ze af en toe naar je sheet.</span>
-        <div class="log-actions">
-            <button type="button" id="log-export">⬇ Exporteer CSV</button>
-            <button type="button" id="log-clear">Wis logboek</button>
+    <!-- INSTELLINGEN -->
+    <section id="instellingen" class="day-section">
+        <div class="day-header">
+            <h2>Instellingen</h2>
+            <span>Koppeling met je Google Sheet, weergave en je logboek op dit apparaat.</span>
         </div>
-        <div class="sync">
-            <h3>Sync naar Google Sheet</h3>
+        <div class="card-plain">
+            <h3 class="mini-title">Google Sheet</h3>
             <p class="sync-status" id="sync-status" aria-live="polite">Nog niet ingesteld.</p>
             <div class="log-actions">
                 <button type="button" id="sync-now">⟳ Sync naar sheet</button>
@@ -1857,9 +1866,31 @@
                 <p class="noscript-note">De link en code worden alleen in deze browser bewaard.</p>
             </form>
         </div>
-        <p class="noscript-note">Versie b82ae2be · <a href="#" id="check-update">Controleer op updates</a></p>
-        <noscript><p class="noscript-note">Het logboek en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
-    </div>
+        <div class="card-plain">
+            <h3 class="mini-title">Weergave</h3>
+            <div class="theme-switch" role="group" aria-label="Weergave">
+                <button type="button" data-theme-set="auto">Auto</button>
+                <button type="button" data-theme-set="light">Licht</button>
+                <button type="button" data-theme-set="dark">Donker</button>
+            </div>
+            <label class="wake-switch" id="wake-switch">
+                <input type="checkbox" id="wake-toggle" checked>
+                <span>Scherm aan tijdens training<small id="wake-note">Op de pagina's van Dag 1 t/m 4</small></span>
+            </label>
+        </div>
+        <div class="card-plain">
+            <h3 class="mini-title">Logboek</h3>
+            <p class="settings-text">Je sets worden op dit apparaat bewaard en via de sync in je Google Sheet gezet.</p>
+            <div class="log-actions">
+                <button type="button" id="log-clear" class="danger">Wis logboek</button>
+            </div>
+        </div>
+        <div class="card-plain">
+            <p class="noscript-note">Versie 92203209 · <a href="#" id="check-update">Controleer op updates</a></p>
+            <noscript><p class="noscript-note">Het logboek, de sync en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
+        </div>
+    </section>
+
 </div>
 
 <div class="update-bar" id="update-bar" hidden>
@@ -1955,11 +1986,6 @@
     // clicking the current page in the menu only closes it
     Array.prototype.forEach.call(document.querySelectorAll(".drawer label.drawer-item"), function (l) {
         l.addEventListener("click", function () { setTimeout(closeMenu, 0); });
-    });
-    document.getElementById("menu-log").addEventListener("click", function (ev) {
-        ev.preventDefault();
-        closeMenu();
-        document.getElementById("logboek").scrollIntoView({ behavior: "smooth" });
     });
     document.addEventListener("keydown", function (ev) {
         if (ev.key === "Escape") { closeMenu(); }
@@ -2193,31 +2219,7 @@
         hint();
     });
 
-    // ---------- export / clear ----------
-    document.getElementById("log-export").addEventListener("click", function () {
-        var rows = [["Datum", "Dag", "Oefening", "Set", "Gewicht (kg)", "Reps", "ID"]];
-        Array.prototype.forEach.call(logs, function (box) {
-            var day = box.closest(".day-section").querySelector("h2").textContent.split(":")[0];
-            (data[box.dataset.ex] || []).forEach(function (e) {
-                e.sets.forEach(function (s, i) {
-                    if (s && s.done) {
-                        rows.push([e.date, day, box.dataset.name, i + 1, (s.kg || "").replace(".", ","), s.reps, box.dataset.ex]);
-                    }
-                });
-            });
-        });
-        rows = [rows[0]].concat(rows.slice(1).sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; }));
-        var csv = rows.map(function (r) {
-            return r.map(function (c) { c = String(c); return /[;"\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(";");
-        }).join("\r\n");
-        var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
-        var a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "trainingslogboek-" + today() + ".csv";
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-    });
+    // ---------- clear ----------
     document.getElementById("log-clear").addEventListener("click", function () {
         if (confirm("Weet je zeker dat je het hele logboek op dit apparaat wilt wissen? Dit kan niet ongedaan worden gemaakt.")) {
             data = {};
@@ -2241,6 +2243,8 @@
     function status(text, kind) {
         syncStatus.textContent = text;
         syncStatus.className = "sync-status" + (kind ? " " + kind : "");
+        // a failed (auto) sync is shown in the top bar on every page
+        document.getElementById("sync-warn").hidden = !(sync.pending && configured());
     }
     function configured() { return URL_RE.test(sync.url || "") && !!sync.token; }
     function showForm(show) {
