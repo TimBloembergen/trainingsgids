@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <meta name="tg-build" content="{{version}}">
     <meta name="theme-color" content="#18181b">
@@ -126,7 +126,7 @@
             background-color: var(--bg);
             color: var(--text);
             line-height: 1.6;
-            padding-bottom: 60px;
+            padding-bottom: calc(var(--nav-h) + 24px);
         }
         header {
             background: linear-gradient(135deg, #18181b, #2b2b30);
@@ -171,7 +171,7 @@
             pointer-events: none;
         }
 
-        /* Top bar with hamburger */
+        /* Top bar */
         .topbar {
             position: sticky;
             top: 0;
@@ -180,33 +180,11 @@
             align-items: center;
             gap: 10px;
             min-height: 54px;
-            padding: env(safe-area-inset-top) 12px 0;
+            padding: env(safe-area-inset-top) 16px 0;
             background: var(--topbar);
             color: var(--on-topbar);
             border-bottom: 3px solid var(--accent);
         }
-        .menu-btn {
-            width: 44px;
-            height: 44px;
-            display: grid;
-            place-content: center;
-            gap: 5px;
-            border-radius: 10px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .menu-btn span {
-            display: block;
-            width: 22px;
-            height: 2.5px;
-            border-radius: 2px;
-            background: currentColor;
-            transition: transform 0.2s, opacity 0.2s;
-        }
-        #menu-toggle:checked ~ .topbar .menu-btn span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
-        #menu-toggle:checked ~ .topbar .menu-btn span:nth-child(2) { opacity: 0; }
-        #menu-toggle:checked ~ .topbar .menu-btn span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
-        #menu-toggle:focus-visible ~ .topbar .menu-btn { outline: 3px solid var(--accent); outline-offset: 2px; }
         .topbar-title { font-weight: 700; font-size: 1.02rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .topbar-title .t { display: none; }
         #tab0:checked ~ .topbar .t0, #tab1:checked ~ .topbar .t1, #tab2:checked ~ .topbar .t2, #tab3:checked ~ .topbar .t3,
@@ -214,88 +192,91 @@
         #tab7:checked ~ .topbar .t7 { display: inline; }
         .topbar-brand { margin-left: auto; font-size: 0.78rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
 
-        /* Slide-in menu */
-        .scrim {
+        /* Bottom navigation, always visible */
+        :root { --nav-h: calc(60px + env(safe-area-inset-bottom)); }
+        .bottom-nav {
             position: fixed;
-            inset: 0;
-            z-index: 240;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s;
-        }
-        .drawer {
-            position: fixed;
-            top: 0;
-            bottom: 0;
             left: 0;
-            z-index: 250;
-            width: min(300px, 86vw);
-            padding: calc(14px + env(safe-area-inset-top)) 12px 24px;
-            background: var(--card-bg);
-            color: var(--text);
-            overflow-y: auto;
-            transform: translateX(-105%);
-            transition: transform 0.25s ease;
-            box-shadow: 8px 0 24px rgba(0, 0, 0, 0.25);
-            visibility: hidden;
+            right: 0;
+            bottom: 0;
+            z-index: 150;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            height: var(--nav-h);
+            padding: 0 6px env(safe-area-inset-bottom);
+            background: var(--topbar);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
         }
-        #menu-toggle:checked ~ .scrim { opacity: 1; pointer-events: auto; }
-        #menu-toggle:checked ~ .drawer { transform: none; visibility: visible; }
-        .drawer-head { font-size: 1.15rem; font-weight: 800; padding: 4px 12px 8px; }
-        .drawer-head::after { content: ""; display: block; width: 32px; height: 3px; background: var(--accent); border-radius: 2px; margin-top: 6px; }
-        .drawer-section {
+        .bn-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
             font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            padding: 14px 12px 4px;
-        }
-        .drawer-item {
-            display: block;
-            padding: 9px 12px;
-            border-radius: 10px;
-            border-left: 3px solid transparent;
-            color: inherit;
-            text-decoration: none;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.55);
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
-        .drawer-item:hover { background: var(--bg); }
-        .di-title { display: block; font-weight: 600; font-size: 0.95rem; }
-        .di-sub { display: block; font-size: 0.78rem; color: var(--text-muted); }
-        .today-chip {
-            font-size: 0.68rem;
-            font-weight: 700;
+        .bn-item svg {
+            width: 26px;
+            height: 26px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        #tab0:checked ~ .bottom-nav .bn-training, #tab1:checked ~ .bottom-nav .bn-training,
+        #tab2:checked ~ .bottom-nav .bn-training, #tab3:checked ~ .bottom-nav .bn-training,
+        #tab4:checked ~ .bottom-nav .bn-training, #tab5:checked ~ .bottom-nav .bn-voeding,
+        #tab6:checked ~ .bottom-nav .bn-metingen, #tab7:checked ~ .bottom-nav .bn-instellingen {
+            color: var(--accent);
+        }
+        .tab-radio:focus-visible ~ .bottom-nav { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+        /* Day switch on the training pages */
+        .day-switch {
+            position: sticky;
+            top: calc(57px + env(safe-area-inset-top));
+            z-index: 100;
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin: 0 -16px 18px;
+            padding: 8px 16px;
+            background: var(--bg);
+        }
+        #tab0:checked ~ .container .day-switch, #tab1:checked ~ .container .day-switch,
+        #tab2:checked ~ .container .day-switch, #tab3:checked ~ .container .day-switch,
+        #tab4:checked ~ .container .day-switch { display: grid; }
+        .day-switch label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            cursor: pointer;
+            line-height: 1.25;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ds-day { font-weight: 700; font-size: 0.92rem; }
+        .ds-sub { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; }
+        .day-switch label.is-today .ds-sub, .day-switch label.is-next .ds-sub { color: var(--primary-dark); font-weight: 700; }
+        .day-switch label.is-today { border-color: var(--primary); }
+        #tab1:checked ~ .container .day-switch label[for="tab1"], #tab2:checked ~ .container .day-switch label[for="tab2"],
+        #tab3:checked ~ .container .day-switch label[for="tab3"], #tab4:checked ~ .container .day-switch label[for="tab4"] {
             background: var(--primary);
+            border-color: var(--primary);
+        }
+        #tab1:checked ~ .container .day-switch label[for="tab1"] span, #tab2:checked ~ .container .day-switch label[for="tab2"] span,
+        #tab3:checked ~ .container .day-switch label[for="tab3"] span, #tab4:checked ~ .container .day-switch label[for="tab4"] span {
             color: var(--on-primary);
-            border-radius: 999px;
-            padding: 0 7px;
-            margin-left: 6px;
-            vertical-align: 1px;
-        }
-        #tab1:checked ~ .drawer label[for="tab1"], #tab2:checked ~ .drawer label[for="tab2"],
-        #tab3:checked ~ .drawer label[for="tab3"], #tab4:checked ~ .drawer label[for="tab4"],
-        #tab5:checked ~ .drawer label[for="tab5"], #tab6:checked ~ .drawer label[for="tab6"],
-        #tab7:checked ~ .drawer label[for="tab7"] {
-            background: var(--primary-light);
-            border-left-color: var(--primary);
-        }
-        #tab1:checked ~ .drawer label[for="tab1"] .di-title, #tab2:checked ~ .drawer label[for="tab2"] .di-title,
-        #tab3:checked ~ .drawer label[for="tab3"] .di-title, #tab4:checked ~ .drawer label[for="tab4"] .di-title,
-        #tab5:checked ~ .drawer label[for="tab5"] .di-title, #tab6:checked ~ .drawer label[for="tab6"] .di-title,
-        #tab7:checked ~ .drawer label[for="tab7"] .di-title {
-            color: var(--primary-dark);
-        }
-        .soon-chip {
-            font-size: 0.68rem;
-            font-weight: 700;
-            border: 1px solid var(--primary);
-            color: var(--primary-dark);
-            border-radius: 999px;
-            padding: 0 6px;
-            margin-left: 6px;
-            vertical-align: 1px;
         }
         .rest-next { font-size: 1.05rem; margin-bottom: 12px; }
         .rest-days { list-style: none; display: grid; gap: 8px; }
@@ -340,10 +321,7 @@
         .wake-switch input { width: 18px; height: 18px; accent-color: var(--primary); flex: none; }
         .wake-switch small { display: block; font-size: 0.75rem; color: var(--text-muted); }
         .wake-switch.unsupported { cursor: default; opacity: 0.6; }
-        .drawer-item:focus-visible, .theme-switch button:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
-        @media (prefers-reduced-motion: reduce) {
-            .drawer, .scrim, .menu-btn span { transition: none; }
-        }
+        .theme-switch button:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
 
         .container {
             max-width: 960px;
@@ -763,7 +741,7 @@
         .timer {
             position: fixed;
             left: 50%;
-            bottom: 12px;
+            bottom: calc(var(--nav-h) + 10px);
             transform: translateX(-50%);
             width: min(520px, calc(100% - 24px));
             background: var(--card-bg);
@@ -783,14 +761,14 @@
         .timer.over { border-color: #16a34a; }
         .timer.over .timer-time { color: #16a34a; font-size: 1.15rem; }
         .timer.over .timer-fill { background: #16a34a; }
-        body.timing { padding-bottom: 120px; }
+        body.timing { padding-bottom: calc(var(--nav-h) + 120px); }
 
 /*{{keyframes}}*/
     </style>
 </head>
 <body>
 
-<!-- Page state: tabs and menu are CSS radios/checkbox; JavaScript adds the logbook, rest timer and sheet sync. -->
+<!-- Page state: the pages are CSS radios; JavaScript adds the logbook, rest timer and sheet sync. -->
 <input type="radio" class="tab-radio" id="tab0" name="tab-group" aria-label="Rustdag">
 <input type="radio" class="tab-radio" id="tab1" name="tab-group" checked aria-label="Dag 1">
 <input type="radio" class="tab-radio" id="tab2" name="tab-group" aria-label="Dag 2">
@@ -799,10 +777,8 @@
 <input type="radio" class="tab-radio" id="tab5" name="tab-group" aria-label="Voeding">
 <input type="radio" class="tab-radio" id="tab6" name="tab-group" aria-label="Metingen">
 <input type="radio" class="tab-radio" id="tab7" name="tab-group" aria-label="Instellingen">
-<input type="checkbox" class="tab-radio" id="menu-toggle" aria-label="Menu" aria-controls="menu">
 
 <div class="topbar">
-    <label for="menu-toggle" class="menu-btn" aria-hidden="true"><span></span><span></span><span></span></label>
     <div class="topbar-title">
         <span class="t t0">Rustdag</span>
         <span class="t t1">Dag 1 · Upper A</span>
@@ -817,19 +793,11 @@
     <span class="topbar-brand">Trainingsgids</span>
 </div>
 
-<label for="menu-toggle" class="scrim" aria-hidden="true"></label>
-<nav class="drawer" id="menu" aria-label="Menu">
-    <p class="drawer-head">Trainingsgids</p>
-    <p class="drawer-section">Training</p>
-    <label for="tab1" class="drawer-item"><span class="di-title">Dag 1 · Upper A</span><span class="di-sub">Dinsdag · borst & rug</span></label>
-    <label for="tab2" class="drawer-item"><span class="di-title">Dag 2 · Lower A</span><span class="di-sub">Donderdag · quads & core</span></label>
-    <label for="tab3" class="drawer-item"><span class="di-title">Dag 3 · Upper B</span><span class="di-sub">Vrijdag · schouders & armen</span></label>
-    <label for="tab4" class="drawer-item"><span class="di-title">Dag 4 · Lower B</span><span class="di-sub">Zondag · hamstrings & billen</span></label>
-    <p class="drawer-section">Voeding & lichaam</p>
-    <label for="tab5" class="drawer-item"><span class="di-title">Voeding</span><span class="di-sub">Plan, maaltijden en timing</span></label>
-    <label for="tab6" class="drawer-item"><span class="di-title">Metingen</span><span class="di-sub">Gewicht, notitie en stappen</span></label>
-    <p class="drawer-section">App</p>
-    <label for="tab7" class="drawer-item"><span class="di-title">Instellingen</span><span class="di-sub">Google Sheet, weergave en logboek</span></label>
+<nav class="bottom-nav" aria-label="Menu">
+    <label for="tab1" class="bn-item bn-training" id="nav-training"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12h19"/><rect x="4.5" y="7" width="3" height="10" rx="1"/><rect x="16.5" y="7" width="3" height="10" rx="1"/><path d="M2.5 9.5v5M21.5 9.5v5"/></svg>Training</label>
+    <label for="tab5" class="bn-item bn-voeding"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7c-1.5-1.6-4.6-1.8-6.2.2-1.9 2.4-1 6.6 1.2 9.8 1.3 1.9 2.6 3 4 2.3l1-.4 1 .4c1.4.7 2.7-.4 4-2.3 2.2-3.2 3.1-7.4 1.2-9.8C16.6 5.2 13.5 5.4 12 7z"/><path d="M12 7c0-2 1-3.5 3-4"/></svg>Voeding</label>
+    <label for="tab6" class="bn-item bn-metingen"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 9.5a6 6 0 0 1 8 0"/><path d="M12 9.5l1.5-2"/></svg>Metingen</label>
+    <label for="tab7" class="bn-item bn-instellingen"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>Instellingen</label>
 </nav>
 
 <header>
@@ -839,6 +807,13 @@
 </header>
 
 <div class="container">
+
+    <div class="day-switch" role="group" aria-label="Trainingsdag">
+        <label for="tab1"><span class="ds-day">Dag 1</span><span class="ds-sub" data-default="Di · Upper">Di · Upper</span></label>
+        <label for="tab2"><span class="ds-day">Dag 2</span><span class="ds-sub" data-default="Do · Lower">Do · Lower</span></label>
+        <label for="tab3"><span class="ds-day">Dag 3</span><span class="ds-sub" data-default="Vr · Upper">Vr · Upper</span></label>
+        <label for="tab4"><span class="ds-day">Dag 4</span><span class="ds-sub" data-default="Zo · Lower">Zo · Lower</span></label>
+    </div>
 
     <div class="progression">
         <strong>Double progression:</strong> begin met het minimum aantal reps en een gewicht dat je beheerst.
@@ -1542,30 +1517,15 @@
         if (document.visibilityState === "visible") { checkUpdate(false); }
     });
 
-    // ---------- hamburger menu ----------
-    var menuToggle = document.getElementById("menu-toggle");
-    function closeMenu() {
-        if (menuToggle.checked) { menuToggle.checked = false; syncMenu(); }
-    }
-    function syncMenu() {
-        document.body.style.overflow = menuToggle.checked ? "hidden" : "";
-        document.getElementById("menu").setAttribute("aria-hidden", menuToggle.checked ? "false" : "true");
-    }
-    menuToggle.addEventListener("change", syncMenu);
-    syncMenu();
+    // ---------- page changes ----------
+    var navTraining = document.getElementById("nav-training");
     Array.prototype.forEach.call(document.querySelectorAll('input[name="tab-group"]'), function (r) {
         r.addEventListener("change", function () {
+            // "Training" in the bottom bar goes back to the training day you looked at last
+            if (/^tab[0-4]$/.test(r.id)) { navTraining.setAttribute("for", r.id); }
             updateWakeLock();
-            closeMenu();
             window.scrollTo(0, 0);
         });
-    });
-    // clicking the current page in the menu only closes it
-    Array.prototype.forEach.call(document.querySelectorAll(".drawer label.drawer-item"), function (l) {
-        l.addEventListener("click", function () { setTimeout(closeMenu, 0); });
-    });
-    document.addEventListener("keydown", function (ev) {
-        if (ev.key === "Escape") { closeMenu(); }
     });
     // ---------- today's training day ----------
     // Training days: Tue, Thu, Fri, Sun. On other days the rest-day page opens.
@@ -1582,22 +1542,30 @@
             document.getElementById(tab).checked = true;
         }
         autoTab = tab;
-        Array.prototype.forEach.call(document.querySelectorAll(".today-chip, .soon-chip"), function (c) { c.remove(); });
+        var checked = document.querySelector('input[name="tab-group"]:checked');
+        if (checked && /^tab[0-4]$/.test(checked.id)) { navTraining.setAttribute("for", checked.id); }
+        Array.prototype.forEach.call(document.querySelectorAll(".day-switch label"), function (l) {
+            l.classList.remove("is-today", "is-next");
+            var sub = l.querySelector(".ds-sub");
+            sub.textContent = sub.getAttribute("data-default");
+        });
         Array.prototype.forEach.call(document.querySelectorAll(".rest-days label.next"), function (l) { l.classList.remove("next"); });
         if (SCHEDULE[wd]) {
-            var todayLabel = document.querySelector('.drawer label[for="' + tab + '"] .di-title');
-            if (todayLabel) { todayLabel.appendChild(el("span", "today-chip", "vandaag")); }
+            var todaySeg = document.querySelector('.day-switch label[for="' + tab + '"]');
+            todaySeg.classList.add("is-today");
+            todaySeg.querySelector(".ds-sub").textContent = "vandaag";
             return;
         }
         for (var n = 1; n < 7; n++) {
             var next = SCHEDULE[(wd + n) % 7];
             if (!next) { continue; }
             var when = n === 1 ? "morgen" : WEEKDAYS[(wd + n) % 7];
-            var nextLabel = document.querySelector('.drawer label[for="' + next + '"] .di-title');
-            if (nextLabel) { nextLabel.appendChild(el("span", "soon-chip", when)); }
+            var nextSeg = document.querySelector('.day-switch label[for="' + next + '"]');
+            nextSeg.classList.add("is-next");
+            nextSeg.querySelector(".ds-sub").textContent = when;
             var restItem = document.querySelector('.rest-days label[data-day="' + next + '"]');
             if (restItem) { restItem.classList.add("next"); }
-            var title = document.querySelector('.drawer label[for="' + next + '"] .di-title').firstChild.textContent;
+            var title = document.querySelector(".topbar .t" + next.slice(3)).textContent;
             document.getElementById("rest-next").textContent = "Volgende training: " + when +
                 (n === 1 ? " (" + WEEKDAYS[(wd + n) % 7] + ")" : "") + " — " + title + ".";
             break;
