@@ -55,6 +55,10 @@ def log_block(ex_id, name):
     lo, hi = t["reps"]
     rows = []
     for i in range(1, t["sets"] + 1):
+        if i > 1:
+            # rest between two sets; tap to start the rest timer
+            rows.append(f'<button type="button" class="set-rest" data-after="{i - 1}" '
+                        f'aria-label="Start rust na set {i - 1}"><span>{rest_text(t)} rust</span></button>')
         opt = t.get("optional") and i == t["sets"]
         label = f"Set {i}" + (" <small>(optioneel)</small>" if opt else "")
         kg = ('<span class="bw">eigen gewicht</span>' if t.get("bodyweight") else
@@ -67,7 +71,8 @@ def log_block(ex_id, name):
     side = " per kant" if t.get("side") else ""
     return (f'<div class="log" data-ex="{ex_id}" data-name="{name}" data-min="{lo}" data-max="{hi}" '
             f'data-rest="{t["rest"][0]}" data-rest-max="{t["rest"][1]}" data-sets="{t["sets"]}" '
-            f'data-optional="{1 if t.get("optional") else 0}">'
+            f'data-optional="{1 if t.get("optional") else 0}" data-side="{1 if t.get("side") else 0}" '
+            f'data-bw="{1 if t.get("bodyweight") else 0}">'
             f'<div class="log-head"><strong>Vandaag</strong>'
             f'<span class="log-target">{t["sets"] - (1 if t.get("optional") else 0)}{"–" + str(t["sets"]) if t.get("optional") else ""} × {reps_text(t)}{side} · rust {rest_text(t)}</span>'
             f'<button type="button" class="rest-btn">⏱ Start rust</button></div>'

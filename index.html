@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
-    <meta name="tg-build" content="2cea526d">
+    <meta name="tg-build" content="0500966e">
     <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <script>
@@ -128,40 +128,6 @@
             line-height: 1.6;
             padding-bottom: calc(var(--nav-h) + 24px);
         }
-        header {
-            background: linear-gradient(135deg, #18181b, #2b2b30);
-            border-bottom: 3px solid var(--accent);
-            color: white;
-            padding: 20px 20px 22px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        header h1 {
-            font-size: 1.45rem;
-            line-height: 1.25;
-            margin-bottom: 6px;
-        }
-        #tab0:checked ~ header, #tab5:checked ~ header, #tab6:checked ~ header, #tab7:checked ~ header { display: none; }
-        header p {
-            font-size: 0.95rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        header .legend {
-            margin-top: 10px;
-            font-size: 0.82rem;
-            opacity: 0.85;
-        }
-        .legend-dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ef4444;
-            vertical-align: -1px;
-            margin-right: 4px;
-        }
         /* Page state inputs: hidden but focusable for keyboard users */
         .tab-radio {
             position: absolute;
@@ -279,6 +245,143 @@
             color: var(--on-primary);
         }
         .rest-next { font-size: 1.05rem; margin-bottom: 12px; }
+
+        /* Week progress on the rest-day page */
+        .week-card { display: grid; justify-items: center; text-align: center; }
+        .week-card .mini-title { justify-self: start; }
+        .week-gauge { position: relative; width: 220px; max-width: 100%; }
+        .week-gauge svg { display: block; width: 100%; height: auto; }
+        .wg-track { fill: none; stroke: var(--border); stroke-width: 14; stroke-linecap: round; }
+        .wg-value { fill: none; stroke: var(--primary); stroke-width: 14; stroke-linecap: round; transition: stroke-dasharray 0.5s ease; }
+        .wg-num { position: absolute; left: 0; right: 0; bottom: 0; line-height: 1.1; }
+        .wg-num strong { display: block; font-size: 2rem; }
+        .wg-num span { font-size: 0.8rem; color: var(--text-muted); }
+        .week-days { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; margin: 14px 0 6px; }
+        .week-days li { border: 1px solid var(--border); border-radius: 10px; padding: 6px 2px; font-size: 0.8rem; line-height: 1.3; }
+        .week-days li strong { display: block; font-size: 0.85rem; }
+        .week-days li.done { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+        .week-steps { font-size: 0.88rem; color: var(--text-muted); }
+        .week-steps:empty { display: none; }
+
+        /* Day overview: stats, compact exercise list, start button */
+        .day-stats { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); }
+        .day-stats b { color: var(--text); font-size: 1rem; margin-right: 3px; }
+        .day-overview { padding: 6px 8px 12px; }
+        .ex-list { list-style: none; }
+        .ex-list li + li { border-top: 1px solid var(--border); }
+        .ex-item {
+            display: grid;
+            grid-template-columns: 26px 1fr auto;
+            gap: 2px 10px;
+            align-items: center;
+            width: 100%;
+            padding: 10px 8px;
+            border: 0;
+            background: none;
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .ex-item:hover { background: var(--bg); }
+        .ex-num {
+            grid-row: span 2;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+        .ex-name { font-weight: 600; font-size: 0.95rem; line-height: 1.3; }
+        .ex-state { grid-row: span 2; font-size: 0.75rem; font-weight: 700; color: var(--primary-dark); white-space: nowrap; }
+        .ex-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+        .ex-chips span {
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 1px 7px;
+            border-radius: 6px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .ex-item.done .ex-num { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+        .start-btn {
+            display: block;
+            width: calc(100% - 16px);
+            margin: 10px 8px 0;
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--primary);
+            color: var(--on-primary);
+            font: inherit;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .start-btn[hidden] { display: none; }
+        .legend-note { font-size: 0.78rem; color: var(--text-muted); margin: 10px 8px 0; }
+        .exercise-card { scroll-margin-top: calc(130px + env(safe-area-inset-top)); }
+
+        /* Training mode */
+        .day-switch[hidden] { display: none !important; }
+        .session-bar {
+            position: sticky;
+            top: calc(57px + env(safe-area-inset-top));
+            z-index: 100;
+            margin: 0 -16px 18px;
+            padding: 10px 16px;
+            background: var(--bg);
+        }
+        .session-bar[hidden] { display: none; }
+        .session-segs { display: flex; gap: 4px; }
+        .session-segs span { flex: 1; height: 5px; border-radius: 3px; background: var(--border); }
+        .session-segs span.part { background: var(--primary-light); box-shadow: inset 0 0 0 1px var(--primary); }
+        .session-segs span.done { background: var(--primary); }
+        .session-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+        .session-count { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+        .session-time { font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; margin-left: auto; }
+        .session-row button {
+            font: inherit; font-size: 0.85rem; font-weight: 700; border-radius: 8px; padding: 7px 12px;
+            border: 0; background: var(--primary); color: var(--on-primary); cursor: pointer;
+        }
+        .summary {
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.55);
+        }
+        .summary[hidden] { display: none; }
+        .summary-card {
+            width: min(440px, 100%);
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        }
+        .summary-card h2 { font-size: 1.3rem; }
+        .summary-sub { font-size: 0.85rem; color: var(--text-muted); }
+        .summary-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 14px 0; }
+        .summary-stats div { background: var(--bg); border-radius: 10px; padding: 8px 10px; }
+        .summary-stats b { display: block; font-size: 1.3rem; }
+        .summary-stats span { font-size: 0.75rem; color: var(--text-muted); }
+        .summary-list { list-style: none; font-size: 0.85rem; margin-bottom: 14px; }
+        .summary-list li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-top: 1px solid var(--border); }
+        .summary-list li span:last-child { color: var(--text-muted); text-align: right; }
+        .summary-list li.skipped span:last-child { font-style: italic; }
+        .summary-card .start-btn { width: 100%; margin: 0; }
         .rest-days { list-style: none; display: grid; gap: 8px; }
         .rest-days label {
             display: block;
@@ -609,6 +712,21 @@
             outline: 3px solid var(--primary);
             outline-offset: 2px;
         }
+        .log .set-rest {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 0;
+            margin: 2px 0;
+            border: 0;
+            background: none;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .log .set-rest::before, .log .set-rest::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+        .log .set-rest span::before { content: "⏱ "; }
         .set-row.done .set-done { background: var(--primary); color: var(--on-primary); }
         .set-row.done input { border-color: var(--primary); }
         .log.complete { border-color: var(--primary); }
@@ -1091,12 +1209,6 @@
     <label for="tab7" class="bn-item bn-instellingen"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>Instellingen</label>
 </nav>
 
-<header>
-    <h1>Trainingsgids & Oefeningen</h1>
-    <p>4-Daagse Upper / Lower Split met PH Fitness Dumbbells & Decathlon Bench 500 — Inclusief beweging-animaties en video-uitleg.</p>
-    <p class="legend"><span class="legend-dot"></span>Rood = de spier die je traint · tik op een animatie om te pauzeren · vul je sets in en tik ✓ Klaar om de rusttimer te starten</p>
-</header>
-
 <div class="container">
 
     <div class="day-switch" role="group" aria-label="Trainingsdag">
@@ -1104,6 +1216,15 @@
         <label for="tab2"><span class="ds-day">Dag 2</span><span class="ds-sub" data-default="Do · Lower">Do · Lower</span></label>
         <label for="tab3"><span class="ds-day">Dag 3</span><span class="ds-sub" data-default="Vr · Upper">Vr · Upper</span></label>
         <label for="tab4"><span class="ds-day">Dag 4</span><span class="ds-sub" data-default="Zo · Lower">Zo · Lower</span></label>
+    </div>
+
+    <div class="session-bar" id="session-bar" hidden>
+        <div class="session-segs" id="session-segs"></div>
+        <div class="session-row">
+            <span class="session-count" id="session-count"></span>
+            <span class="session-time" id="session-time">0:00</span>
+            <button type="button" id="session-finish">Afronden</button>
+        </div>
     </div>
 
     <div class="progression">
@@ -1117,6 +1238,18 @@
         <div class="day-header">
             <h2>Vandaag rustdag</h2>
             <span>Herstel hoort bij het schema: je spieren groeien tussen de trainingen door.</span>
+        </div>
+        <div class="card-plain week-card">
+            <h3 class="mini-title">Deze week</h3>
+            <div class="week-gauge">
+                <svg viewBox="0 0 200 112" aria-hidden="true">
+                    <path class="wg-track" d="M20,100 A80,80 0 0 1 180,100" pathLength="100"/>
+                    <path class="wg-value" id="week-arc" d="M20,100 A80,80 0 0 1 180,100" pathLength="100" stroke-dasharray="0 100"/>
+                </svg>
+                <div class="wg-num"><strong id="week-count">0/4</strong><span>trainingen</span></div>
+            </div>
+            <ul class="week-days" id="week-days"></ul>
+            <p class="week-steps" id="week-steps"></p>
         </div>
         <div class="card-plain">
             <p class="rest-next" id="rest-next"></p>
@@ -1160,7 +1293,7 @@
                     <li>Duw de dumbbells krachtig omhoog tot ze elkaar boven je borst bijna raken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Laat de dumbbells onderin 1 seconde rusten zonder te veren; dat haalt maximale spanning uit je bovenborst.</div>
-                <div class="log" data-ex="incline-press" data-name="Incline Dumbbell Press" data-min="8" data-max="10" data-rest="120" data-rest-max="120" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 · rust 120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Press set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Incline Dumbbell Press set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Press set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Incline Dumbbell Press set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Press set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Incline Dumbbell Press set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="incline-press" data-name="Incline Dumbbell Press" data-min="8" data-max="10" data-rest="120" data-rest-max="120" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 · rust 120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Press set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Incline Dumbbell Press set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>120 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Press set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Incline Dumbbell Press set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>120 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Press set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Incline Dumbbell Press set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+press+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1188,7 +1321,7 @@
                     <li>Knijp bovenin je rugspier samen en laat het gewicht in 2 seconden weer rustig zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Stel je voor dat je hand een haak is en je de beweging puur vanuit je elleboog inzet.</div>
-                <div class="log" data-ex="one-arm-row" data-name="One-Arm Dumbbell Row" data-min="8" data-max="10" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 per kant · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="One-Arm Dumbbell Row set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="One-Arm Dumbbell Row set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="One-Arm Dumbbell Row set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="One-Arm Dumbbell Row set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="One-Arm Dumbbell Row set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="One-Arm Dumbbell Row set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="one-arm-row" data-name="One-Arm Dumbbell Row" data-min="8" data-max="10" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0" data-side="1" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 per kant · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="One-Arm Dumbbell Row set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="One-Arm Dumbbell Row set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="One-Arm Dumbbell Row set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="One-Arm Dumbbell Row set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="One-Arm Dumbbell Row set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="One-Arm Dumbbell Row set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=one+arm+dumbbell+row+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1216,7 +1349,7 @@
                     <li>Duw ze weer recht omhoog zonder je schouders van de bank te tillen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Veilig uitstappen met zware dumbbells: breng eerst je knieën omhoog tegen de dumbbells en rol in één beweging rechtop naar zit.</div>
-                <div class="log" data-ex="flat-press" data-name="Flat Dumbbell Press" data-min="10" data-max="12" data-rest="120" data-rest-max="120" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Flat Dumbbell Press set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Flat Dumbbell Press set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Flat Dumbbell Press set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Flat Dumbbell Press set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Flat Dumbbell Press set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Flat Dumbbell Press set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="flat-press" data-name="Flat Dumbbell Press" data-min="10" data-max="12" data-rest="120" data-rest-max="120" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Flat Dumbbell Press set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Flat Dumbbell Press set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>120 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Flat Dumbbell Press set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Flat Dumbbell Press set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>120 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Flat Dumbbell Press set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Flat Dumbbell Press set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=flat+dumbbell+bench+press+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1244,7 +1377,7 @@
                     <li>Houd bovenin 1 seconde vast en laat rustig zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Omdat je borst gesteund wordt, kun je niet smokkelen met je onderrug — ideaal voor pure bovenrug-opbouw.</div>
-                <div class="log" data-ex="cs-row" data-name="Chest-Supported Dumbbell Row" data-min="10" data-max="12" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Dumbbell Row set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Chest-Supported Dumbbell Row set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Dumbbell Row set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Chest-Supported Dumbbell Row set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Dumbbell Row set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Chest-Supported Dumbbell Row set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="cs-row" data-name="Chest-Supported Dumbbell Row" data-min="10" data-max="12" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Dumbbell Row set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Chest-Supported Dumbbell Row set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Dumbbell Row set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Chest-Supported Dumbbell Row set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Dumbbell Row set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Chest-Supported Dumbbell Row set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=chest+supported+dumbbell+row+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1272,7 +1405,7 @@
                     <li>Laat de gewichten langzaam en gecontroleerd weer zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Gebruik hier een relatief licht gewicht; zodra je vanuit je benen gaat zwaaien is het te zwaar.</div>
-                <div class="log" data-ex="lateral-raise" data-name="Dumbbell Lateral Raises" data-min="12" data-max="15" data-rest="60" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 60–90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Lateral Raises set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Dumbbell Lateral Raises set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Lateral Raises set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Dumbbell Lateral Raises set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Lateral Raises set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Dumbbell Lateral Raises set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="lateral-raise" data-name="Dumbbell Lateral Raises" data-min="12" data-max="15" data-rest="60" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 60–90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Lateral Raises set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Dumbbell Lateral Raises set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60–90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Lateral Raises set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Dumbbell Lateral Raises set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60–90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Lateral Raises set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Dumbbell Lateral Raises set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+lateral+raise+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1300,7 +1433,7 @@
                     <li>Laat ze gecontroleerd zakken tot je armen weer helemaal gestrekt zijn.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Door de schuine bank kun je niet meebewegen met je schouders — dit isoleert je biceps veel beter dan staand curlen.</div>
-                <div class="log" data-ex="incline-curl" data-name="Incline Dumbbell Bicep Curls" data-min="10" data-max="12" data-rest="60" data-rest-max="60" data-sets="3" data-optional="1"><div class="log-head"><strong>Vandaag</strong><span class="log-target">2–3 × 10–12 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Bicep Curls set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Incline Dumbbell Bicep Curls set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Bicep Curls set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Incline Dumbbell Bicep Curls set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3 <small>(optioneel)</small></span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Bicep Curls set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Incline Dumbbell Bicep Curls set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="incline-curl" data-name="Incline Dumbbell Bicep Curls" data-min="10" data-max="12" data-rest="60" data-rest-max="60" data-sets="3" data-optional="1" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">2–3 × 10–12 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Bicep Curls set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Incline Dumbbell Bicep Curls set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Bicep Curls set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Incline Dumbbell Bicep Curls set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3 <small>(optioneel)</small></span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Bicep Curls set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Incline Dumbbell Bicep Curls set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+curl+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1336,7 +1469,7 @@
                     <li>Duw jezelf vanuit de hiel van je voorste voet weer krachtig omhoog.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> De meest effectieve beenspier-oefening voor thuis; focus op je voorste been en gebruik je achterste been puur voor balans.</div>
-                <div class="log" data-ex="bulgarian" data-name="Bulgarian Split Squats" data-min="8" data-max="10" data-rest="90" data-rest-max="120" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 per kant · rust 90–120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Bulgarian Split Squats set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Bulgarian Split Squats set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Bulgarian Split Squats set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Bulgarian Split Squats set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Bulgarian Split Squats set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Bulgarian Split Squats set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="bulgarian" data-name="Bulgarian Split Squats" data-min="8" data-max="10" data-rest="90" data-rest-max="120" data-sets="3" data-optional="0" data-side="1" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 per kant · rust 90–120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Bulgarian Split Squats set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Bulgarian Split Squats set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90–120 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Bulgarian Split Squats set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Bulgarian Split Squats set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90–120 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Bulgarian Split Squats set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Bulgarian Split Squats set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=bulgarian+split+squat+dumbbell+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1364,7 +1497,7 @@
                     <li>Duw vanuit je hele voet weer omhoog naar de startpositie.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Door het gewicht voor je borst te houden fungeert het als tegengewicht, waardoor je veel rechter en dieper kunt squatten.</div>
-                <div class="log" data-ex="goblet" data-name="Dumbbell Goblet Squats" data-min="10" data-max="12" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Goblet Squats set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Goblet Squats set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Goblet Squats set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Goblet Squats set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Goblet Squats set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Goblet Squats set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="goblet" data-name="Dumbbell Goblet Squats" data-min="10" data-max="12" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Goblet Squats set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Goblet Squats set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Goblet Squats set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Goblet Squats set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Goblet Squats set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Goblet Squats set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+goblet+squat+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1392,7 +1525,7 @@
                     <li>Span je billen aan en duw je heupen weer naar voren tot je rechtop staat.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Zak niet dieper dan je hamstrings toelaten; zodra je onderrug bol wordt, ben je te ver gegaan.</div>
-                <div class="log" data-ex="rdl" data-name="Dumbbell Romanian Deadlift (RDL)" data-min="10" data-max="12" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (RDL) set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Romanian Deadlift (RDL) set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (RDL) set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Romanian Deadlift (RDL) set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (RDL) set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Romanian Deadlift (RDL) set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="rdl" data-name="Dumbbell Romanian Deadlift (RDL)" data-min="10" data-max="12" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (RDL) set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Romanian Deadlift (RDL) set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (RDL) set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Romanian Deadlift (RDL) set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (RDL) set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Romanian Deadlift (RDL) set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1420,7 +1553,7 @@
                     <li>Laat je hielen langzaam zakken tot de vloer.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Niet veren! De achillespees neemt het werk over als je te snel op en neer stuitert.</div>
-                <div class="log" data-ex="calf" data-name="Standing Dumbbell Calf Raises" data-min="12" data-max="15" data-rest="60" data-rest-max="60" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Calf Raises set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Standing Dumbbell Calf Raises set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Calf Raises set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Standing Dumbbell Calf Raises set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Calf Raises set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Standing Dumbbell Calf Raises set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="calf" data-name="Standing Dumbbell Calf Raises" data-min="12" data-max="15" data-rest="60" data-rest-max="60" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Calf Raises set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Standing Dumbbell Calf Raises set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Calf Raises set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Standing Dumbbell Calf Raises set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Calf Raises set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Standing Dumbbell Calf Raises set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=standing+dumbbell+calf+raises+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1448,7 +1581,7 @@
                     <li>Laat je in 2 tot 3 seconden weer rustig zakken zonder op de bank te ploffen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Houd je kin licht op je borst en voorkom dat je met een holle rug vanuit je heupbuigers gaat trekken.</div>
-                <div class="log" data-ex="situp" data-name="Decline Sit-ups" data-min="12" data-max="15" data-rest="60" data-rest-max="60" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><span class="bw">eigen gewicht</span><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Decline Sit-ups set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><span class="bw">eigen gewicht</span><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Decline Sit-ups set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><span class="bw">eigen gewicht</span><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Decline Sit-ups set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="situp" data-name="Decline Sit-ups" data-min="12" data-max="15" data-rest="60" data-rest-max="60" data-sets="3" data-optional="0" data-side="0" data-bw="1"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><span class="bw">eigen gewicht</span><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Decline Sit-ups set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><span class="bw">eigen gewicht</span><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Decline Sit-ups set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><span class="bw">eigen gewicht</span><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Decline Sit-ups set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=decline+bench+sit+ups+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1484,7 +1617,7 @@
                     <li>Laat ze rustig zakken tot oorhoogte.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Die hoek van 80° in plaats van 90° is veel vriendelijker voor je schoudergewricht en nek.</div>
-                <div class="log" data-ex="shoulder-press" data-name="Seated Dumbbell Shoulder Press" data-min="8" data-max="10" data-rest="120" data-rest-max="120" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 · rust 120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Dumbbell Shoulder Press set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Seated Dumbbell Shoulder Press set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Dumbbell Shoulder Press set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Seated Dumbbell Shoulder Press set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Dumbbell Shoulder Press set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Seated Dumbbell Shoulder Press set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="shoulder-press" data-name="Seated Dumbbell Shoulder Press" data-min="8" data-max="10" data-rest="120" data-rest-max="120" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 · rust 120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Dumbbell Shoulder Press set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Seated Dumbbell Shoulder Press set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>120 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Dumbbell Shoulder Press set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Seated Dumbbell Shoulder Press set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>120 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Dumbbell Shoulder Press set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Seated Dumbbell Shoulder Press set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1512,7 +1645,7 @@
                     <li>Trek het gewicht vanuit je rugspieren weer terug tot boven je borst.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Geweldige vervanger voor een lat pulldown machine thuis; train zowel je lats als je borst en serratus.</div>
-                <div class="log" data-ex="pullover" data-name="Dumbbell Pullover" data-min="10" data-max="12" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Pullover set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Pullover set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Pullover set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Pullover set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Pullover set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Pullover set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="pullover" data-name="Dumbbell Pullover" data-min="10" data-max="12" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Pullover set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Pullover set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Pullover set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Pullover set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Pullover set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Dumbbell Pullover set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+pullover+across+bench+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1540,7 +1673,7 @@
                     <li>Breng de dumbbells in dezelfde ronde boog weer terug naar elkaar toe en knijp je borstspieren samen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Laat je ellebogen niet verder zakken dan schouderhoogte om je schoudergewricht te beschermen.</div>
-                <div class="log" data-ex="incline-fly" data-name="Incline Dumbbell Flyes" data-min="12" data-max="15" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Flyes set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Incline Dumbbell Flyes set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Flyes set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Incline Dumbbell Flyes set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Flyes set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Incline Dumbbell Flyes set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="incline-fly" data-name="Incline Dumbbell Flyes" data-min="12" data-max="15" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Flyes set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Incline Dumbbell Flyes set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Flyes set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Incline Dumbbell Flyes set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Incline Dumbbell Flyes set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Incline Dumbbell Flyes set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=incline+dumbbell+flyes+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1568,7 +1701,7 @@
                     <li>Laat de dumbbells langzaam weer zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Deze oefening houdt je schouders gezond en geeft je bovenlichaam een mooi rond 3D-profiel.</div>
-                <div class="log" data-ex="rear-delt" data-name="Chest-Supported Rear Delt Flyes" data-min="12" data-max="15" data-rest="60" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 60–90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Rear Delt Flyes set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Chest-Supported Rear Delt Flyes set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Rear Delt Flyes set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Chest-Supported Rear Delt Flyes set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Rear Delt Flyes set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Chest-Supported Rear Delt Flyes set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="rear-delt" data-name="Chest-Supported Rear Delt Flyes" data-min="12" data-max="15" data-rest="60" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 60–90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Rear Delt Flyes set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Chest-Supported Rear Delt Flyes set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60–90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Rear Delt Flyes set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Chest-Supported Rear Delt Flyes set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60–90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Chest-Supported Rear Delt Flyes set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Chest-Supported Rear Delt Flyes set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=chest+supported+rear+delt+fly+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1596,7 +1729,7 @@
                     <li>Strek je armen weer krachtig omhoog en span je triceps bovenin aan.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> De triceps vormen het grootste deel van je bovenarm; door boven je hoofd te strekken train je de lange kop van de tricep maximaal.</div>
-                <div class="log" data-ex="tricep-ext" data-name="Seated Overhead Tricep Extension" data-min="10" data-max="12" data-rest="60" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 60–90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Overhead Tricep Extension set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Seated Overhead Tricep Extension set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Overhead Tricep Extension set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Seated Overhead Tricep Extension set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Overhead Tricep Extension set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Seated Overhead Tricep Extension set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="tricep-ext" data-name="Seated Overhead Tricep Extension" data-min="10" data-max="12" data-rest="60" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10–12 · rust 60–90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Overhead Tricep Extension set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Seated Overhead Tricep Extension set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60–90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Overhead Tricep Extension set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Seated Overhead Tricep Extension set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60–90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Seated Overhead Tricep Extension set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Seated Overhead Tricep Extension set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=seated+overhead+dumbbell+tricep+extension+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1623,7 +1756,7 @@
                     <li>Knijp bovenin kort aan en laat in 2 seconden weer zakken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Pakt naast de biceps ook de brachialis en onderarmen aan, wat je armen zichtbaar dikker maakt.</div>
-                <div class="log" data-ex="hammer" data-name="Standing Dumbbell Hammer Curls" data-min="10" data-max="12" data-rest="60" data-rest-max="60" data-sets="3" data-optional="1"><div class="log-head"><strong>Vandaag</strong><span class="log-target">2–3 × 10–12 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Hammer Curls set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Standing Dumbbell Hammer Curls set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Hammer Curls set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Standing Dumbbell Hammer Curls set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3 <small>(optioneel)</small></span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Hammer Curls set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Standing Dumbbell Hammer Curls set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="hammer" data-name="Standing Dumbbell Hammer Curls" data-min="10" data-max="12" data-rest="60" data-rest-max="60" data-sets="3" data-optional="1" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">2–3 × 10–12 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Hammer Curls set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Standing Dumbbell Hammer Curls set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Hammer Curls set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Standing Dumbbell Hammer Curls set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3 <small>(optioneel)</small></span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Standing Dumbbell Hammer Curls set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10–12" aria-label="Standing Dumbbell Hammer Curls set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+hammer+curls+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1659,7 +1792,7 @@
                     <li>Duw je heupen krachtig naar voren om weer rechtop te komen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Houd de dumbbells zo dicht mogelijk langs je benen; hoe verder ze naar voren hangen, hoe zwaarder het wordt voor je onderrug.</div>
-                <div class="log" data-ex="rdl-heavy" data-name="Dumbbell Romanian Deadlift (Zwaarder)" data-min="8" data-max="10" data-rest="120" data-rest-max="120" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 · rust 120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="rdl-heavy" data-name="Dumbbell Romanian Deadlift (Zwaarder)" data-min="8" data-max="10" data-rest="120" data-rest-max="120" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 8–10 · rust 120 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>120 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>120 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="8–10" aria-label="Dumbbell Romanian Deadlift (Zwaarder) set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=heavy+dumbbell+romanian+deadlift+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1687,7 +1820,7 @@
                     <li>Duw jezelf vanuit je voorste hiel terug naar de startpositie.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Achteruit stappen (reverse lunge) geeft veel meer controle en minder druk op de knie dan vooruit stappen.</div>
-                <div class="log" data-ex="reverse-lunge" data-name="Dumbbell Reverse Lunges" data-min="10" data-max="10" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10 per kant · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Reverse Lunges set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10" aria-label="Dumbbell Reverse Lunges set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Reverse Lunges set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10" aria-label="Dumbbell Reverse Lunges set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Reverse Lunges set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10" aria-label="Dumbbell Reverse Lunges set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="reverse-lunge" data-name="Dumbbell Reverse Lunges" data-min="10" data-max="10" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0" data-side="1" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 10 per kant · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Reverse Lunges set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10" aria-label="Dumbbell Reverse Lunges set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Reverse Lunges set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10" aria-label="Dumbbell Reverse Lunges set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Dumbbell Reverse Lunges set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="10" aria-label="Dumbbell Reverse Lunges set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+reverse+lunge+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1715,7 +1848,7 @@
                     <li>Knijp je billen bovenin 1 seconde keihard samen en zak gecontroleerd tot je billen net de grond raken.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Omdat je voeten op het kussen van de bank staan, kunnen ze niet wegglijden. Voel je het vooral in je hamstrings, schuif dan iets dichter naar de bank toe zodat je knieën meer gebogen zijn. Ga niet verder omhoog dan die rechte lijn, anders ga je je onderrug overstrekken.</div>
-                <div class="log" data-ex="glute-bridge" data-name="Glute Bridge met Voeten op de Bank" data-min="12" data-max="15" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Glute Bridge met Voeten op de Bank set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Glute Bridge met Voeten op de Bank set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Glute Bridge met Voeten op de Bank set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Glute Bridge met Voeten op de Bank set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Glute Bridge met Voeten op de Bank set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Glute Bridge met Voeten op de Bank set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="glute-bridge" data-name="Glute Bridge met Voeten op de Bank" data-min="12" data-max="15" data-rest="90" data-rest-max="90" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 · rust 90 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Glute Bridge met Voeten op de Bank set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Glute Bridge met Voeten op de Bank set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>90 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Glute Bridge met Voeten op de Bank set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Glute Bridge met Voeten op de Bank set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>90 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Glute Bridge met Voeten op de Bank set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Glute Bridge met Voeten op de Bank set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=feet+elevated+glute+bridge+dumbbell+bench" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1742,7 +1875,7 @@
                     <li>Houd bovenin 1 seconde vast en zak langzaam terug.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Pak de dumbbell aan dezelfde kant als het been dat je traint voor de beste belasting.</div>
-                <div class="log" data-ex="single-calf" data-name="Single-Leg Dumbbell Calf Raises" data-min="12" data-max="15" data-rest="60" data-rest-max="60" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 per kant · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Single-Leg Dumbbell Calf Raises set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Single-Leg Dumbbell Calf Raises set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Single-Leg Dumbbell Calf Raises set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Single-Leg Dumbbell Calf Raises set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Single-Leg Dumbbell Calf Raises set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Single-Leg Dumbbell Calf Raises set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="single-calf" data-name="Single-Leg Dumbbell Calf Raises" data-min="12" data-max="15" data-rest="60" data-rest-max="60" data-sets="3" data-optional="0" data-side="1" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 12–15 per kant · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Single-Leg Dumbbell Calf Raises set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Single-Leg Dumbbell Calf Raises set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Single-Leg Dumbbell Calf Raises set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Single-Leg Dumbbell Calf Raises set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Single-Leg Dumbbell Calf Raises set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="12–15" aria-label="Single-Leg Dumbbell Calf Raises set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=single+leg+dumbbell+calf+raise+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1770,7 +1903,7 @@
                     <li>Maak het zwaarder door je hielen enkele centimeters van de grond te tillen.</li>
                 </ol>
                 <div class="tip-box"><strong>Tip:</strong> Beweeg rustig en gecontroleerd; snelle rukken naar links en rechts werken averechts voor je onderrug.</div>
-                <div class="log" data-ex="russian-twist" data-name="Weighted Russian Twists" data-min="15" data-max="20" data-rest="60" data-rest-max="60" data-sets="3" data-optional="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 15–20 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Weighted Russian Twists set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="15–20" aria-label="Weighted Russian Twists set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Weighted Russian Twists set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="15–20" aria-label="Weighted Russian Twists set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Weighted Russian Twists set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="15–20" aria-label="Weighted Russian Twists set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
+                <div class="log" data-ex="russian-twist" data-name="Weighted Russian Twists" data-min="15" data-max="20" data-rest="60" data-rest-max="60" data-sets="3" data-optional="0" data-side="0" data-bw="0"><div class="log-head"><strong>Vandaag</strong><span class="log-target">3 × 15–20 · rust 60 s</span><button type="button" class="rest-btn">⏱ Start rust</button></div><p class="log-prev"></p><div class="set-row" data-set="1"><span class="set-name">Set 1</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Weighted Russian Twists set 1 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="15–20" aria-label="Weighted Russian Twists set 1 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="1" aria-label="Start rust na set 1"><span>60 s rust</span></button><div class="set-row" data-set="2"><span class="set-name">Set 2</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Weighted Russian Twists set 2 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="15–20" aria-label="Weighted Russian Twists set 2 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><button type="button" class="set-rest" data-after="2" aria-label="Start rust na set 2"><span>60 s rust</span></button><div class="set-row" data-set="3"><span class="set-name">Set 3</span><input class="kg" type="text" inputmode="decimal" placeholder="kg" aria-label="Weighted Russian Twists set 3 gewicht in kg"><input class="reps" type="text" inputmode="numeric" placeholder="15–20" aria-label="Weighted Russian Twists set 3 herhalingen"><button type="button" class="set-done" aria-pressed="false">✓ Klaar</button></div><p class="log-hint" aria-live="polite"></p></div>
                 <a class="yt-btn" href="https://www.youtube.com/results?search_query=weighted+russian+twist+proper+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
@@ -1861,11 +1994,21 @@
             </div>
         </div>
         <div class="card-plain">
-            <p class="noscript-note">Versie 2cea526d · <a href="#" id="check-update">Controleer op updates</a></p>
+            <p class="noscript-note">Versie 0500966e · <a href="#" id="check-update">Controleer op updates</a></p>
             <noscript><p class="noscript-note">Het logboek, de sync en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
         </div>
     </section>
 
+</div>
+
+<div class="summary" id="summary" hidden role="dialog" aria-modal="true" aria-labelledby="summary-title">
+    <div class="summary-card">
+        <h2 id="summary-title">Training afgerond 💪</h2>
+        <p class="summary-sub" id="summary-sub"></p>
+        <div class="summary-stats" id="summary-stats"></div>
+        <ul class="summary-list" id="summary-list"></ul>
+        <button type="button" class="start-btn" id="summary-close">Sluiten</button>
+    </div>
 </div>
 
 <div class="update-bar" id="update-bar" hidden>
@@ -2041,6 +2184,8 @@
         if (document.visibilityState === "visible" && shownDay !== today()) {
             applyDay();
             updateWakeLock();
+            refreshTraining();
+            renderWeek();
             window.scrollTo(0, 0);
         }
     });
@@ -2176,6 +2321,7 @@
                 store(done);
                 hint();
                 if (!wasComplete && box.classList.contains("complete")) { autoSync(); }
+                refreshTraining();
                 if (done) {
                     startTimer(+box.dataset.rest, name + " · na set " + (i + 1) + (i + 1 >= sets ? " (laatste)" : ""));
                 }
@@ -2184,8 +2330,200 @@
         box.querySelector(".rest-btn").addEventListener("click", function () {
             startTimer(+box.dataset.rest, name);
         });
+        Array.prototype.forEach.call(box.querySelectorAll(".set-rest"), function (b) {
+            b.addEventListener("click", function () {
+                startTimer(+box.dataset.rest, name + " · na set " + b.dataset.after);
+            });
+        });
         hint();
     });
+
+    // ---------- day overview: stats, compact list, start button ----------
+    var DAY_TITLES = { tab1: "Dag 1 · Upper A", tab2: "Dag 2 · Lower A", tab3: "Dag 3 · Upper B", tab4: "Dag 4 · Lower B" };
+    function exName(box) { return box.dataset.name.replace(/^\d+\.\s*/, ""); }
+    function lastKg(id) {
+        var p = prevEntry(id);
+        if (!p) { return ""; }
+        var kgs = p.sets.filter(function (s) { return s && s.done && s.kg; }).map(function (s) { return +s.kg; });
+        return kgs.length ? String(Math.max.apply(null, kgs)).replace(".", ",") + " kg" : "";
+    }
+    function entryOn(id, date) {
+        var l = data[id] || [];
+        for (var i = l.length - 1; i >= 0; i--) { if (l[i].date === date) { return l[i]; } }
+        return null;
+    }
+    function doneSets(e) { return e ? e.sets.filter(function (s) { return s && s.done; }).length : 0; }
+    function required(box) { return +box.dataset.sets - +box.dataset.optional; }
+    function minutes(boxes) {
+        // rough estimate: ~4 s per rep, rest between sets, 2 min to set up each exercise
+        var sec = 0;
+        boxes.forEach(function (b) {
+            var sets = required(b), work = +b.dataset.max * 4 * (b.dataset.side === "1" ? 2 : 1);
+            sec += sets * work + (sets - 1) * +b.dataset.rest + 120;
+        });
+        return Math.round(sec / 300) * 5;
+    }
+    var dayViews = {};
+    ["tab1", "tab2", "tab3", "tab4"].forEach(function (tab) {
+        var section = document.getElementById("dag" + tab.slice(3));
+        var boxes = Array.prototype.slice.call(section.querySelectorAll(".log"));
+        var sets = boxes.reduce(function (n, b) { return n + required(b); }, 0);
+        var stats = el("p", "day-stats");
+        [[boxes.length, "oefeningen"], ["±" + minutes(boxes), "min"], [sets, "sets"]].forEach(function (x) {
+            var sp = el("span");
+            sp.appendChild(el("b", "", String(x[0])));
+            sp.appendChild(document.createTextNode(x[1]));
+            stats.appendChild(sp);
+        });
+        section.querySelector(".day-header").appendChild(stats);
+        var card = el("div", "card-plain day-overview");
+        var list = el("ol", "ex-list");
+        var items = boxes.map(function (box, i) {
+            var li = el("li"), b = el("button", "ex-item");
+            b.type = "button";
+            b.appendChild(el("span", "ex-num", String(i + 1)));
+            b.appendChild(el("span", "ex-name", exName(box)));
+            var state = el("span", "ex-state");
+            b.appendChild(state);
+            var chips = el("span", "ex-chips");
+            b.appendChild(chips);
+            b.addEventListener("click", function () {
+                box.closest(".exercise-card").scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            li.appendChild(b);
+            list.appendChild(li);
+            return { box: box, btn: b, chips: chips, state: state };
+        });
+        card.appendChild(list);
+        var start = el("button", "start-btn", "▶ Start training");
+        start.type = "button";
+        start.addEventListener("click", function () { startSession(tab); });
+        card.appendChild(start);
+        card.appendChild(el("p", "legend-note", "Rood in de animatie = de spier die je traint · tik op een animatie om te pauzeren · tik op een oefening om ernaar te gaan."));
+        section.querySelector(".day-header").insertAdjacentElement("afterend", card);
+        dayViews[tab] = { items: items, start: start };
+    });
+
+    // ---------- training mode ----------
+    var SESSION_KEY = "tg:session:v1";
+    var session = (function () {
+        try {
+            var v = JSON.parse(localStorage.getItem(SESSION_KEY));
+            return v && Date.now() - v.start < 12 * 3600 * 1000 ? v : null;
+        } catch (e) { return null; }
+    })();
+    var sessionTick = null;
+    function saveSession() {
+        try {
+            if (session) { localStorage.setItem(SESSION_KEY, JSON.stringify(session)); } else { localStorage.removeItem(SESSION_KEY); }
+        } catch (e) { /* ignore */ }
+    }
+    function clock(ms) {
+        var t = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, sec = t % 60;
+        return (h ? h + ":" + pad(m) : m) + ":" + pad(sec);
+    }
+    function startSession(tab) {
+        session = { tab: tab, date: today(), start: Date.now() };
+        saveSession();
+        refreshTraining();
+        window.scrollTo(0, 0);
+    }
+    function refreshTraining() {
+        var checked = document.querySelector('input[name="tab-group"]:checked');
+        Object.keys(dayViews).forEach(function (tab) {
+            var v = dayViews[tab];
+            v.items.forEach(function (it) {
+                var d = it.box.dataset, id = d.ex, n = doneSets(entryOn(id, today())), req = required(it.box);
+                it.chips.textContent = "";
+                it.chips.appendChild(el("span", "", d.sets + " sets"));
+                it.chips.appendChild(el("span", "", (d.min === d.max ? d.min : d.min + "–" + d.max) + " reps" + (d.side === "1" ? " p.k." : "")));
+                var kg = d.bw === "1" ? "eigen gewicht" : lastKg(id);
+                if (kg) { it.chips.appendChild(el("span", "", kg)); }
+                it.btn.classList.toggle("done", n >= req);
+                it.state.textContent = n >= req ? "✓" : n ? n + "/" + req : "";
+            });
+            v.start.hidden = !!(session && session.tab === tab);
+        });
+        var on = !!(session && checked && checked.id === session.tab);
+        document.getElementById("session-bar").hidden = !on;
+        document.querySelector(".day-switch").hidden = on;
+        clearInterval(sessionTick);
+        if (!on) { return; }
+        var items = dayViews[session.tab].items, segs = document.getElementById("session-segs"), done = 0;
+        segs.textContent = "";
+        items.forEach(function (it) {
+            var n = doneSets(entryOn(it.box.dataset.ex, session.date)), req = required(it.box);
+            if (n >= req) { done++; }
+            segs.appendChild(el("span", n >= req ? "done" : n ? "part" : ""));
+        });
+        document.getElementById("session-count").textContent = done + "/" + items.length + " oefeningen";
+        var tick = function () { document.getElementById("session-time").textContent = clock(Date.now() - session.start); };
+        tick();
+        sessionTick = setInterval(tick, 1000);
+    }
+    function finishSession() {
+        var items = dayViews[session.tab].items;
+        var done = items.filter(function (it) { return doneSets(entryOn(it.box.dataset.ex, session.date)) >= required(it.box); }).length;
+        if (done < items.length && !confirm("Nog niet alle oefeningen zijn klaar (" + done + "/" + items.length + "). Training toch afronden?")) { return; }
+        var sets = 0, reps = 0, list = document.getElementById("summary-list");
+        list.textContent = "";
+        items.forEach(function (it) {
+            var e = entryOn(it.box.dataset.ex, session.date), n = doneSets(e);
+            sets += n;
+            if (e) { e.sets.forEach(function (s) { if (s && s.done) { reps += +s.reps || 0; } }); }
+            var li = el("li", n ? "" : "skipped");
+            li.appendChild(el("span", "", exName(it.box)));
+            li.appendChild(el("span", "", n ? describe(e) : "overgeslagen"));
+            list.appendChild(li);
+        });
+        document.getElementById("summary-sub").textContent = DAY_TITLES[session.tab] + " · " + shortDate(session.date);
+        var stats = document.getElementById("summary-stats");
+        stats.textContent = "";
+        [[clock(Date.now() - session.start), "duur"], [done + "/" + items.length, "oefeningen"], [sets, "sets"], [reps, "herhalingen"]].forEach(function (x) {
+            var d = el("div");
+            d.appendChild(el("b", "", String(x[0])));
+            d.appendChild(el("span", "", x[1]));
+            stats.appendChild(d);
+        });
+        session = null;
+        saveSession();
+        refreshTraining();
+        renderWeek();
+        document.getElementById("summary").hidden = false;
+        document.getElementById("summary-close").focus();
+        if (configured()) { syncNow(true); }
+    }
+    document.getElementById("session-finish").addEventListener("click", finishSession);
+    document.getElementById("summary-close").addEventListener("click", function () {
+        document.getElementById("summary").hidden = true;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="tab-group"]'), function (r) {
+        r.addEventListener("change", refreshTraining);
+    });
+
+    // ---------- week progress (rest-day page) ----------
+    function renderWeek() {
+        var mon = mondayOf(today()), count = 0, days = document.getElementById("week-days");
+        days.textContent = "";
+        [["tab1", "Di"], ["tab2", "Do"], ["tab3", "Vr"], ["tab4", "Zo"]].forEach(function (d) {
+            var ids = Array.prototype.map.call(document.querySelectorAll("#dag" + d[0].slice(3) + " .log"), function (b) { return b.dataset.ex; });
+            var trained = ids.some(function (id) {
+                return (data[id] || []).some(function (e) { return mondayOf(e.date) === mon && hasDone(e); });
+            });
+            if (trained) { count++; }
+            var li = el("li", trained ? "done" : "");
+            li.appendChild(el("strong", "", "Dag " + d[0].slice(3)));
+            li.appendChild(document.createTextNode(trained ? "✓ gedaan" : d[1]));
+            days.appendChild(li);
+        });
+        document.getElementById("week-count").textContent = count + "/4";
+        document.getElementById("week-arc").setAttribute("stroke-dasharray", (count / 4 * 100) + " 100");
+        var stepsEl = document.getElementById("week-steps");
+        var steps = overview && overview.steps || {};
+        var stepDays = Object.keys(steps).filter(function (d) { return mondayOf(d) === mon; });
+        stepsEl.textContent = stepDays.length ? "Stappen: gemiddeld " + Math.round(stepDays.reduce(function (t, d) { return t + steps[d]; }, 0) / stepDays.length).toLocaleString("nl-NL") +
+            " per dag (" + stepDays.length + " dag" + (stepDays.length === 1 ? "" : "en") + ")" : "";
+    }
 
     // ---------- clear ----------
     document.getElementById("log-clear").addEventListener("click", function () {
@@ -2256,6 +2594,7 @@
                 overview = { voeding: res.overview.voeding, metingen: res.overview.metingen, steps: res.steps || {}, anchor: res.anchor, at: Date.now() };
                 try { localStorage.setItem(OVERVIEW_KEY, JSON.stringify(overview)); } catch (e) { /* ignore */ }
                 renderOverview();
+                renderWeek();
             }
             var msg = res.changed ? res.changed + " cel" + (res.changed === 1 ? "" : "len") + " bijgewerkt (week " + res.weeks.join(", ") + ")" : "sheet was al bij";
             if (res.skipped && res.skipped.length) { msg += ". Niet in de sheet: " + res.skipped.join(", "); }
@@ -2494,6 +2833,8 @@
     });
     renderWeights();
     renderOverview();
+    refreshTraining();
+    renderWeek();
     // refresh the sheet overview quietly when it is older than 10 minutes
     if (configured() && (!overview || Date.now() - overview.at > 10 * 60 * 1000)) { syncNow(true); }
 
