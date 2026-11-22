@@ -405,6 +405,16 @@
         .sheet-count { font-weight: 700; font-variant-numeric: tabular-nums; }
         .sheet-next-name { flex: 1; min-width: 0; font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
         .sheet-foot button { background: var(--primary); color: var(--on-primary); flex: none; }
+        .sheet-foot .sheet-end {
+            flex: 1;
+            width: auto;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .sheet-foot .sheet-end[hidden] { display: none; }
         .sheet-foot button:disabled { background: var(--border); color: var(--text-muted); cursor: default; }
         body.sheet-open { overflow: hidden; }
         body.sheet-open .timer { bottom: calc(76px + env(safe-area-inset-bottom)); }
@@ -463,6 +473,10 @@
         .summary-list li span:last-child { color: var(--text-muted); text-align: right; }
         .summary-list li.skipped span:last-child { font-style: italic; }
         .summary-card .start-btn { width: 100%; margin: 0; }
+        .summary-sync { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
+        .summary-sync:empty { display: none; }
+        .summary-sync.ok { color: var(--primary-dark); font-weight: 600; }
+        .summary-sync.err { color: #dc2626; font-weight: 600; }
         .rest-days { list-style: none; display: grid; gap: 8px; }
         .rest-days label {
             display: block;
@@ -1671,6 +1685,7 @@
         <span class="sheet-next-name" id="sheet-next-name"></span>
         <button type="button" id="sheet-prev" aria-label="Vorige oefening">‹</button>
         <button type="button" id="sheet-next" aria-label="Volgende oefening">›</button>
+        <button type="button" class="sheet-end" id="sheet-end" hidden>Einde workout ✓</button>
     </div>
 </div>
 
@@ -1680,6 +1695,7 @@
         <p class="summary-sub" id="summary-sub"></p>
         <div class="summary-stats" id="summary-stats"></div>
         <ul class="summary-list" id="summary-list"></ul>
+        <p class="summary-sync" id="summary-sync"></p>
         <button type="button" class="start-btn" id="summary-close">Sluiten</button>
     </div>
 </div>
@@ -2101,12 +2117,23 @@
         document.getElementById("sheet-next-name").textContent = i + 1 < items.length ? "Volgende: " + exName(items[i + 1].box) : "";
         document.getElementById("sheet-prev").disabled = i === 0;
         document.getElementById("sheet-next").disabled = i + 1 >= items.length;
+        updateSheetEnd();
         if (sheet.hidden) {
             sheet.hidden = false;
             document.body.classList.add("sheet-open");
             document.getElementById("sheet-close").focus();
         }
         sheetBody.scrollTop = 0;
+    }
+    // after the last exercise is done, "Einde workout" stops the training and syncs
+    function updateSheetEnd() {
+        if (!shown) { return; }
+        var items = dayViews[shown.tab].items, last = items[items.length - 1].box;
+        var date = session && session.tab === shown.tab ? session.date : today();
+        var show = shown.i === items.length - 1 && doneSets(entryOn(last.dataset.ex, date)) >= required(last);
+        document.getElementById("sheet-end").hidden = !show;
+        document.getElementById("sheet-next").hidden = show;
+        document.getElementById("sheet-next-name").hidden = show;
     }
     function closeSheet() {
         if (sheet.hidden) { return; }
@@ -2145,6 +2172,7 @@
         window.scrollTo(0, 0);
     }
     function refreshTraining() {
+        updateSheetEnd();
         var checked = document.querySelector('input[name="tab-group"]:checked');
         Object.keys(dayViews).forEach(function (tab) {
             var v = dayViews[tab];
@@ -2177,14 +2205,17 @@
         tick();
         sessionTick = setInterval(tick, 1000);
     }
-    function finishSession() {
-        var items = dayViews[session.tab].items;
-        var done = items.filter(function (it) { return doneSets(entryOn(it.box.dataset.ex, session.date)) >= required(it.box); }).length;
-        if (done < items.length && !confirm("Nog niet alle oefeningen zijn klaar (" + done + "/" + items.length + "). Training toch afronden?")) { return; }
+    // tab: the day to finish when no training was started; ask: confirm when exercises are left
+    function finishSession(tab, ask) {
+        var cur = session || { tab: tab, date: today(), start: null };
+        var items = dayViews[cur.tab].items;
+        var done = items.filter(function (it) { return doneSets(entryOn(it.box.dataset.ex, cur.date)) >= required(it.box); }).length;
+        if (ask && done < items.length && !confirm("Nog niet alle oefeningen zijn klaar (" + done + "/" + items.length + "). Training toch afronden?")) { return; }
+        closeSheet();
         var sets = 0, reps = 0, list = document.getElementById("summary-list");
         list.textContent = "";
         items.forEach(function (it) {
-            var e = entryOn(it.box.dataset.ex, session.date), n = doneSets(e);
+            var e = entryOn(it.box.dataset.ex, cur.date), n = doneSets(e);
             sets += n;
             if (e) { e.sets.forEach(function (s) { if (s && s.done) { reps += +s.reps || 0; } }); }
             var li = el("li", n ? "" : "skipped");
@@ -2192,10 +2223,10 @@
             li.appendChild(el("span", "", n ? describe(e) : "overgeslagen"));
             list.appendChild(li);
         });
-        document.getElementById("summary-sub").textContent = DAY_TITLES[session.tab] + " · " + shortDate(session.date);
+        document.getElementById("summary-sub").textContent = DAY_TITLES[cur.tab] + " · " + shortDate(cur.date);
         var stats = document.getElementById("summary-stats");
         stats.textContent = "";
-        [[clock(Date.now() - session.start), "duur"], [done + "/" + items.length, "oefeningen"], [sets, "sets"], [reps, "herhalingen"]].forEach(function (x) {
+        [[cur.start ? clock(Date.now() - cur.start) : "–", "duur"], [done + "/" + items.length, "oefeningen"], [sets, "sets"], [reps, "herhalingen"]].forEach(function (x) {
             var d = el("div");
             d.appendChild(el("b", "", String(x[0])));
             d.appendChild(el("span", "", x[1]));
@@ -2207,9 +2238,18 @@
         renderWeek();
         document.getElementById("summary").hidden = false;
         document.getElementById("summary-close").focus();
-        if (configured()) { syncNow(true); }
+        var syncLine = document.getElementById("summary-sync");
+        syncLine.className = "summary-sync";
+        syncLine.textContent = configured() ? "Bezig met syncen naar je sheet…" : "Niet gesynct: stel de koppeling met je sheet in bij Instellingen.";
+        if (configured()) {
+            syncNow(true, function (ok, msg) {
+                syncLine.textContent = (ok ? "✓ " : "⚠ ") + msg;
+                syncLine.className = "summary-sync " + (ok ? "ok" : "err");
+            });
+        }
     }
-    document.getElementById("session-finish").addEventListener("click", finishSession);
+    document.getElementById("session-finish").addEventListener("click", function () { finishSession(null, true); });
+    document.getElementById("sheet-end").addEventListener("click", function () { finishSession(shown ? shown.tab : null, false); });
     document.getElementById("summary-close").addEventListener("click", function () {
         document.getElementById("summary").hidden = true;
     });
@@ -2289,13 +2329,23 @@
         });
         return entries;
     }
-    function syncNow(quiet) {
+    var syncWaiters = [], syncAgain = false;
+    function syncDone(ok, msg) {
+        var w = syncWaiters;
+        syncWaiters = [];
+        w.forEach(function (cb) { cb(ok, msg); });
+    }
+    // cb(ok, message) runs after the sync that includes the current logbook
+    function syncNow(quiet, cb) {
+        if (cb) { syncWaiters.push(cb); }
         if (!configured()) {
             if (!quiet) { showForm(true); status("Vul eerst de web-app-link en de code in.", "err"); }
+            syncDone(false, "Sync is nog niet ingesteld (Instellingen).");
             return;
         }
-        if (syncBusy) { return; }
+        if (syncBusy) { syncAgain = true; return; }
         syncBusy = true;
+        var result = null;
         status("Bezig met syncen…");
         fetch(sync.url, {
             method: "POST",
@@ -2315,11 +2365,18 @@
             var msg = res.changed ? res.changed + " cel" + (res.changed === 1 ? "" : "len") + " bijgewerkt (week " + res.weeks.join(", ") + ")" : "sheet was al bij";
             if (res.skipped && res.skipped.length) { msg += ". Niet in de sheet: " + res.skipped.join(", "); }
             status("✓ Gesynct: " + msg + ".", "ok");
+            result = [true, "Gesynct naar je sheet: " + msg + "."];
         }).catch(function (err) {
             sync.pending = true;
             saveSync();
-            status("Sync niet gelukt: " + (err && err.message ? err.message : err) + ". Je sets blijven bewaard.", "err");
-        }).then(function () { syncBusy = false; });
+            var why = "Sync niet gelukt: " + (err && err.message ? err.message : err) + ". Je sets blijven bewaard.";
+            status(why, "err");
+            result = [false, why];
+        }).then(function () {
+            syncBusy = false;
+            if (syncAgain) { syncAgain = false; syncNow(true); return; }
+            syncDone(result[0], result[1]);
+        });
     }
     function autoSync() {
         if (configured() && sync.auto !== false) { setTimeout(function () { syncNow(true); }, 800); }
