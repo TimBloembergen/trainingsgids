@@ -29,7 +29,7 @@ TRAINING = {
     # Day 4: Lower B
     "rdl-heavy": dict(sets=3, reps=(8, 10), rest=(120, 120)),
     "reverse-lunge": dict(sets=3, reps=(10, 10), rest=(90, 90), side=True),
-    "hip-thrust": dict(sets=3, reps=(12, 15), rest=(90, 90)),
+    "glute-bridge": dict(sets=3, reps=(12, 15), rest=(90, 90)),
     "single-calf": dict(sets=3, reps=(12, 15), rest=(60, 60), side=True),
     "russian-twist": dict(sets=3, reps=(15, 20), rest=(60, 60)),
 }

@@ -40,7 +40,7 @@ DAYS = [
     ["incline-press", "one-arm-row", "flat-press", "cs-row", "lateral-raise", "incline-curl"],
     ["bulgarian", "goblet", "rdl", "calf", "situp"],
     ["shoulder-press", "pullover", "incline-fly", "rear-delt", "tricep-ext", "hammer"],
-    ["rdl-heavy", "reverse-lunge", "hip-thrust", "single-calf", "russian-twist"],
+    ["rdl-heavy", "reverse-lunge", "glute-bridge", "single-calf", "russian-twist"],
 ]
 # Planned weekday per training day (0 = Monday): Tue, Thu, Fri, Sun.
 PLANNED = [1, 3, 4, 6]
