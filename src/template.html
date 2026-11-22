@@ -128,40 +128,6 @@
             line-height: 1.6;
             padding-bottom: calc(var(--nav-h) + 24px);
         }
-        header {
-            background: linear-gradient(135deg, #18181b, #2b2b30);
-            border-bottom: 3px solid var(--accent);
-            color: white;
-            padding: 20px 20px 22px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        header h1 {
-            font-size: 1.45rem;
-            line-height: 1.25;
-            margin-bottom: 6px;
-        }
-        #tab0:checked ~ header, #tab5:checked ~ header, #tab6:checked ~ header, #tab7:checked ~ header { display: none; }
-        header p {
-            font-size: 0.95rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        header .legend {
-            margin-top: 10px;
-            font-size: 0.82rem;
-            opacity: 0.85;
-        }
-        .legend-dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ef4444;
-            vertical-align: -1px;
-            margin-right: 4px;
-        }
         /* Page state inputs: hidden but focusable for keyboard users */
         .tab-radio {
             position: absolute;
@@ -279,6 +245,224 @@
             color: var(--on-primary);
         }
         .rest-next { font-size: 1.05rem; margin-bottom: 12px; }
+
+        /* Week progress on the rest-day page */
+        .week-card { display: grid; justify-items: center; text-align: center; }
+        .week-card .mini-title { justify-self: start; }
+        .week-gauge { position: relative; width: 220px; max-width: 100%; }
+        .week-gauge svg { display: block; width: 100%; height: auto; }
+        .wg-track { fill: none; stroke: var(--border); stroke-width: 14; stroke-linecap: round; }
+        .wg-value { fill: none; stroke: var(--primary); stroke-width: 14; stroke-linecap: round; transition: stroke-dasharray 0.5s ease; }
+        .wg-num { position: absolute; left: 0; right: 0; bottom: 0; line-height: 1.1; }
+        .wg-num strong { display: block; font-size: 2rem; }
+        .wg-num span { font-size: 0.8rem; color: var(--text-muted); }
+        .week-days { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; margin: 14px 0 6px; }
+        .week-days li { border: 1px solid var(--border); border-radius: 10px; padding: 6px 2px; font-size: 0.8rem; line-height: 1.3; }
+        .week-days li strong { display: block; font-size: 0.85rem; }
+        .week-days li.done { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+        .week-steps { font-size: 0.88rem; color: var(--text-muted); }
+        .week-steps:empty { display: none; }
+
+        /* Day overview: stats, compact exercise list, start button */
+        .day-stats { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); }
+        .day-stats b { color: var(--text); font-size: 1rem; margin-right: 3px; }
+        .day-overview { padding: 6px 8px 12px; }
+        .ex-list { list-style: none; }
+        .ex-list li + li { border-top: 1px solid var(--border); }
+        .ex-item {
+            display: grid;
+            grid-template-columns: 26px 1fr auto;
+            gap: 2px 10px;
+            align-items: center;
+            width: 100%;
+            padding: 10px 8px;
+            border: 0;
+            background: none;
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        .ex-item:hover { background: var(--bg); }
+        .ex-num {
+            grid-row: span 2;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+        .ex-name { font-weight: 600; font-size: 0.95rem; line-height: 1.3; }
+        .ex-state { grid-row: span 2; font-size: 0.75rem; font-weight: 700; color: var(--primary-dark); white-space: nowrap; }
+        .ex-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+        .ex-chips span {
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 1px 7px;
+            border-radius: 6px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .ex-item.done .ex-num { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+        .start-btn {
+            display: block;
+            width: calc(100% - 16px);
+            margin: 10px 8px 0;
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--primary);
+            color: var(--on-primary);
+            font: inherit;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .start-btn[hidden] { display: none; }
+        .legend-note { font-size: 0.78rem; color: var(--text-muted); margin: 10px 8px 0; }
+        .exercise-card { scroll-margin-top: calc(130px + env(safe-area-inset-top)); }
+
+        /* Exercise details: tap an exercise in the list to open it */
+        .has-sheet .day-section .exercise-card { display: none; }
+        .sheet {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            padding-top: env(safe-area-inset-top);
+            animation: sheetUp 0.25s ease-out;
+        }
+        .sheet[hidden] { display: none; }
+        @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+        .sheet-head {
+            display: grid;
+            grid-template-columns: 44px 1fr 44px;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--topbar);
+            color: var(--on-topbar);
+            border-bottom: 3px solid var(--accent);
+        }
+        .sheet-head button, .sheet-foot button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 0;
+            font: inherit;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .sheet-head button { background: rgba(255, 255, 255, 0.12); color: inherit; }
+        .sheet-title { text-align: center; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sheet-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 16px; }
+        .sheet-body .exercise-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 0;
+            border: 0;
+            background: none;
+            box-shadow: none;
+        }
+        .sheet-body .ex-content { display: flex; flex-direction: column; }
+        .sheet-body .ex-content h3 { order: 0; }
+        .sheet-body .badges { order: 1; }
+        .sheet-body .log { order: 2; background: var(--card-bg); }
+        .sheet-body .steps { order: 3; }
+        .sheet-body .tip-box { order: 4; }
+        .sheet-body .yt-btn { order: 5; align-self: flex-start; }
+        .sheet-body .steps::before {
+            content: "Uitleg";
+            display: block;
+            margin: 6px 0 8px -20px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .sheet-foot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+        }
+        .sheet-count { font-weight: 700; font-variant-numeric: tabular-nums; }
+        .sheet-next-name { flex: 1; min-width: 0; font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+        .sheet-foot button { background: var(--primary); color: var(--on-primary); flex: none; }
+        .sheet-foot button:disabled { background: var(--border); color: var(--text-muted); cursor: default; }
+        body.sheet-open { overflow: hidden; }
+        body.sheet-open .timer { bottom: calc(76px + env(safe-area-inset-bottom)); }
+        @media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+
+        /* Training mode */
+        .day-switch[hidden] { display: none !important; }
+        .session-bar {
+            position: sticky;
+            top: calc(57px + env(safe-area-inset-top));
+            z-index: 100;
+            margin: 0 -16px 18px;
+            padding: 10px 16px;
+            background: var(--bg);
+        }
+        .session-bar[hidden] { display: none; }
+        .session-segs { display: flex; gap: 4px; }
+        .session-segs span { flex: 1; height: 5px; border-radius: 3px; background: var(--border); }
+        .session-segs span.part { background: var(--primary-light); box-shadow: inset 0 0 0 1px var(--primary); }
+        .session-segs span.done { background: var(--primary); }
+        .session-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+        .session-count { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+        .session-time { font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; margin-left: auto; }
+        .session-row button {
+            font: inherit; font-size: 0.85rem; font-weight: 700; border-radius: 8px; padding: 7px 12px;
+            border: 0; background: var(--primary); color: var(--on-primary); cursor: pointer;
+        }
+        .summary {
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.55);
+        }
+        .summary[hidden] { display: none; }
+        .summary-card {
+            width: min(440px, 100%);
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        }
+        .summary-card h2 { font-size: 1.3rem; }
+        .summary-sub { font-size: 0.85rem; color: var(--text-muted); }
+        .summary-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 14px 0; }
+        .summary-stats div { background: var(--bg); border-radius: 10px; padding: 8px 10px; }
+        .summary-stats b { display: block; font-size: 1.3rem; }
+        .summary-stats span { font-size: 0.75rem; color: var(--text-muted); }
+        .summary-list { list-style: none; font-size: 0.85rem; margin-bottom: 14px; }
+        .summary-list li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-top: 1px solid var(--border); }
+        .summary-list li span:last-child { color: var(--text-muted); text-align: right; }
+        .summary-list li.skipped span:last-child { font-style: italic; }
+        .summary-card .start-btn { width: 100%; margin: 0; }
         .rest-days { list-style: none; display: grid; gap: 8px; }
         .rest-days label {
             display: block;
@@ -609,6 +793,21 @@
             outline: 3px solid var(--primary);
             outline-offset: 2px;
         }
+        .log .set-rest {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 0;
+            margin: 2px 0;
+            border: 0;
+            background: none;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .log .set-rest::before, .log .set-rest::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+        .log .set-rest span::before { content: "⏱ "; }
         .set-row.done .set-done { background: var(--primary); color: var(--on-primary); }
         .set-row.done input { border-color: var(--primary); }
         .log.complete { border-color: var(--primary); }
@@ -749,7 +948,7 @@
             border-radius: 14px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
             padding: 10px 12px 12px;
-            z-index: 200;
+            z-index: 350;
         }
         .timer[hidden] { display: none; }
         .timer-top { display: flex; align-items: center; gap: 8px; }
@@ -800,12 +999,6 @@
     <label for="tab7" class="bn-item bn-instellingen"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>Instellingen</label>
 </nav>
 
-<header>
-    <h1>Trainingsgids & Oefeningen</h1>
-    <p>4-Daagse Upper / Lower Split met PH Fitness Dumbbells & Decathlon Bench 500 — Inclusief beweging-animaties en video-uitleg.</p>
-    <p class="legend"><span class="legend-dot"></span>Rood = de spier die je traint · tik op een animatie om te pauzeren · vul je sets in en tik ✓ Klaar om de rusttimer te starten</p>
-</header>
-
 <div class="container">
 
     <div class="day-switch" role="group" aria-label="Trainingsdag">
@@ -813,6 +1006,15 @@
         <label for="tab2"><span class="ds-day">Dag 2</span><span class="ds-sub" data-default="Do · Lower">Do · Lower</span></label>
         <label for="tab3"><span class="ds-day">Dag 3</span><span class="ds-sub" data-default="Vr · Upper">Vr · Upper</span></label>
         <label for="tab4"><span class="ds-day">Dag 4</span><span class="ds-sub" data-default="Zo · Lower">Zo · Lower</span></label>
+    </div>
+
+    <div class="session-bar" id="session-bar" hidden>
+        <div class="session-segs" id="session-segs"></div>
+        <div class="session-row">
+            <span class="session-count" id="session-count"></span>
+            <span class="session-time" id="session-time">0:00</span>
+            <button type="button" id="session-finish">Afronden</button>
+        </div>
     </div>
 
     <div class="progression">
@@ -826,6 +1028,18 @@
         <div class="day-header">
             <h2>Vandaag rustdag</h2>
             <span>Herstel hoort bij het schema: je spieren groeien tussen de trainingen door.</span>
+        </div>
+        <div class="card-plain week-card">
+            <h3 class="mini-title">Deze week</h3>
+            <div class="week-gauge">
+                <svg viewBox="0 0 200 112" aria-hidden="true">
+                    <path class="wg-track" d="M20,100 A80,80 0 0 1 180,100" pathLength="100"/>
+                    <path class="wg-value" id="week-arc" d="M20,100 A80,80 0 0 1 180,100" pathLength="100" stroke-dasharray="0 100"/>
+                </svg>
+                <div class="wg-num"><strong id="week-count">0/4</strong><span>trainingen</span></div>
+            </div>
+            <ul class="week-days" id="week-days"></ul>
+            <p class="week-steps" id="week-steps"></p>
         </div>
         <div class="card-plain">
             <p class="rest-next" id="rest-next"></p>
@@ -1445,6 +1659,31 @@
 
 </div>
 
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="sheet-head">
+        <button type="button" id="sheet-close" aria-label="Sluiten">✕</button>
+        <span class="sheet-title" id="sheet-title"></span>
+        <span></span>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
+    <div class="sheet-foot">
+        <span class="sheet-count" id="sheet-count"></span>
+        <span class="sheet-next-name" id="sheet-next-name"></span>
+        <button type="button" id="sheet-prev" aria-label="Vorige oefening">‹</button>
+        <button type="button" id="sheet-next" aria-label="Volgende oefening">›</button>
+    </div>
+</div>
+
+<div class="summary" id="summary" hidden role="dialog" aria-modal="true" aria-labelledby="summary-title">
+    <div class="summary-card">
+        <h2 id="summary-title">Training afgerond 💪</h2>
+        <p class="summary-sub" id="summary-sub"></p>
+        <div class="summary-stats" id="summary-stats"></div>
+        <ul class="summary-list" id="summary-list"></ul>
+        <button type="button" class="start-btn" id="summary-close">Sluiten</button>
+    </div>
+</div>
+
 <div class="update-bar" id="update-bar" hidden>
     <span>Er is een nieuwe versie van de gids.</span>
     <button type="button" id="update-now">Bijwerken</button>
@@ -1618,6 +1857,8 @@
         if (document.visibilityState === "visible" && shownDay !== today()) {
             applyDay();
             updateWakeLock();
+            refreshTraining();
+            renderWeek();
             window.scrollTo(0, 0);
         }
     });
@@ -1753,6 +1994,7 @@
                 store(done);
                 hint();
                 if (!wasComplete && box.classList.contains("complete")) { autoSync(); }
+                refreshTraining();
                 if (done) {
                     startTimer(+box.dataset.rest, name + " · na set " + (i + 1) + (i + 1 >= sets ? " (laatste)" : ""));
                 }
@@ -1761,8 +2003,243 @@
         box.querySelector(".rest-btn").addEventListener("click", function () {
             startTimer(+box.dataset.rest, name);
         });
+        Array.prototype.forEach.call(box.querySelectorAll(".set-rest"), function (b) {
+            b.addEventListener("click", function () {
+                startTimer(+box.dataset.rest, name + " · na set " + b.dataset.after);
+            });
+        });
         hint();
     });
+
+    // ---------- day overview: stats, compact list, start button ----------
+    var DAY_TITLES = { tab1: "Dag 1 · Upper A", tab2: "Dag 2 · Lower A", tab3: "Dag 3 · Upper B", tab4: "Dag 4 · Lower B" };
+    function exName(box) { return box.dataset.name.replace(/^\d+\.\s*/, ""); }
+    function lastKg(id) {
+        var p = prevEntry(id);
+        if (!p) { return ""; }
+        var kgs = p.sets.filter(function (s) { return s && s.done && s.kg; }).map(function (s) { return +s.kg; });
+        return kgs.length ? String(Math.max.apply(null, kgs)).replace(".", ",") + " kg" : "";
+    }
+    function entryOn(id, date) {
+        var l = data[id] || [];
+        for (var i = l.length - 1; i >= 0; i--) { if (l[i].date === date) { return l[i]; } }
+        return null;
+    }
+    function doneSets(e) { return e ? e.sets.filter(function (s) { return s && s.done; }).length : 0; }
+    function required(box) { return +box.dataset.sets - +box.dataset.optional; }
+    function minutes(boxes) {
+        // rough estimate: ~4 s per rep, rest between sets, 2 min to set up each exercise
+        var sec = 0;
+        boxes.forEach(function (b) {
+            var sets = required(b), work = +b.dataset.max * 4 * (b.dataset.side === "1" ? 2 : 1);
+            sec += sets * work + (sets - 1) * +b.dataset.rest + 120;
+        });
+        return Math.round(sec / 300) * 5;
+    }
+    var dayViews = {};
+    ["tab1", "tab2", "tab3", "tab4"].forEach(function (tab) {
+        var section = document.getElementById("dag" + tab.slice(3));
+        var boxes = Array.prototype.slice.call(section.querySelectorAll(".log"));
+        var sets = boxes.reduce(function (n, b) { return n + required(b); }, 0);
+        var stats = el("p", "day-stats");
+        [[boxes.length, "oefeningen"], ["±" + minutes(boxes), "min"], [sets, "sets"]].forEach(function (x) {
+            var sp = el("span");
+            sp.appendChild(el("b", "", String(x[0])));
+            sp.appendChild(document.createTextNode(x[1]));
+            stats.appendChild(sp);
+        });
+        section.querySelector(".day-header").appendChild(stats);
+        var card = el("div", "card-plain day-overview");
+        var list = el("ol", "ex-list");
+        var items = boxes.map(function (box, i) {
+            var li = el("li"), b = el("button", "ex-item");
+            b.type = "button";
+            b.appendChild(el("span", "ex-num", String(i + 1)));
+            b.appendChild(el("span", "ex-name", exName(box)));
+            var state = el("span", "ex-state");
+            b.appendChild(state);
+            var chips = el("span", "ex-chips");
+            b.appendChild(chips);
+            b.addEventListener("click", function () {
+                openSheet(tab, i);
+            });
+            li.appendChild(b);
+            list.appendChild(li);
+            return { box: box, btn: b, chips: chips, state: state };
+        });
+        card.appendChild(list);
+        var start = el("button", "start-btn", "▶ Start training");
+        start.type = "button";
+        start.addEventListener("click", function () { startSession(tab); });
+        card.appendChild(start);
+        card.appendChild(el("p", "legend-note", "Rood in de animatie = de spier die je traint · tik op een animatie om te pauzeren · tik op een oefening voor de uitleg en je sets."));
+        section.querySelector(".day-header").insertAdjacentElement("afterend", card);
+        dayViews[tab] = { items: items, start: start };
+    });
+
+    // ---------- exercise details sheet ----------
+    // The exercise card itself moves into the sheet, so its logbook keeps working.
+    document.documentElement.classList.add("has-sheet");
+    var sheet = document.getElementById("sheet"), sheetBody = document.getElementById("sheet-body"), shown = null;
+    function returnCard() {
+        if (!shown) { return; }
+        shown.home.parentNode.insertBefore(shown.card, shown.home.nextSibling);
+        shown = null;
+    }
+    function openSheet(tab, i) {
+        var items = dayViews[tab].items;
+        var card = items[i].box.closest(".exercise-card");
+        returnCard();
+        if (!card.tgHome) {
+            card.tgHome = document.createComment("exercise");
+            card.parentNode.insertBefore(card.tgHome, card);
+        }
+        sheetBody.appendChild(card);
+        shown = { tab: tab, i: i, card: card, home: card.tgHome };
+        document.getElementById("sheet-title").textContent = DAY_TITLES[tab];
+        document.getElementById("sheet-count").textContent = (i + 1) + "/" + items.length;
+        document.getElementById("sheet-next-name").textContent = i + 1 < items.length ? "Volgende: " + exName(items[i + 1].box) : "";
+        document.getElementById("sheet-prev").disabled = i === 0;
+        document.getElementById("sheet-next").disabled = i + 1 >= items.length;
+        if (sheet.hidden) {
+            sheet.hidden = false;
+            document.body.classList.add("sheet-open");
+            document.getElementById("sheet-close").focus();
+        }
+        sheetBody.scrollTop = 0;
+    }
+    function closeSheet() {
+        if (sheet.hidden) { return; }
+        returnCard();
+        sheet.hidden = true;
+        document.body.classList.remove("sheet-open");
+        refreshTraining();
+    }
+    document.getElementById("sheet-close").addEventListener("click", closeSheet);
+    document.getElementById("sheet-prev").addEventListener("click", function () { if (shown) { openSheet(shown.tab, shown.i - 1); } });
+    document.getElementById("sheet-next").addEventListener("click", function () { if (shown) { openSheet(shown.tab, shown.i + 1); } });
+    document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { closeSheet(); } });
+
+    // ---------- training mode ----------
+    var SESSION_KEY = "tg:session:v1";
+    var session = (function () {
+        try {
+            var v = JSON.parse(localStorage.getItem(SESSION_KEY));
+            return v && Date.now() - v.start < 12 * 3600 * 1000 ? v : null;
+        } catch (e) { return null; }
+    })();
+    var sessionTick = null;
+    function saveSession() {
+        try {
+            if (session) { localStorage.setItem(SESSION_KEY, JSON.stringify(session)); } else { localStorage.removeItem(SESSION_KEY); }
+        } catch (e) { /* ignore */ }
+    }
+    function clock(ms) {
+        var t = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, sec = t % 60;
+        return (h ? h + ":" + pad(m) : m) + ":" + pad(sec);
+    }
+    function startSession(tab) {
+        session = { tab: tab, date: today(), start: Date.now() };
+        saveSession();
+        refreshTraining();
+        window.scrollTo(0, 0);
+    }
+    function refreshTraining() {
+        var checked = document.querySelector('input[name="tab-group"]:checked');
+        Object.keys(dayViews).forEach(function (tab) {
+            var v = dayViews[tab];
+            v.items.forEach(function (it) {
+                var d = it.box.dataset, id = d.ex, n = doneSets(entryOn(id, today())), req = required(it.box);
+                it.chips.textContent = "";
+                it.chips.appendChild(el("span", "", d.sets + " sets"));
+                it.chips.appendChild(el("span", "", (d.min === d.max ? d.min : d.min + "–" + d.max) + " reps" + (d.side === "1" ? " p.k." : "")));
+                var kg = d.bw === "1" ? "eigen gewicht" : lastKg(id);
+                if (kg) { it.chips.appendChild(el("span", "", kg)); }
+                it.btn.classList.toggle("done", n >= req);
+                it.state.textContent = n >= req ? "✓" : n ? n + "/" + req : "";
+            });
+            v.start.hidden = !!(session && session.tab === tab);
+        });
+        var on = !!(session && checked && checked.id === session.tab);
+        document.getElementById("session-bar").hidden = !on;
+        document.querySelector(".day-switch").hidden = on;
+        clearInterval(sessionTick);
+        if (!on) { return; }
+        var items = dayViews[session.tab].items, segs = document.getElementById("session-segs"), done = 0;
+        segs.textContent = "";
+        items.forEach(function (it) {
+            var n = doneSets(entryOn(it.box.dataset.ex, session.date)), req = required(it.box);
+            if (n >= req) { done++; }
+            segs.appendChild(el("span", n >= req ? "done" : n ? "part" : ""));
+        });
+        document.getElementById("session-count").textContent = done + "/" + items.length + " oefeningen";
+        var tick = function () { document.getElementById("session-time").textContent = clock(Date.now() - session.start); };
+        tick();
+        sessionTick = setInterval(tick, 1000);
+    }
+    function finishSession() {
+        var items = dayViews[session.tab].items;
+        var done = items.filter(function (it) { return doneSets(entryOn(it.box.dataset.ex, session.date)) >= required(it.box); }).length;
+        if (done < items.length && !confirm("Nog niet alle oefeningen zijn klaar (" + done + "/" + items.length + "). Training toch afronden?")) { return; }
+        var sets = 0, reps = 0, list = document.getElementById("summary-list");
+        list.textContent = "";
+        items.forEach(function (it) {
+            var e = entryOn(it.box.dataset.ex, session.date), n = doneSets(e);
+            sets += n;
+            if (e) { e.sets.forEach(function (s) { if (s && s.done) { reps += +s.reps || 0; } }); }
+            var li = el("li", n ? "" : "skipped");
+            li.appendChild(el("span", "", exName(it.box)));
+            li.appendChild(el("span", "", n ? describe(e) : "overgeslagen"));
+            list.appendChild(li);
+        });
+        document.getElementById("summary-sub").textContent = DAY_TITLES[session.tab] + " · " + shortDate(session.date);
+        var stats = document.getElementById("summary-stats");
+        stats.textContent = "";
+        [[clock(Date.now() - session.start), "duur"], [done + "/" + items.length, "oefeningen"], [sets, "sets"], [reps, "herhalingen"]].forEach(function (x) {
+            var d = el("div");
+            d.appendChild(el("b", "", String(x[0])));
+            d.appendChild(el("span", "", x[1]));
+            stats.appendChild(d);
+        });
+        session = null;
+        saveSession();
+        refreshTraining();
+        renderWeek();
+        document.getElementById("summary").hidden = false;
+        document.getElementById("summary-close").focus();
+        if (configured()) { syncNow(true); }
+    }
+    document.getElementById("session-finish").addEventListener("click", finishSession);
+    document.getElementById("summary-close").addEventListener("click", function () {
+        document.getElementById("summary").hidden = true;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="tab-group"]'), function (r) {
+        r.addEventListener("change", refreshTraining);
+    });
+
+    // ---------- week progress (rest-day page) ----------
+    function renderWeek() {
+        var mon = mondayOf(today()), count = 0, days = document.getElementById("week-days");
+        days.textContent = "";
+        [["tab1", "Di"], ["tab2", "Do"], ["tab3", "Vr"], ["tab4", "Zo"]].forEach(function (d) {
+            var ids = Array.prototype.map.call(document.querySelectorAll("#dag" + d[0].slice(3) + " .log"), function (b) { return b.dataset.ex; });
+            var trained = ids.some(function (id) {
+                return (data[id] || []).some(function (e) { return mondayOf(e.date) === mon && hasDone(e); });
+            });
+            if (trained) { count++; }
+            var li = el("li", trained ? "done" : "");
+            li.appendChild(el("strong", "", "Dag " + d[0].slice(3)));
+            li.appendChild(document.createTextNode(trained ? "✓ gedaan" : d[1]));
+            days.appendChild(li);
+        });
+        document.getElementById("week-count").textContent = count + "/4";
+        document.getElementById("week-arc").setAttribute("stroke-dasharray", (count / 4 * 100) + " 100");
+        var stepsEl = document.getElementById("week-steps");
+        var steps = overview && overview.steps || {};
+        var stepDays = Object.keys(steps).filter(function (d) { return mondayOf(d) === mon; });
+        stepsEl.textContent = stepDays.length ? "Stappen: gemiddeld " + Math.round(stepDays.reduce(function (t, d) { return t + steps[d]; }, 0) / stepDays.length).toLocaleString("nl-NL") +
+            " per dag (" + stepDays.length + " dag" + (stepDays.length === 1 ? "" : "en") + ")" : "";
+    }
 
     // ---------- clear ----------
     document.getElementById("log-clear").addEventListener("click", function () {
@@ -1833,6 +2310,7 @@
                 overview = { voeding: res.overview.voeding, metingen: res.overview.metingen, steps: res.steps || {}, anchor: res.anchor, at: Date.now() };
                 try { localStorage.setItem(OVERVIEW_KEY, JSON.stringify(overview)); } catch (e) { /* ignore */ }
                 renderOverview();
+                renderWeek();
             }
             var msg = res.changed ? res.changed + " cel" + (res.changed === 1 ? "" : "len") + " bijgewerkt (week " + res.weeks.join(", ") + ")" : "sheet was al bij";
             if (res.skipped && res.skipped.length) { msg += ". Niet in de sheet: " + res.skipped.join(", "); }
@@ -2071,6 +2549,8 @@
     });
     renderWeights();
     renderOverview();
+    refreshTraining();
+    renderWeek();
     // refresh the sheet overview quietly when it is older than 10 minutes
     if (configured() && (!overview || Date.now() - overview.at > 10 * 60 * 1000)) { syncNow(true); }
 
