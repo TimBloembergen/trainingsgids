@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
-    <meta name="tg-build" content="1a476af6">
+    <meta name="tg-build" content="595e615a">
     <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Trainingsgids">
@@ -2113,13 +2113,15 @@
         </div>
         <div class="card-plain">
             <h3 class="mini-title">Logboek</h3>
-            <p class="settings-text">Je sets worden op dit apparaat bewaard en via de sync in je Google Sheet gezet.</p>
+            <p class="settings-text">Je sets worden op dit apparaat bewaard en via de sync in je Google Sheet gezet. De sheet houdt een volledige kopie bij in het tabblad "App-logboek".</p>
+            <p class="sync-status" id="restore-status" aria-live="polite"></p>
             <div class="log-actions">
+                <button type="button" id="log-restore">⤓ Herstel uit sheet</button>
                 <button type="button" id="log-clear" class="danger">Wis logboek</button>
             </div>
         </div>
         <div class="card-plain">
-            <p class="noscript-note">Versie 1a476af6 · <a href="#" id="check-update">Controleer op updates</a></p>
+            <p class="noscript-note">Versie 595e615a · <a href="#" id="check-update">Controleer op updates</a></p>
             <noscript><p class="noscript-note">Het logboek, de sync en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
         </div>
     </section>
@@ -2778,7 +2780,7 @@
 
     // ---------- clear ----------
     document.getElementById("log-clear").addEventListener("click", function () {
-        if (confirm("Weet je zeker dat je het hele logboek op dit apparaat wilt wissen? Dit kan niet ongedaan worden gemaakt.")) {
+        if (confirm("Weet je zeker dat je het logboek op dit apparaat wilt wissen? Wat al gesynct is, kun je terugzetten met 'Herstel uit sheet'.")) {
             data = {};
             save();
             location.reload();
@@ -2817,8 +2819,8 @@
         var entries = [];
         Object.keys(data).forEach(function (id) {
             (data[id] || []).forEach(function (e) {
-                var sets = e.sets.filter(function (s) { return s && s.done; })
-                    .map(function (s) { return { kg: s.kg || "", reps: s.reps || "" }; });
+                var sets = [];
+                e.sets.forEach(function (s, i) { if (s && s.done) { sets.push({ kg: s.kg || "", reps: s.reps || "", n: i + 1 }); } });
                 if (sets.length) { entries.push({ id: id, date: e.date, sets: sets }); }
             });
         });
@@ -2892,7 +2894,70 @@
         sync.auto = document.getElementById("sync-auto").checked;
         saveSync();
         showForm(false);
+        // a new install: offer to get the logbook back before anything else
+        var empty = !Object.keys(data).some(function (id) { return (data[id] || []).some(hasDone); });
+        if (empty && confirm("Je logboek op dit apparaat is leeg. Logboek uit je sheet terugzetten?")) {
+            idleStatus();
+            restoreFromSheet();
+            return;
+        }
         syncNow(false);
+    });
+
+    // ---------- restore the logbook from the sheet ----------
+    var restoreStatus = document.getElementById("restore-status");
+    function restoreFromSheet() {
+        if (!configured()) {
+            restoreStatus.textContent = "Stel eerst de koppeling met je sheet in.";
+            restoreStatus.className = "sync-status err";
+            showForm(true);
+            return;
+        }
+        restoreStatus.textContent = "Bezig met ophalen uit je sheet…";
+        restoreStatus.className = "sync-status";
+        fetch(sync.url, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ token: sync.token, action: "restore" })
+        }).then(function (r) { return r.json(); }).then(function (res) {
+            if (!res.ok) { throw new Error(res.error || "Onbekende fout"); }
+            if (!res.entries) { throw new Error("het script in je sheet is te oud: plak de nieuwe Code.gs en implementeer een nieuwe versie"); }
+            // what is on this device wins; only missing trainings, weights and notes are added
+            var added = 0;
+            res.entries.forEach(function (e) {
+                var l = list(e.id);
+                if (l.some(function (x) { return x.date === e.date; })) { return; }
+                var sets = [];
+                e.sets.forEach(function (st, i) {
+                    var n = (+st.n || i + 1) - 1;
+                    sets[n] = { kg: String(st.kg || "").replace(",", "."), reps: String(st.reps || ""), done: true };
+                });
+                for (var j = 0; j < sets.length; j++) { if (!sets[j]) { sets[j] = null; } }
+                l.push({ date: e.date, sets: sets });
+                l.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+                added++;
+            });
+            var extra = 0;
+            Object.keys(res.weights || {}).forEach(function (d) {
+                if (body.weights[d] === undefined) { body.weights[d] = res.weights[d]; extra++; }
+            });
+            Object.keys(res.notes || {}).forEach(function (d) {
+                if (!body.notes[d]) { body.notes[d] = res.notes[d]; extra++; }
+            });
+            save();
+            saveBody();
+            restoreStatus.textContent = "✓ " + added + " training" + (added === 1 ? "" : "en") + " en " + extra + " wegingen/notities teruggezet. De gids laadt opnieuw…";
+            restoreStatus.className = "sync-status ok";
+            setTimeout(function () { location.reload(); }, 1500);
+        }).catch(function (err) {
+            restoreStatus.textContent = "Herstellen niet gelukt: " + (err && err.message ? err.message : err) + ".";
+            restoreStatus.className = "sync-status err";
+        });
+    }
+    document.getElementById("log-restore").addEventListener("click", function () {
+        if (confirm("Logboek uit je sheet terugzetten? Wat al op dit apparaat staat, blijft staan; alleen ontbrekende trainingen worden toegevoegd.")) {
+            restoreFromSheet();
+        }
     });
     document.getElementById("sync-forget").addEventListener("click", function () {
         sync = {};
