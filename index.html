@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
-    <meta name="tg-build" content="66254183">
+    <meta name="tg-build" content="93edcb84">
     <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <script>
@@ -394,6 +394,32 @@
             text-transform: uppercase;
             color: var(--text-muted);
         }
+        /* view mode (no training started): last time instead of the logbook */
+        .sheet.view .sheet-body .log { display: none; }
+        .last-panel {
+            order: 2;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+        }
+        .last-panel h4 { font-size: 0.95rem; margin-bottom: 4px; }
+        .last-panel h4 small { font-weight: 400; color: var(--text-muted); }
+        .last-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+        .last-row + .last-row { border-top: 1px solid var(--border); }
+        .last-row .set-name { min-width: 64px; }
+        .last-row b {
+            font-size: 1.05rem;
+            padding: 2px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--stage);
+            font-variant-numeric: tabular-nums;
+        }
+        .last-row b small { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-left: 3px; }
+        .last-empty, .last-hint { font-size: 0.82rem; color: var(--text-muted); }
+        .last-hint { margin-top: 6px; }
         .sheet-foot {
             display: flex;
             align-items: center;
@@ -2089,7 +2115,7 @@
             </div>
         </div>
         <div class="card-plain">
-            <p class="noscript-note">Versie 66254183 · <a href="#" id="check-update">Controleer op updates</a></p>
+            <p class="noscript-note">Versie 93edcb84 · <a href="#" id="check-update">Controleer op updates</a></p>
             <noscript><p class="noscript-note">Het logboek, de sync en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
         </div>
     </section>
@@ -2520,8 +2546,42 @@
     // The exercise card itself moves into the sheet, so its logbook keeps working.
     document.documentElement.classList.add("has-sheet");
     var sheet = document.getElementById("sheet"), sheetBody = document.getElementById("sheet-body"), shown = null;
+    function lastEntry(id) {
+        var l = data[id] || [];
+        for (var i = l.length - 1; i >= 0; i--) { if (hasDone(l[i])) { return l[i]; } }
+        return null;
+    }
+    function lastPanel(box) {
+        var panel = el("div", "last-panel"), e = lastEntry(box.dataset.ex);
+        var h = el("h4", "", "Vorige keer ");
+        if (e) { h.appendChild(el("small", "", shortDate(e.date))); }
+        panel.appendChild(h);
+        if (!e) {
+            panel.appendChild(el("p", "last-empty", "Nog niet gedaan."));
+        } else {
+            e.sets.forEach(function (st, n) {
+                if (!st || !st.done) { return; }
+                var row = el("div", "last-row");
+                row.appendChild(el("span", "set-name", "Set " + (n + 1)));
+                var r = el("b", "", st.reps || "?");
+                r.appendChild(el("small", "", box.dataset.side === "1" ? "reps p.k." : "reps"));
+                row.appendChild(r);
+                if (st.kg) {
+                    var k = el("b", "", String(st.kg).replace(".", ","));
+                    k.appendChild(el("small", "", "kg"));
+                    row.appendChild(k);
+                } else if (box.dataset.bw === "1") {
+                    row.appendChild(el("span", "last-empty", "eigen gewicht"));
+                }
+                panel.appendChild(row);
+            });
+        }
+        panel.appendChild(el("p", "last-hint", "Tik op ▶ Start training om je sets in te vullen."));
+        return panel;
+    }
     function returnCard() {
         if (!shown) { return; }
+        if (shown.panel) { shown.panel.remove(); }
         shown.home.parentNode.insertBefore(shown.card, shown.home.nextSibling);
         shown = null;
     }
@@ -2535,6 +2595,13 @@
         }
         sheetBody.appendChild(card);
         shown = { tab: tab, i: i, card: card, home: card.tgHome };
+        // only during a started training you fill in sets; otherwise show what you did last time
+        var training = !!(session && session.tab === tab);
+        sheet.classList.toggle("view", !training);
+        if (!training) {
+            shown.panel = lastPanel(items[i].box);
+            card.querySelector(".ex-content").appendChild(shown.panel);
+        }
         document.getElementById("sheet-title").textContent = DAY_TITLES[tab];
         document.getElementById("sheet-count").textContent = (i + 1) + "/" + items.length;
         document.getElementById("sheet-next-name").textContent = i + 1 < items.length ? "Volgende: " + exName(items[i + 1].box) : "";
@@ -2553,7 +2620,8 @@
         if (!shown) { return; }
         var items = dayViews[shown.tab].items, last = items[items.length - 1].box;
         var date = session && session.tab === shown.tab ? session.date : today();
-        var show = shown.i === items.length - 1 && doneSets(entryOn(last.dataset.ex, date)) >= required(last);
+        var show = !!(session && session.tab === shown.tab) && shown.i === items.length - 1 &&
+            doneSets(entryOn(last.dataset.ex, date)) >= required(last);
         document.getElementById("sheet-end").hidden = !show;
         document.getElementById("sheet-next").hidden = show;
         document.getElementById("sheet-next-name").hidden = show;
