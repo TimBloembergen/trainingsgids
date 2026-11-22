@@ -18,6 +18,8 @@ python3 tools/build.py --debug    # also writes debug/<id>.html with still frame
 tools/shoot.sh <id> ...           # renders debug/<id>.png with headless Chrome
 ```
 
+The home-screen icon (`apple-touch-icon.png`, `icon-192.png`, `icon-512.png`) is drawn by `python3 tools/icon.py` (needs Pillow); `manifest.webmanifest` names the app.
+
 The animations are plain SVG with CSS keyframes, without JavaScript, so the page also works offline and in the iOS Files preview. Tap an animation to pause it. With "reduce motion" turned on, animations start paused.
 
 ## Logbook and Google Sheet

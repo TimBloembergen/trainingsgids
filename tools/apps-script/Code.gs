@@ -9,13 +9,17 @@
  *
  * The guide posts its logbook, weights and weekly notes; this script writes
  * them into the training and weight tabs and sends back the overview tabs so
- * the guide can show them. An iOS Shortcut can post the daily step count.
- * Every request needs the secret code from the script properties.
+ * the guide can show them. It also keeps a full copy of the logbook (one row
+ * per set) in the tab "App-logboek", so a new install of the guide can get
+ * its logbook back (action "restore"). An iOS Shortcut can post the daily
+ * step count. Every request needs the secret code from the script properties.
  */
 
 var TRAINING_SHEET = 'Trainingsschema & Logboek';
 var WEIGHT_SHEET = 'Gewicht & Metingen';
 var OVERVIEW_SHEET = 'Overzicht & Voeding';
+var LOG_SHEET = 'App-logboek';
+var LOG_HEAD = ['Soort', 'Datum', 'Oefening', 'Set', 'Kg', 'Reps', 'Tekst'];
 var MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
 var DAY_HEADERS = ['Ma (kg)', 'Di (kg)', 'Wo (kg)', 'Do (kg)', 'Vr (kg)', 'Za (kg)', 'Zo (kg)'];
 
@@ -103,6 +107,9 @@ function doPost(e) {
     var ss = SpreadsheetApp.getActive();
     if (body.action === 'steps') {
       return json_(steps_(ss, props, body));
+    }
+    if (body.action === 'restore') {
+      return json_(restore_(ss, props));
     }
     return json_(sync_(ss, props, body));
   } catch (err) {
@@ -436,8 +443,9 @@ function sync_(ss, props, body) {
   if (anchor) {
     syncTraining_(sheet_(ss, TRAINING_SHEET), entries, anchor, out);
     syncWeights_(sheet_(ss, WEIGHT_SHEET), weights, notes, anchor, out);
-    SpreadsheetApp.flush();
   }
+  saveLog_(ss, entries, weights, notes);
+  SpreadsheetApp.flush();
   out.anchor = anchor;
   out.weeks.sort(function (a, b) { return a - b; });
   out.overview = {
@@ -446,4 +454,131 @@ function sync_(ss, props, body) {
   };
   out.steps = JSON.parse(props.getProperty('STEPS') || '{}');
   return out;
+}
+
+// ---------- full logbook copy (tab "App-logboek") ----------
+function cellDate_(v) {
+  if (v instanceof Date) { return Utilities.formatDate(v, Session.getScriptTimeZone(), 'yyyy-MM-dd'); }
+  return String(v).trim();
+}
+
+/** Reads the App-logboek tab: { sets: {'date|id': [{n, kg, reps}]}, weights: {date: kg}, notes: {monday: text} }. */
+function readLog_(ss) {
+  var log = { sets: {}, weights: {}, notes: {} };
+  var sh = ss.getSheetByName(LOG_SHEET);
+  if (!sh || sh.getLastRow() < 2) { return log; }
+  sh.getRange(2, 1, sh.getLastRow() - 1, LOG_HEAD.length).getValues().forEach(function (r) {
+    var kind = String(r[0]).trim(), date = cellDate_(r[1]);
+    if (!isIso_(date)) { return; }
+    if (kind === 'set' && r[2]) {
+      var key = date + '|' + String(r[2]).trim();
+      (log.sets[key] = log.sets[key] || []).push({ n: Number(r[3]) || 0, kg: String(r[4]).trim(), reps: String(r[5]).trim() });
+    } else if (kind === 'gewicht' && r[4] !== '') {
+      log.weights[date] = Number(String(r[4]).replace(',', '.'));
+    } else if (kind === 'notitie' && String(r[6]) !== '') {
+      log.notes[date] = String(r[6]);
+    }
+  });
+  return log;
+}
+
+/**
+ * Merges the guide's data into the copy. A training (date + exercise) the
+ * guide sends replaces the stored one; anything it does not send is kept, so
+ * a new, still empty install cannot wipe the copy before it is restored.
+ */
+function saveLog_(ss, entries, weights, notes) {
+  if (!entries.length && !Object.keys(weights).length && !Object.keys(notes).length) { return; }
+  var log = readLog_(ss);
+  entries.forEach(function (e) {
+    if (!isIso_(e.date) || !e.id || !e.sets || !e.sets.length) { return; }
+    log.sets[e.date + '|' + e.id] = e.sets.map(function (st, i) {
+      return { n: Number(st.n) || i + 1, kg: String(st.kg || ''), reps: String(st.reps || '') };
+    });
+  });
+  Object.keys(weights).forEach(function (d) {
+    if (!isIso_(d)) { return; }
+    if (weights[d] === null || weights[d] === '') { delete log.weights[d]; } else { log.weights[d] = Number(String(weights[d]).replace(',', '.')); }
+  });
+  Object.keys(notes).forEach(function (d) {
+    if (!isIso_(d)) { return; }
+    if (!notes[d]) { delete log.notes[d]; } else { log.notes[d] = String(notes[d]); }
+  });
+  var rows = [];
+  Object.keys(log.sets).sort().forEach(function (key) {
+    var k = key.split('|');
+    log.sets[key].slice().sort(function (a, b) { return a.n - b.n; }).forEach(function (st) {
+      rows.push(['set', k[0], k[1], st.n, st.kg, st.reps, '']);
+    });
+  });
+  Object.keys(log.weights).sort().forEach(function (d) { rows.push(['gewicht', d, '', '', String(log.weights[d]), '', '']); });
+  Object.keys(log.notes).sort().forEach(function (d) { rows.push(['notitie', d, '', '', '', '', log.notes[d]]); });
+
+  var sh = ss.getSheetByName(LOG_SHEET) || ss.insertSheet(LOG_SHEET);
+  sh.clearContents();
+  var all = [LOG_HEAD].concat(rows);
+  sh.getRange(1, 1, all.length, LOG_HEAD.length).setNumberFormat('@').setValues(all);
+  sh.getRange(1, 1, 1, LOG_HEAD.length).setFontWeight('bold');
+  sh.setFrozenRows(1);
+}
+
+/** Splits a Week cell ("22 kg", "22 / 20 kg", "Lichaam" and "10, 9, 8") back into sets. */
+function parseWeek_(weight, reps) {
+  var r = String(reps).split(',').map(function (x) { x = x.trim(); return x === '?' ? '' : x; });
+  var w = String(weight).trim();
+  var kgs = /kg$/.test(w) ? w.replace(/\s*kg$/, '').split('/').map(function (x) { x = x.trim(); return x === '–' ? '' : x.replace(',', '.'); }) : [''];
+  return r.map(function (x, i) { return { n: i + 1, kg: kgs.length === 1 ? kgs[0] : (kgs[i] || ''), reps: x }; });
+}
+
+/**
+ * Everything a new install needs: the App-logboek copy, plus older weeks
+ * that are only in the Week columns and the weights tab (dated on the
+ * planned day of that week).
+ */
+function restore_(ss, props) {
+  var log = readLog_(ss);
+  var saved = props.getProperty('ANCHOR');
+  var anchor = saved ? JSON.parse(saved) : null;
+  var fromWeeks = 0;
+  if (anchor) {
+    var dayOf = function (week, day) {
+      return iso_(new Date(parseDate_(anchor.monday).getTime() + ((week - anchor.week) * 7 + day) * 864e5));
+    };
+    var have = {};
+    Object.keys(log.sets).forEach(function (key) {
+      var k = key.split('|');
+      have[k[1] + '|' + weekOf_(anchor, k[0])] = true;
+    });
+    var values = sheet_(ss, TRAINING_SHEET).getDataRange().getDisplayValues();
+    var lay = trainingLayout_(values);
+    DAYS.forEach(function (ids, d) {
+      ids.forEach(function (id) {
+        Object.keys(lay.weeks).forEach(function (w) {
+          var row = values[lay.rows[id] - 1], c = lay.weeks[w];
+          var weight = row[c.kg - 1], reps = row[c.reps - 1];
+          if (!String(reps).trim() || have[id + '|' + w]) { return; }
+          log.sets[dayOf(Number(w), PLANNED[d]) + '|' + id] = parseWeek_(weight, reps);
+          fromWeeks++;
+        });
+      });
+    });
+    var wValues = sheet_(ss, WEIGHT_SHEET).getDataRange().getDisplayValues();
+    var wLay = weightLayout_(wValues);
+    Object.keys(wLay.rows).forEach(function (w) {
+      var row = wValues[wLay.rows[w] - 1];
+      wLay.days.forEach(function (c, i) {
+        var v = c ? String(row[c - 1]).trim().replace(',', '.') : '';
+        var date = dayOf(Number(w), i);
+        if (v !== '' && isFinite(Number(v)) && log.weights[date] === undefined) { log.weights[date] = Number(v); }
+      });
+      var note = wLay.notes ? String(row[wLay.notes - 1]).trim() : '';
+      var mon = dayOf(Number(w), 0);
+      if (note && log.notes[mon] === undefined) { log.notes[mon] = note; }
+    });
+  }
+  var entries = Object.keys(log.sets).sort().map(function (key) {
+    var k = key.split('|');
+    return { date: k[0], id: k[1], sets: log.sets[key] };
+  });
+  return { ok: true, entries: entries, weights: log.weights, notes: log.notes, fromWeeks: fromWeeks };
 }
