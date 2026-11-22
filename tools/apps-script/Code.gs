@@ -26,6 +26,11 @@ var DAYS = [
   ['shoulder-press', 'pullover', 'incline-fly', 'rear-delt', 'tricep-ext', 'hammer'],
   ['rdl-heavy', 'reverse-lunge', 'hip-thrust', 'single-calf', 'russian-twist']
 ];
+// Planned weekday per training day (0 = Monday): Tue, Thu, Fri, Sun.
+var PLANNED = [1, 3, 4, 6];
+// A training up to this many days after its planned day still counts for
+// that week, also when it falls in the next calendar week (Sunday -> Monday).
+var LATE_DAYS = 3;
 
 /** Run once from the editor: creates the secret code and logs it. */
 function setup() {
@@ -204,15 +209,64 @@ function describe_(sets) {
   return { weight: weight, reps: reps };
 }
 
+function plannedDay_(id) {
+  for (var d = 0; d < DAYS.length; d++) {
+    if (DAYS[d].indexOf(id) >= 0) { return PLANNED[d]; }
+  }
+  return -1;
+}
+
+/**
+ * Assigns each training to a week: normally its calendar week (Mon-Sun).
+ * A training done at most LATE_DAYS after its planned day, but already in
+ * the next calendar week, goes to the previous week when that week has no
+ * training of this exercise yet. Per exercise and week the latest wins.
+ * Returns { 'id|week': { id, week, date, sets, natural } }.
+ */
+function assignWeeks_(entries, anchor, lay) {
+  var byId = {};
+  entries.forEach(function (e) {
+    if (!lay.rows[e.id] || !isIso_(e.date) || !e.sets || !e.sets.length) { return; }
+    (byId[e.id] = byId[e.id] || []).push(e);
+  });
+  var latest = {};
+  Object.keys(byId).forEach(function (id) {
+    var planned = plannedDay_(id);
+    byId[id].sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    byId[id].forEach(function (e) {
+      var natural = weekOf_(anchor, e.date);
+      var w = natural;
+      var prev = natural - 1;
+      var plannedPrev = monday_(e.date).getTime() + (planned - 7) * 864e5;
+      var late = Math.round((parseDate_(e.date).getTime() - plannedPrev) / 864e5);
+      if (planned >= 0 && late <= LATE_DAYS && prev >= anchor.week && lay.weeks[prev] && !latest[id + '|' + prev]) {
+        w = prev;
+      }
+      latest[id + '|' + w] = { id: id, week: w, date: e.date, sets: e.sets, natural: natural };
+    });
+  });
+  return latest;
+}
+
 function syncTraining_(sheet, entries, anchor, out) {
   var values = sheet.getDataRange().getDisplayValues();
   var lay = trainingLayout_(values);
-  var latest = {};
-  entries.forEach(function (e) {
-    if (!lay.rows[e.id] || !isIso_(e.date) || !e.sets || !e.sets.length) { return; }
-    var w = weekOf_(anchor, e.date);
-    var key = e.id + '|' + w;
-    if (!latest[key] || latest[key].date < e.date) { latest[key] = { id: e.id, week: w, date: e.date, sets: e.sets }; }
+  var latest = assignWeeks_(entries, anchor, lay);
+  // A training that moved to the previous week may still be in its calendar
+  // week from an earlier sync: clear it there if nothing else belongs there.
+  Object.keys(latest).forEach(function (key) {
+    var s = latest[key];
+    var cols = lay.weeks[s.natural];
+    if (s.week === s.natural || !cols || latest[s.id + '|' + s.natural]) { return; }
+    var row = lay.rows[s.id];
+    var d = describe_(s.sets);
+    if (values[row - 1][cols.kg - 1] === d.weight && values[row - 1][cols.reps - 1] === d.reps) {
+      sheet.getRange(row, cols.kg, 1, 2).clearContent();
+      values[row - 1][cols.kg - 1] = '';
+      values[row - 1][cols.reps - 1] = '';
+      out.changed += 2;
+      addWeek_(out, s.natural);
+    }
   });
   Object.keys(latest).forEach(function (key) {
     var s = latest[key];
