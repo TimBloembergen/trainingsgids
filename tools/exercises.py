@@ -1,7 +1,7 @@
 """The 22 exercise animations: key poses, tempo and highlighted muscles.
 
 Side-view key pose fields (see rig.solve_side):
-  hip | shoulder   anchor point (shoulder keeps the shoulder fixed, e.g. hip thrust)
+  hip | shoulder   anchor point (shoulder keeps the shoulder fixed, e.g. glute bridge)
   torso            world angle hip -> shoulder (-90 = upright, facing right)
   neck             head tilt relative to the torso (+ = chin to chest)
   legn / legf      {ankle|ball, bend, foot} for IK, or {ang: (thigh, shin), foot}
@@ -383,16 +383,16 @@ ex(id="reverse-lunge", aria="Reverse lunge: grote stap naar achteren en zakken",
    seq=[(0.4, None, "staan", 0.3), (0.7, 1, "stap terug", 0.4), (1.3, 2, "zakken", 0.55),
         (0.3, None, "onder", 0.7), (0.6, 1, "terug duwen · 1 s", 1.0), (0.5, 0, "terug duwen · 1 s", 0.9)])
 
-ht_legs = {"legn": {"ankle": (150, 156), "bend": -1, "foot": 0},
-           "legf": {"ankle": (146, 156), "bend": -1, "foot": 0}}
-ht_arms = {"armn": {"jel": (-14, 16), "jhand": (-33, 12)}, "armf": {"jel": (-14, 16), "jhand": (-33, 12)},
+gb_arms = {"armn": {"jel": (-14, 16), "jhand": (-33, 12)}, "armf": {"jel": (-14, 16), "jhand": (-33, 12)},
            "dbn": {}}
-ex(id="hip-thrust", aria="Dumbbell hip thrust met de schouders tegen de bank",
-   caption="Heupen krachtig omhoog duwen", tempo="1 s omhoog · 1 s knijpen · 2 s zakken",
-   scene=bench_end(70, top=122), hl=["glutes", "hams"], db_size=1.15,
+gb_legs = {"legn": {"ankle": (159, 126), "bend": -1, "foot": -65},
+           "legf": {"ankle": (156, 126), "bend": -1, "foot": -65}}
+ex(id="glute-bridge", aria="Glute bridge op de grond met de hielen op de bank en een dumbbell op de heupen",
+   caption="Hielen op de bank, heupen omhoog", tempo="1 s omhoog · 1 s knijpen · 2 s zakken",
+   scene=bench_end(162, top=PAD_TOP), hl=["glutes", "hams"], db_size=1.15,
    keys=[
-       dict(shoulder=(80, 118), torso=214, neck=0, **ht_legs, **ht_arms),
-       dict(shoulder=(80, 118), torso=178, neck=32, **ht_legs, **ht_arms),
+       dict(shoulder=(66, 150), torso=180, neck=0, **gb_legs, **gb_arms),
+       dict(shoulder=(66, 150), torso=150, neck=30, **gb_legs, **gb_arms),
    ],
    seq=[(1.0, 1, "omhoog · 1 s", 1.0), (1.0, None, "billen knijpen", 1.0), (2.0, 0, "zakken · 2 s", 0.45),
         (0.3, None, "onder", 0.2)])
