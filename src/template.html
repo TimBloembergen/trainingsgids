@@ -326,6 +326,17 @@
             cursor: pointer;
         }
         .theme-switch button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
+        .wake-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 12px 4px;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+        .wake-switch input { width: 18px; height: 18px; accent-color: var(--primary); flex: none; }
+        .wake-switch small { display: block; font-size: 0.75rem; color: var(--text-muted); }
+        .wake-switch.unsupported { cursor: default; opacity: 0.6; }
         .drawer-item:focus-visible, .theme-switch button:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
         @media (prefers-reduced-motion: reduce) {
             .drawer, .scrim, .menu-btn span { transition: none; }
@@ -802,6 +813,10 @@
         <button type="button" data-theme-set="light">Licht</button>
         <button type="button" data-theme-set="dark">Donker</button>
     </div>
+    <label class="wake-switch" id="wake-switch">
+        <input type="checkbox" id="wake-toggle" checked>
+        <span>Scherm aan tijdens training<small id="wake-note">Op de pagina's van Dag 1 t/m 4</small></span>
+    </label>
 </nav>
 
 <header>
@@ -1509,6 +1524,7 @@
     syncMenu();
     Array.prototype.forEach.call(document.querySelectorAll('input[name="tab-group"]'), function (r) {
         r.addEventListener("change", function () {
+            updateWakeLock();
             closeMenu();
             window.scrollTo(0, 0);
         });
@@ -1562,10 +1578,52 @@
         }
     }
     applyDay();
+    // ---------- keep the screen on during a training ----------
+    var WAKE_KEY = "tg:wake";
+    var wakeLock = null, wakePending = false;
+    var wakeToggle = document.getElementById("wake-toggle");
+    var wakeSupported = "wakeLock" in navigator;
+    try { wakeToggle.checked = localStorage.getItem(WAKE_KEY) !== "off"; } catch (e) { /* ignore */ }
+    if (!wakeSupported) {
+        wakeToggle.checked = false;
+        wakeToggle.disabled = true;
+        document.getElementById("wake-switch").classList.add("unsupported");
+        document.getElementById("wake-note").textContent = "Werkt niet in deze browser (iOS 16.4 of nieuwer nodig)";
+    }
+    function wantWakeLock() {
+        var tab = document.querySelector('input[name="tab-group"]:checked');
+        return wakeSupported && wakeToggle.checked && document.visibilityState === "visible" &&
+            !!tab && /^tab[1-4]$/.test(tab.id);
+    }
+    function updateWakeLock() {
+        if (wantWakeLock()) {
+            if (wakeLock || wakePending) { return; }
+            wakePending = true;
+            navigator.wakeLock.request("screen").then(function (lock) {
+                wakePending = false;
+                wakeLock = lock;
+                lock.addEventListener("release", function () { if (wakeLock === lock) { wakeLock = null; } });
+                if (!wantWakeLock()) { updateWakeLock(); }
+            }).catch(function () { wakePending = false; });
+        } else if (wakeLock) {
+            var l = wakeLock;
+            wakeLock = null;
+            l.release().catch(function () { /* already released */ });
+        }
+    }
+    wakeToggle.addEventListener("change", function () {
+        try { localStorage.setItem(WAKE_KEY, wakeToggle.checked ? "on" : "off"); } catch (e) { /* ignore */ }
+        updateWakeLock();
+    });
+    // the browser drops the lock when the page is hidden; some only grant it after a tap
+    document.addEventListener("visibilitychange", updateWakeLock);
+    document.addEventListener("click", updateWakeLock);
+    updateWakeLock();
     // a home-screen app can stay open overnight: pick the new day when it comes back
     document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "visible" && shownDay !== today()) {
             applyDay();
+            updateWakeLock();
             window.scrollTo(0, 0);
         }
     });
