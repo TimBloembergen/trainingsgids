@@ -5,7 +5,7 @@
  * 1. Run setup() once and copy the code it logs.
  * 2. Deploy > New deployment > Web app, execute as "Me", access "Anyone".
  *    After changing this file: Deploy > Manage deployments > edit > New version.
- * 3. Enter the web app URL and the code in the guide (Logboek > Sync instellen).
+ * 3. Enter the web app URL and the code in the guide (Instellingen > Sync instellen).
  *
  * The guide posts its logbook, weights and weekly notes; this script writes
  * them into the training and weight tabs and sends back the overview tabs so

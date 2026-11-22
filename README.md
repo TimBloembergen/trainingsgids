@@ -22,17 +22,8 @@ The animations are plain SVG with CSS keyframes, without JavaScript, so the page
 
 ## Logbook and Google Sheet
 
-The guide keeps a per-set logbook in the browser (localStorage). The logbook is leading: it is written into the Week columns of the training tab in Google Sheets.
+The guide keeps a per-set logbook in the browser (localStorage). The logbook is leading: it is written into the Week columns of the training tab in Google Sheets, which is the only copy outside the browser.
 
 **Weeks:** each training goes to the Week column of its calendar week (Monday to Sunday). A training done up to 3 days after its planned day that already falls in the next week (Sunday's Day 4 on Monday) still counts for the previous week, as long as that week has no training of the exercise yet. Per exercise and week the latest training wins.
 
-**Sync (main route):** `tools/apps-script/Code.gs` runs as an Apps Script web app inside the Google Sheet. Run `setup()` once to create the code, deploy it as a web app (execute as me, access anyone) and enter the URL and code in the guide under Logboek > Sync instellen. The guide then syncs when an exercise is finished, or with the Sync button. The URL and code are stored only in the browser, never in this repo.
-
-**Offline fallback:** the CSV export can be written into a local `.xlsx` copy:
-
-```bash
-python3 tools/update_sheet.py              # newest trainingslogboek-*.csv from private/ or ~/Downloads
-python3 tools/update_sheet.py --dry-run    # show the changes without saving
-```
-
-The spreadsheet, its backups and the week mapping live in `private/`, which is not in git.
+**Sync:** `tools/apps-script/Code.gs` runs as an Apps Script web app inside the Google Sheet. Run `setup()` once to create the code, deploy it as a web app (execute as me, access anyone) and enter the URL and code in the guide under Instellingen > Sync instellen. The guide then syncs when an exercise is finished, or with the Sync button. The URL and code are stored only in the browser, never in this repo.
