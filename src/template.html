@@ -329,6 +329,87 @@
         .legend-note { font-size: 0.78rem; color: var(--text-muted); margin: 10px 8px 0; }
         .exercise-card { scroll-margin-top: calc(130px + env(safe-area-inset-top)); }
 
+        /* Exercise details: tap an exercise in the list to open it */
+        .has-sheet .day-section .exercise-card { display: none; }
+        .sheet {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            padding-top: env(safe-area-inset-top);
+            animation: sheetUp 0.25s ease-out;
+        }
+        .sheet[hidden] { display: none; }
+        @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+        .sheet-head {
+            display: grid;
+            grid-template-columns: 44px 1fr 44px;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--topbar);
+            color: var(--on-topbar);
+            border-bottom: 3px solid var(--accent);
+        }
+        .sheet-head button, .sheet-foot button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 0;
+            font: inherit;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .sheet-head button { background: rgba(255, 255, 255, 0.12); color: inherit; }
+        .sheet-title { text-align: center; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sheet-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 16px; }
+        .sheet-body .exercise-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 0;
+            border: 0;
+            background: none;
+            box-shadow: none;
+        }
+        .sheet-body .ex-content { display: flex; flex-direction: column; }
+        .sheet-body .ex-content h3 { order: 0; }
+        .sheet-body .badges { order: 1; }
+        .sheet-body .log { order: 2; background: var(--card-bg); }
+        .sheet-body .steps { order: 3; }
+        .sheet-body .tip-box { order: 4; }
+        .sheet-body .yt-btn { order: 5; align-self: flex-start; }
+        .sheet-body .steps::before {
+            content: "Uitleg";
+            display: block;
+            margin: 6px 0 8px -20px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .sheet-foot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+        }
+        .sheet-count { font-weight: 700; font-variant-numeric: tabular-nums; }
+        .sheet-next-name { flex: 1; min-width: 0; font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+        .sheet-foot button { background: var(--primary); color: var(--on-primary); flex: none; }
+        .sheet-foot button:disabled { background: var(--border); color: var(--text-muted); cursor: default; }
+        body.sheet-open { overflow: hidden; }
+        body.sheet-open .timer { bottom: calc(76px + env(safe-area-inset-bottom)); }
+        @media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+
         /* Training mode */
         .day-switch[hidden] { display: none !important; }
         .session-bar {
@@ -867,7 +948,7 @@
             border-radius: 14px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
             padding: 10px 12px 12px;
-            z-index: 200;
+            z-index: 350;
         }
         .timer[hidden] { display: none; }
         .timer-top { display: flex; align-items: center; gap: 8px; }
@@ -1578,6 +1659,21 @@
 
 </div>
 
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="sheet-head">
+        <button type="button" id="sheet-close" aria-label="Sluiten">✕</button>
+        <span class="sheet-title" id="sheet-title"></span>
+        <span></span>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
+    <div class="sheet-foot">
+        <span class="sheet-count" id="sheet-count"></span>
+        <span class="sheet-next-name" id="sheet-next-name"></span>
+        <button type="button" id="sheet-prev" aria-label="Vorige oefening">‹</button>
+        <button type="button" id="sheet-next" aria-label="Volgende oefening">›</button>
+    </div>
+</div>
+
 <div class="summary" id="summary" hidden role="dialog" aria-modal="true" aria-labelledby="summary-title">
     <div class="summary-card">
         <h2 id="summary-title">Training afgerond 💪</h2>
@@ -1965,7 +2061,7 @@
             var chips = el("span", "ex-chips");
             b.appendChild(chips);
             b.addEventListener("click", function () {
-                box.closest(".exercise-card").scrollIntoView({ behavior: "smooth", block: "start" });
+                openSheet(tab, i);
             });
             li.appendChild(b);
             list.appendChild(li);
@@ -1976,10 +2072,53 @@
         start.type = "button";
         start.addEventListener("click", function () { startSession(tab); });
         card.appendChild(start);
-        card.appendChild(el("p", "legend-note", "Rood in de animatie = de spier die je traint · tik op een animatie om te pauzeren · tik op een oefening om ernaar te gaan."));
+        card.appendChild(el("p", "legend-note", "Rood in de animatie = de spier die je traint · tik op een animatie om te pauzeren · tik op een oefening voor de uitleg en je sets."));
         section.querySelector(".day-header").insertAdjacentElement("afterend", card);
         dayViews[tab] = { items: items, start: start };
     });
+
+    // ---------- exercise details sheet ----------
+    // The exercise card itself moves into the sheet, so its logbook keeps working.
+    document.documentElement.classList.add("has-sheet");
+    var sheet = document.getElementById("sheet"), sheetBody = document.getElementById("sheet-body"), shown = null;
+    function returnCard() {
+        if (!shown) { return; }
+        shown.home.parentNode.insertBefore(shown.card, shown.home.nextSibling);
+        shown = null;
+    }
+    function openSheet(tab, i) {
+        var items = dayViews[tab].items;
+        var card = items[i].box.closest(".exercise-card");
+        returnCard();
+        if (!card.tgHome) {
+            card.tgHome = document.createComment("exercise");
+            card.parentNode.insertBefore(card.tgHome, card);
+        }
+        sheetBody.appendChild(card);
+        shown = { tab: tab, i: i, card: card, home: card.tgHome };
+        document.getElementById("sheet-title").textContent = DAY_TITLES[tab];
+        document.getElementById("sheet-count").textContent = (i + 1) + "/" + items.length;
+        document.getElementById("sheet-next-name").textContent = i + 1 < items.length ? "Volgende: " + exName(items[i + 1].box) : "";
+        document.getElementById("sheet-prev").disabled = i === 0;
+        document.getElementById("sheet-next").disabled = i + 1 >= items.length;
+        if (sheet.hidden) {
+            sheet.hidden = false;
+            document.body.classList.add("sheet-open");
+            document.getElementById("sheet-close").focus();
+        }
+        sheetBody.scrollTop = 0;
+    }
+    function closeSheet() {
+        if (sheet.hidden) { return; }
+        returnCard();
+        sheet.hidden = true;
+        document.body.classList.remove("sheet-open");
+        refreshTraining();
+    }
+    document.getElementById("sheet-close").addEventListener("click", closeSheet);
+    document.getElementById("sheet-prev").addEventListener("click", function () { if (shown) { openSheet(shown.tab, shown.i - 1); } });
+    document.getElementById("sheet-next").addEventListener("click", function () { if (shown) { openSheet(shown.tab, shown.i + 1); } });
+    document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { closeSheet(); } });
 
     // ---------- training mode ----------
     var SESSION_KEY = "tg:session:v1";
