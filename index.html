@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
-    <meta name="tg-build" content="595e615a">
+    <meta name="tg-build" content="961647b7">
     <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Trainingsgids">
@@ -214,7 +214,7 @@
             top: calc(57px + env(safe-area-inset-top));
             z-index: 100;
             display: none;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: minmax(0, 0.8fr) repeat(4, minmax(0, 1fr));
             gap: 4px;
             margin: 0 -16px 18px;
             padding: 8px 16px;
@@ -239,16 +239,19 @@
         .ds-sub { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; }
         .day-switch label.is-today .ds-sub, .day-switch label.is-next .ds-sub { color: var(--primary-dark); font-weight: 700; }
         .day-switch label.is-today { border-color: var(--primary); }
+        #tab0:checked ~ .container .day-switch label[for="tab0"],
         #tab1:checked ~ .container .day-switch label[for="tab1"], #tab2:checked ~ .container .day-switch label[for="tab2"],
         #tab3:checked ~ .container .day-switch label[for="tab3"], #tab4:checked ~ .container .day-switch label[for="tab4"] {
             background: var(--primary);
             border-color: var(--primary);
         }
+        #tab0:checked ~ .container .day-switch label[for="tab0"] span,
         #tab1:checked ~ .container .day-switch label[for="tab1"] span, #tab2:checked ~ .container .day-switch label[for="tab2"] span,
         #tab3:checked ~ .container .day-switch label[for="tab3"] span, #tab4:checked ~ .container .day-switch label[for="tab4"] span {
             color: var(--on-primary);
         }
         .rest-next { font-size: 1.05rem; margin-bottom: 12px; }
+        .rest-next:empty { display: none; }
 
         /* Week progress on the rest-day page */
         .week-card { display: grid; justify-items: center; text-align: center; }
@@ -1314,7 +1317,7 @@
 
 <div class="topbar">
     <div class="topbar-title">
-        <span class="t t0">Rustdag</span>
+        <span class="t t0" id="title-week">Rustdag</span>
         <span class="t t1">Dag 1 · Upper A</span>
         <span class="t t2">Dag 2 · Lower A</span>
         <span class="t t3">Dag 3 · Upper B</span>
@@ -1337,6 +1340,7 @@
 <div class="container">
 
     <div class="day-switch" role="group" aria-label="Trainingsdag">
+        <label for="tab0" class="ds-week"><span class="ds-day">Week</span><span class="ds-sub" id="ds-week-sub">overzicht</span></label>
         <label for="tab1"><span class="ds-day">Dag 1</span><span class="ds-sub" data-default="Di · Upper">Di · Upper</span></label>
         <label for="tab2"><span class="ds-day">Dag 2</span><span class="ds-sub" data-default="Do · Lower">Do · Lower</span></label>
         <label for="tab3"><span class="ds-day">Dag 3</span><span class="ds-sub" data-default="Vr · Upper">Vr · Upper</span></label>
@@ -1361,8 +1365,8 @@
     <!-- RUSTDAG (opened by the script on days without a training) -->
     <section id="rustdag" class="day-section">
         <div class="day-header">
-            <h2>Vandaag rustdag</h2>
-            <span>Herstel hoort bij het schema: je spieren groeien tussen de trainingen door.</span>
+            <h2 id="rest-title">Vandaag rustdag</h2>
+            <span id="rest-sub">Herstel hoort bij het schema: je spieren groeien tussen de trainingen door.</span>
         </div>
         <div class="card-plain week-card">
             <h3 class="mini-title">Deze week</h3>
@@ -1378,7 +1382,7 @@
         </div>
         <div class="card-plain">
             <p class="rest-next" id="rest-next"></p>
-            <h3 class="mini-title">Toch vandaag trainen?</h3>
+            <h3 class="mini-title" id="rest-pick">Toch vandaag trainen?</h3>
             <ul class="rest-days">
                 <li><label for="tab1" data-day="tab1">Dag 1 · Upper A <small>(dinsdag)</small></label></li>
                 <li><label for="tab2" data-day="tab2">Dag 2 · Lower A <small>(donderdag)</small></label></li>
@@ -2121,7 +2125,7 @@
             </div>
         </div>
         <div class="card-plain">
-            <p class="noscript-note">Versie 595e615a · <a href="#" id="check-update">Controleer op updates</a></p>
+            <p class="noscript-note">Versie 961647b7 · <a href="#" id="check-update">Controleer op updates</a></p>
             <noscript><p class="noscript-note">Het logboek, de sync en de rusttimer werken alleen met JavaScript (bijvoorbeeld in Safari, niet in de voorvertoning van de Bestanden-app).</p></noscript>
         </div>
     </section>
@@ -2254,18 +2258,29 @@
         autoTab = tab;
         var checked = document.querySelector('input[name="tab-group"]:checked');
         if (checked && /^tab[0-4]$/.test(checked.id)) { navTraining.setAttribute("for", checked.id); }
-        Array.prototype.forEach.call(document.querySelectorAll(".day-switch label"), function (l) {
+        Array.prototype.forEach.call(document.querySelectorAll(".day-switch label:not(.ds-week)"), function (l) {
             l.classList.remove("is-today", "is-next");
             var sub = l.querySelector(".ds-sub");
             sub.textContent = sub.getAttribute("data-default");
         });
         Array.prototype.forEach.call(document.querySelectorAll(".rest-days label.next"), function (l) { l.classList.remove("next"); });
-        if (SCHEDULE[wd]) {
+        var rest = !SCHEDULE[wd];
+        document.getElementById("title-week").textContent = rest ? "Rustdag" : "Deze week";
+        document.getElementById("rest-title").textContent = "Vandaag rustdag";
+        document.getElementById("rest-pick").textContent = rest ? "Toch vandaag trainen?" : "Training kiezen";
+        if (!rest) {
             var todaySeg = document.querySelector('.day-switch label[for="' + tab + '"]');
             todaySeg.classList.add("is-today");
             todaySeg.querySelector(".ds-sub").textContent = "vandaag";
+            var todayTitle = document.querySelector(".topbar .t" + tab.slice(3)).textContent;
+            document.getElementById("rest-title").textContent = "Vandaag: " + todayTitle;
+            document.getElementById("rest-sub").textContent = "Hieronder je voortgang van deze week. Kies je training om te beginnen.";
+            document.getElementById("rest-next").textContent = "";
+            var todayItem = document.querySelector('.rest-days label[data-day="' + tab + '"]');
+            if (todayItem) { todayItem.classList.add("next"); }
             return;
         }
+        document.getElementById("rest-sub").textContent = "Herstel hoort bij het schema: je spieren groeien tussen de trainingen door.";
         for (var n = 1; n < 7; n++) {
             var next = SCHEDULE[(wd + n) % 7];
             if (!next) { continue; }
@@ -2770,6 +2785,7 @@
             days.appendChild(li);
         });
         document.getElementById("week-count").textContent = count + "/4";
+        document.getElementById("ds-week-sub").textContent = count + "/4";
         document.getElementById("week-arc").setAttribute("stroke-dasharray", (count / 4 * 100) + " 100");
         var stepsEl = document.getElementById("week-steps");
         var steps = overview && overview.steps || {};
