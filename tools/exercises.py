@@ -85,17 +85,22 @@ ex(id="flat-press", aria="Flat dumbbell press liggend op een vlakke bank",
    seq=[(0.3, None, "boven", 0.5), (2.0, 1, "zakken · 2 s", 0.45), (0.4, None, "onder", 0.6),
         (1.0, 0, "drukken · 1 s", 1.0)])
 
-cs_common = dict(hip=(70, 111), torso=-40,
-                 legn={"ankle": (54, 156), "bend": -1, "foot": 0},
-                 legf={"ankle": (50, 156), "bend": -1, "foot": 0})
-ex(id="cs-row", aria="Chest-supported row met de borst tegen een schuine bank",
-   caption="Borst op de bank, beide armen", tempo="1 s trekken · 1 s vast · 2 s zakken",
-   scene=bench_incline(66, -40, 180, back_len=64, seat_len=24), hl=["upperback", "lats", "biceps"],
+# id "cs-row" is kept so the logbook history and the sheet row stay linked;
+# the exercise itself is now a tripod row (one hand on the incline bench).
+tri_common = dict(hip=(84, 95), torso=-34,
+                  legn={"ankle": (62, 156), "bend": -1, "foot": 0},
+                  legf={"ankle": (108, 156), "bend": -1, "foot": 0},
+                  armf={"hand": (138, 90), "bend": 1})
+ex(id="cs-row", aria="Tripod row: één hand op de schuine bank, de andere roeit met de elleboog wijd",
+   caption="Hand op de bank, elleboog wijd naar achteren", tempo="1 s trekken · 1 s knijpen · 2 s zakken",
+   scene=bench_incline(176, 225, -12, back_len=54, seat_len=26), hl=["upperback", "delts", "lats"],
+   order=["@scene", "thigh_f", "shin_f", "foot_f", "ua_f", "fa_f", "torso", "head",
+          "thigh_n", "shin_n", "foot_n", "ua_n", "fa_n", "db_n"],
    keys=[
-       dict(**cs_common, armn={"ang": (90, 90)}, armf={"ang": (90, 90)}, dbn={}, dbf={}),
-       dict(**cs_common, armn={"ang": (200, 92)}, armf={"ang": (200, 92)}, dbn={}, dbf={}),
+       dict(**tri_common, armn={"ang": (92, 90), "k": 1.0}, dbn={}),
+       dict(**tri_common, armn={"ang": (190, 93), "k": 0.82}, dbn={}),
    ],
-   seq=[(1.0, 1, "trekken · 1 s", 1.0), (1.0, None, "vasthouden", 1.0), (2.0, 0, "zakken · 2 s", 0.45),
+   seq=[(1.0, 1, "trekken · 1 s", 1.0), (1.0, None, "knijpen", 1.0), (2.0, 0, "zakken · 2 s", 0.45),
         (0.3, None, "onder", 0.2)])
 
 
@@ -318,20 +323,32 @@ ex(id="incline-fly", aria="Incline dumbbell fly van boven gezien: armen in een w
 
 
 def rear_solver(p):
+    """Seated bent-over rear delt raise, seen from the front."""
     f = {}
-    sh = front_stand(f, hip_y=104, torso_k=0.5, legs=False)
-    del f["headF"]
-    f["headTop"] = (120, 86, -90, 1, 1)
+    cx = 120
+    f["torsoF"] = (cx, 122, -90, 0.45, 1)
+    f["headTop"] = (cx, 104, -90, 1, 1)
+    for side, sg in (("l", -1), ("r", 1)):
+        hp = (cx + 7 * sg, 124)
+        kn = (cx + 15 * sg, 129)
+        an = (cx + 16 * sg, 154)
+        f["thighF_" + side] = seg2(hp, kn, THIGH)
+        f["shinF_" + side] = seg2(kn, an, SHIN)
+        f["footF_" + side] = (an[0], an[1], 90, 1, 1)
+    sh = [(cx - 13, 106), (cx + 13, 106)]
     r = p["raise"]
-    arms_2d(f, sh, 94 + 74 * r, 92 + 66 * r)
+    arms_2d(f, sh, 99 + 72 * r, 96 + 64 * r)
     return f
 
 
-ex(id="rear-delt", aria="Rear delt fly met de borst op een schuine bank, van voren gezien",
-   caption="Armen wijd omhoog heffen (vooraanzicht)", tempo="1 s heffen · ½ s vast · 2 s zakken",
-   solver=rear_solver, order=FRONT_ORDER, hl=["delts", "upperback"], hl_all=True,
-   scene=('<polygon class="pad" points="101,90 139,90 133,128 107,128"/>'
-          + line((120, 128), (120, 158)) + line((100, 158), (140, 158))),
+# id "rear-delt" is kept for the logbook and the sheet; now done seated, chest on the thighs.
+ex(id="rear-delt", aria="Zittende bent-over rear delt raise: borst op de bovenbenen, armen zijwaarts heffen, van voren gezien",
+   caption="Zittend voorover, armen wijd heffen (vooraanzicht)", tempo="1 s heffen · ½ s vast · 2 s zakken",
+   solver=rear_solver, hl=["delts", "upperback"], hl_all=True,
+   order=["@scene", "torsoF", "headTop", "thighF_l", "shinF_l", "footF_l", "thighF_r", "shinF_r", "footF_r",
+          "ua_l", "fa_l", "db_l", "ua_r", "fa_r", "db_r"],
+   scene=('<rect class="pad" x="103" y="124" width="34" height="8" rx="3"/>'
+          + line((120, 132), (120, 158)) + line((102, 158), (138, 158))),
    keys=[{"raise": 0.0}, {"raise": 1.0}],
    seq=[(1.0, 1, "heffen · 1 s", 1.0), (0.5, None, "vasthouden", 1.0), (2.0, 0, "zakken · 2 s", 0.45),
         (0.3, None, "onder", 0.2)])

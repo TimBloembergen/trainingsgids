@@ -10,7 +10,7 @@ TRAINING = {
     "incline-press": dict(sets=3, reps=(8, 10), rest=(120, 120)),
     "one-arm-row": dict(sets=3, reps=(8, 10), rest=(90, 90), side=True),
     "flat-press": dict(sets=3, reps=(10, 12), rest=(120, 120)),
-    "cs-row": dict(sets=3, reps=(10, 12), rest=(90, 90)),
+    "cs-row": dict(sets=3, reps=(10, 12), rest=(90, 90), side=True),
     "lateral-raise": dict(sets=3, reps=(12, 15), rest=(60, 90)),
     "incline-curl": dict(sets=3, optional=True, reps=(10, 12), rest=(60, 60)),
     # Day 2: Lower A
