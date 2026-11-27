@@ -3,6 +3,8 @@
 sets: number of sets shown; optional: the last set is optional ("2-3 sets").
 reps: (min, max) target reps; rest: (min, max) rest in seconds.
 side: True when the reps are per side (rest after both sides).
+since: the exercise was replaced on this date (id kept for the sheet row);
+       "Vorige keer" and the hints ignore older sessions.
 """
 
 TRAINING = {
@@ -10,7 +12,7 @@ TRAINING = {
     "incline-press": dict(sets=3, reps=(8, 10), rest=(120, 120)),
     "one-arm-row": dict(sets=3, reps=(8, 10), rest=(90, 90), side=True),
     "flat-press": dict(sets=3, reps=(10, 12), rest=(120, 120)),
-    "cs-row": dict(sets=3, reps=(10, 12), rest=(90, 90), side=True),
+    "cs-row": dict(sets=3, reps=(10, 12), rest=(90, 90), side=True, since="2026-11-26"),
     "lateral-raise": dict(sets=3, reps=(12, 15), rest=(60, 90)),
     "incline-curl": dict(sets=3, optional=True, reps=(10, 12), rest=(60, 60)),
     # Day 2: Lower A
@@ -21,9 +23,9 @@ TRAINING = {
     "situp": dict(sets=3, reps=(12, 15), rest=(60, 60), bodyweight=True),
     # Day 3: Upper B
     "shoulder-press": dict(sets=3, reps=(8, 10), rest=(120, 120)),
-    "pullover": dict(sets=3, reps=(10, 12), rest=(90, 90)),
+    "pullover": dict(sets=3, reps=(10, 12), rest=(90, 90), since="2026-11-27"),
     "incline-fly": dict(sets=3, reps=(12, 15), rest=(90, 90)),
-    "rear-delt": dict(sets=3, reps=(12, 15), rest=(60, 90)),
+    "rear-delt": dict(sets=3, reps=(12, 15), rest=(60, 90), since="2026-11-26"),
     "tricep-ext": dict(sets=3, reps=(10, 12), rest=(60, 90)),
     "hammer": dict(sets=3, optional=True, reps=(10, 12), rest=(60, 60)),
     # Day 4: Lower B
@@ -72,7 +74,7 @@ def log_block(ex_id, name):
     return (f'<div class="log" data-ex="{ex_id}" data-name="{name}" data-min="{lo}" data-max="{hi}" '
             f'data-rest="{t["rest"][0]}" data-rest-max="{t["rest"][1]}" data-sets="{t["sets"]}" '
             f'data-optional="{1 if t.get("optional") else 0}" data-side="{1 if t.get("side") else 0}" '
-            f'data-bw="{1 if t.get("bodyweight") else 0}">'
+            f'data-bw="{1 if t.get("bodyweight") else 0}" data-since="{t.get("since", "")}">'
             f'<div class="log-head"><strong>Vandaag</strong>'
             f'<span class="log-target">{t["sets"] - (1 if t.get("optional") else 0)}{"–" + str(t["sets"]) if t.get("optional") else ""} × {reps_text(t)}{side} · rust {rest_text(t)}</span>'
             f'<button type="button" class="rest-btn">⏱ Start rust</button></div>'

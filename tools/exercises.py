@@ -271,19 +271,19 @@ ex(id="shoulder-press", aria="Seated dumbbell shoulder press op een bank van 80 
    seq=[(1.0, 1, "drukken · 1 s", 1.0), (0.3, None, "boven", 0.6), (2.0, 0, "zakken · 2 s", 0.45),
         (0.4, None, "onder", 0.3)])
 
-po_legs = {"legn": {"ankle": (162, 156), "bend": -1, "foot": 0},
-           "legf": {"ankle": (158, 156), "bend": -1, "foot": 0}}
-ex(id="pullover", aria="Dumbbell pullover dwars over de bank",
-   caption="Grote boog achter het hoofd", tempo="2 s zakken · 1 s terug",
-   scene=bench_end(90, top=126), hl=["lats", "chest"], db_kind={"n": "side"},
+# id "pullover" is kept so the logbook history and the sheet row stay linked;
+# the exercise itself is now an underhand bent-over row (lats, no bench).
+bor_legs = {"legn": {"ankle": (114, 156), "bend": -1, "foot": 0},
+            "legf": {"ankle": (111, 156), "bend": -1, "foot": 0}}
+ex(id="pullover", aria="Bent-over row met onderhandse greep: voorovergebogen, ellebogen langs je zij naar je heupen trekken",
+   caption="Ellebogen langs je zij naar je heupen", tempo="1 s trekken · 1 s knijpen · 2 s zakken",
+   hl=["lats", "upperback", "biceps"],
    keys=[
-       dict(shoulder=(92, 118), torso=190, neck=-8, **po_legs,
-            armn={"ang": (-86, -90)}, armf={"ang": (-86, -90)}, dbn={"mode": "fa", "shift": 6}),
-       dict(shoulder=(92, 118), torso=190, neck=-8, **po_legs,
-            armn={"ang": (-172, -180)}, armf={"ang": (-172, -180)}, dbn={"mode": "fa", "shift": 6}),
+       dict(hip=(90, 96), torso=-38, neck=10, **bor_legs, armn=hang(), armf=hang(), dbn={}, dbf={}),
+       dict(hip=(90, 96), torso=-38, neck=10, **bor_legs, armn={"ang": (148, 100)}, armf={"ang": (148, 100)}, dbn={}, dbf={}),
    ],
-   seq=[(0.3, None, "boven", 0.4), (2.0, 1, "achter hoofd · 2 s", 0.5), (0.4, None, "rek", 0.7),
-        (1.2, 0, "terugtrekken · 1 s", 1.0)])
+   seq=[(0.3, None, "onder", 0.4), (1.0, 1, "trekken · 1 s", 1.0), (1.0, None, "knijpen", 1.0),
+        (2.0, 0, "zakken · 2 s", 0.45)])
 
 
 def fly_solver(p):

@@ -1388,25 +1388,25 @@
             </div>
         </div>
 
-        <!-- 2. Dumbbell Pullover -->
+        <!-- 2. Underhand Bent-Over Row (id pullover) -->
         <div class="exercise-card">
             {{anim:pullover}}
             <div class="ex-content">
-                <h3>2. Dumbbell Pullover</h3>
+                <h3>2. Bent-Over Row met Onderhandse Greep</h3>
                 <div class="badges">
                     <span class="badge">3 sets × 10–12 reps</span>
-                    <span class="badge bench">Bench: Vlak (bovenrug dwars)</span>
+                    <span class="badge bench">Vrijstaand (geen bank)</span>
                     {{rest:pullover}}
                 </div>
                 <ol class="steps">
-                    <li>Ga met alleen je bovenrug dwars op de vlakke bank liggen, voeten stevig op de vloer en heupen licht omlaag gezakt.</li>
-                    <li>Houd één dumbbell met beide handen vast onder de bovenste schijf, recht boven je borst.</li>
-                    <li>Laat de dumbbell met bijna gestrekte armen in een grote boog achter je hoofd zakken tot je een diepe rek voelt in je brede rugspieren (lats) en ribbenkast.</li>
-                    <li>Trek het gewicht vanuit je rugspieren weer terug tot boven je borst.</li>
+                    <li>Sta met je voeten op heupbreedte, een dumbbell in elke hand met je <strong>handpalmen naar voren</strong> (onderhandse greep).</li>
+                    <li>Buig je knieën licht en kantel vanuit je heupen voorover tot je bovenlichaam ongeveer 45° staat, met een rechte rug. Laat de dumbbells onder je schouders hangen.</li>
+                    <li>Trek beide dumbbells omhoog met je <strong>ellebogen dicht langs je lichaam</strong>, richting je heupen, en knijp je schouderbladen naar achteren en omlaag.</li>
+                    <li>Houd bovenin 1 seconde vast en laat de dumbbells in 2 seconden zakken tot je armen gestrekt zijn.</li>
                 </ol>
-                <div class="tip-box"><strong>Tip:</strong> Geweldige vervanger voor een lat pulldown machine thuis; train zowel je lats als je borst en serratus.</div>
+                <div class="tip-box"><strong>Tip:</strong> Denk aan "ellebogen naar je achterzakken" in plaats van "handen omhoog": zo werken vooral je brede rugspieren (lats), net als bij de pullover. Houd je nek in lijn met je rug en kijk schuin naar de vloer voor je.</div>
                 {{log:pullover}}
-                <a class="yt-btn" href="https://www.youtube.com/results?search_query=dumbbell+pullover+across+bench+form" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
+                <a class="yt-btn" href="https://www.youtube.com/results?search_query=underhand+dumbbell+bent+over+row+lats" target="_blank">▶ Bekijk instructiefilmpje (YouTube)</a>
             </div>
         </div>
 
@@ -1965,10 +1965,14 @@
         return e;
     }
     function hasDone(e) { return e.sets.some(function (s) { return s && s.done; }); }
+    // a replaced exercise keeps its id (sheet row); sessions before data-since were the old exercise
+    var SINCE = {};
+    Array.prototype.forEach.call(document.querySelectorAll(".log[data-since]"), function (b) { SINCE[b.dataset.ex] = b.dataset.since; });
+    function current(id, e) { return !SINCE[id] || e.date >= SINCE[id]; }
     function prevEntry(id) {
         var l = data[id] || [];
         for (var i = l.length - 1; i >= 0; i--) {
-            if (l[i].date !== today() && hasDone(l[i])) { return l[i]; }
+            if (l[i].date !== today() && hasDone(l[i]) && current(id, l[i])) { return l[i]; }
         }
         return null;
     }
@@ -2146,7 +2150,7 @@
     var sheet = document.getElementById("sheet"), sheetBody = document.getElementById("sheet-body"), shown = null;
     function lastEntry(id) {
         var l = data[id] || [];
-        for (var i = l.length - 1; i >= 0; i--) { if (hasDone(l[i])) { return l[i]; } }
+        for (var i = l.length - 1; i >= 0; i--) { if (hasDone(l[i]) && current(id, l[i])) { return l[i]; } }
         return null;
     }
     function lastPanel(box) {
